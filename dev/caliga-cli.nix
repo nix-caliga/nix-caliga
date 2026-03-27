@@ -27,7 +27,7 @@ let
 
         usage() {
           cat <<EOF
-      caliga build [--qcow] <imagename>   Build and load an image from the flake
+      caliga build [--qcow] [--installer-iso] <imagename>   Build and load an image from the flake
       caliga run [--qcow] <imagename>      Run an image (podman or qcow2 VM)
       caliga exec <imagename>              Exec into a running container by image
       caliga stop                          Stop all running containers from flake images
@@ -59,13 +59,15 @@ let
         case "$cmd" in
           build)
             qcow=false
+            installer_iso=false
             while [[ "''${1:-}" == -* ]]; do
               case "$1" in
                 --qcow) qcow=true; shift ;;
+                --installer-iso) installer_iso=true; shift ;;
                 *) echo "Unknown option: $1"; exit 1 ;;
               esac
             done
-            [ $# -eq 1 ] || { echo "Usage: caliga build [--qcow] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
+            [ $# -eq 1 ] || { echo "Usage: caliga build [--qcow] [--installer-iso] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
             imagename="$1"
             image=$(resolve "$imagename")
             echo "Building image '$imagename'..."
@@ -94,6 +96,23 @@ let
                 --rootfs ext4 \
                 "$image"
               echo "qcow2 image written to $REPO_ROOT/tmp/$imagename/qcow2/disk.qcow2"
+            fi
+
+            if $installer_iso; then
+              outdir="$REPO_ROOT/tmp/$imagename"
+              mkdir -p "$outdir"
+              echo "Building installer ISO for '$imagename'..."
+              sudo podman run --rm -it --privileged \
+                --security-opt label=type:unconfined_t \
+                --pull=newer \
+                -v /var/lib/containers/storage:/var/lib/containers/storage \
+                -v "$outdir":/output \
+                -v ${./installer-iso.toml}:/config.toml:ro \
+                quay.io/centos-bootc/bootc-image-builder:latest \
+                --type anaconda-iso \
+                --rootfs ext4 \
+                "$image"
+              echo "Installer ISO written to $outdir/bootiso/install.iso"
             fi
             ;;
 
@@ -213,6 +232,9 @@ let
 
       case "$prev" in
         build|run|exec)
+          COMPREPLY=( $(compgen -W "$image_names" -- "$cur") )
+          ;;
+        --qcow|--installer-iso)
           COMPREPLY=( $(compgen -W "$image_names" -- "$cur") )
           ;;
         list)
