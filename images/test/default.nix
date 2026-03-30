@@ -29,10 +29,18 @@
     };
   };
 
+  system.stateVersion = "25.05";
+
   systemd.defaultUnit = "multi-user.target";
 
   systemd.maskedUnits = [
     "sleep.target"
   ];
+
+  networking.nftables.enable = true;
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 22 ];
+  };
 
 }

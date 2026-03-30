@@ -1,11 +1,6 @@
-# compatibility stubs for upstream nixpkgs modules.
-# closely follows system-manager's nix/modules/upstream/nixpkgs/default.nix
-# changes:
-#   removed firewall, nginx, nix, sops-nix imports
-#   removed boot, services.openssh stubs
-#   added environment.systemPackages, pathsToLink stubs (system-manager has these in environment.nix)
-#   added system.etc.overlay.mutable stub (needed by upstream userborn module)
+# stubs and glue for upstream modules. based off of system-manager's nix/modules/upstream/nixpkgs/default.nix
 {
+  config,
   lib,
   pkgs,
   ...
@@ -14,14 +9,15 @@
   imports = [
     ./users-groups.nix
     ./userborn.nix
-    "${pkgs.path}/nixos/modules/misc/meta.nix"
     "${pkgs.path}/nixos/modules/misc/ids.nix"
     "${pkgs.path}/nixos/modules/services/system/userborn.nix"
+    ./firewall.nix
+    "${pkgs.path}/nixos/modules/misc/meta.nix"
     "${pkgs.path}/nixos/modules/system/build.nix"
   ];
 
   options = {
-    # system-manager hanldes these in their environment.nix
+    # system-manager handles these in their environment.nix
 
     environment.systemPackages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
@@ -33,18 +29,31 @@
       default = [ ];
     };
 
-    # nixos/modules/services/system/userborn.nix still depends on activation scripts
-    # but just to verify that the "users" activation script is disabled.
-    # We try to avoid having to import the whole activationScripts module.
+    # userborn stubs
     system.activationScripts.users = lib.mkOption {
       type = lib.types.str;
       default = "";
     };
 
-    # stub: needed by upstream userborn module
     system.etc.overlay.mutable = lib.mkOption {
       type = lib.types.bool;
       default = false;
+    };
+
+
+    # generic stubs
+    boot.kernel.sysctl = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = { };
+    };
+
+    boot.kernelPackages.kernel.version = lib.mkOption {
+      type = lib.types.str;
+      default = pkgs.linuxPackages.kernel.version;
+    };
+
+    system.stateVersion = lib.mkOption {
+      type = lib.types.str;
     };
 
   };
