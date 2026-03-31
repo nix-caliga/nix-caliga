@@ -53,8 +53,6 @@
         ) imageConfigs
       );
 
-      packages = forAllSystems (system: self.caligaConfigs.${system});
-
       devShells = forAllSystems (
         system:
         let

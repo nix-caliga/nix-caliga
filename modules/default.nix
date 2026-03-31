@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 
@@ -51,6 +52,12 @@ in
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = "List of derivations for streamLayeredImage contents.";
+    };
+
+    build.image = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      description = "The final streamLayeredImage derivation.";
     };
 
     build.imageArgs = lib.mkOption {
@@ -155,6 +162,8 @@ in
           message = "units cannot be both defined and masked: ${lib.concatStringsSep ", " overlap}";
         }
       ];
+
+    build.image = pkgs.dockerTools.streamLayeredImage config.build.imageArgs;
 
     build.contents = imgCfg.extraContents;
 

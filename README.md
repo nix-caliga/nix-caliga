@@ -85,8 +85,6 @@ Here is an example flake.nix
         };
       };
 
-      packages.x86_64-linux = self.caligaConfigs;
-
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = [ caliga ];
         shellHook = ''
@@ -121,7 +119,7 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
     initialPassword = "test";
   };
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
 
   services.bootc-update = {
     enable = true;

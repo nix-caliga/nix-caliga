@@ -51,11 +51,9 @@
       cfg = evaluated.config;
 
       failedAssertions = map (x: x.message) (lib.filter (x: !x.assertion) cfg.assertions);
-
-      image = pkgs.dockerTools.streamLayeredImage cfg.build.imageArgs;
     in
     if failedAssertions != [ ] then
       throw "\nFailed assertions:\n${lib.concatStringsSep "\n" (map (x: "- ${x}") failedAssertions)}"
     else
-      lib.showWarnings cfg.warnings image;
+      lib.showWarnings cfg.warnings evaluated;
 }

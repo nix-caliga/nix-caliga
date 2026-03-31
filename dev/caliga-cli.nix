@@ -3,9 +3,9 @@
   caligaConfigs,
 }:
 let
-  caligaImages = builtins.mapAttrs (_: drv: {
-    name = drv.imageName;
-    tag = drv.imageTag;
+  caligaImages = builtins.mapAttrs (_: eval: {
+    name = eval.config.layeredImage.name;
+    tag = eval.config.layeredImage.tag;
   }) caligaConfigs;
 
   imageNames = builtins.attrNames caligaConfigs;
@@ -71,7 +71,7 @@ let
             imagename="$1"
             image=$(resolve "$imagename")
             echo "Building image '$imagename'..."
-            path=$(nix build ".#$imagename" --no-link --print-out-paths)
+            path=$(nix build ".#caligaConfigs.${pkgs.stdenv.hostPlatform.system}.$imagename.config.build.image" --no-link --print-out-paths)
             echo "Loading image from $path..."
             "$path" | sudo podman load
 
