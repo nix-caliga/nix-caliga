@@ -37,6 +37,7 @@ Nix-caliga aims to keep these strengths while being more flexible and compatible
 - User/group creation and management with NixOS-based `users.users` options, powered by userborn (as [system-manager](https://github.com/numtide/system-manager) does).
 - Automatic bootc update management with optional authentication.
 - Experimental SELinux configuration  and default labels for Nix store paths.
+- Firewall configuration with nftables through `networking.firewall` 
 - Testing against Fedora's bootc images.
 
 ## Going forwards
@@ -119,6 +120,8 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
     description = "Test User";
     initialPassword = "test";
   };
+
+  system.stateVersion = "25.05";
 
   services.bootc-update = {
     enable = true;

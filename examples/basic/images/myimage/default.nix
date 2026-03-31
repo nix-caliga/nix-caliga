@@ -19,6 +19,8 @@
     initialPassword = "test";
   };
 
+  system.stateVersion = "25.05";
+
   services.bootc-update = {
     enable = true;
     schedule = {
