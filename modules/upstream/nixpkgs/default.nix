@@ -10,7 +10,6 @@
     ./users-groups.nix
     ./userborn.nix
     "${pkgs.path}/nixos/modules/misc/ids.nix"
-    "${pkgs.path}/nixos/modules/services/system/userborn.nix"
     ./firewall.nix
     "${pkgs.path}/nixos/modules/misc/meta.nix"
     "${pkgs.path}/nixos/modules/system/build.nix"
@@ -28,18 +27,6 @@
       type = lib.types.listOf lib.types.str;
       default = [ ];
     };
-
-    # userborn stubs
-    system.activationScripts.users = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-    };
-
-    system.etc.overlay.mutable = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
-
 
     # generic stubs
     boot.kernel.sysctl = lib.mkOption {

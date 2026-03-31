@@ -1,5 +1,5 @@
 # copied from system-manager's nix/modules/upstream/nixpkgs/userborn.nix
-# adds: systemd-sysusers mask, explicit service ordering, alias removal for bootc compatibility
+# adds: systemd-sysusers mask, alias removal for bootc compatibility
 {
   config,
   pkgs,
@@ -36,39 +36,45 @@ let
   userbornConfigJson = pkgs.writeText "userborn.json" (builtins.toJSON userbornConfig);
 in
 {
-
-  services.userborn.enable = lib.mkDefault true;
-  services.userborn.package = userborn;
-
-  # Mask the base image's systemd-sysusers since userborn handles users/groups.
-  systemd.maskedUnits = lib.mkIf config.services.userborn.enable [
-    "systemd-sysusers.service"
+  imports = [
+    "${pkgs.path}/nixos/modules/services/system/userborn.nix"
   ];
 
-  # REMOVE when https://github.com/NixOS/nixpkgs/pull/483684 is merged
-  systemd.services.userborn = lib.mkIf config.services.userborn.enable {
-    wantedBy = [ "multi-user.target" ];
-    after = [
-      "systemd-remount-fs.service"
-      "var.mount"
-    ];
-    before = [
-      "systemd-tmpfiles-setup.service"
-      "systemd-logind.service"
-    ];
-    conflicts = [ "shutdown.target" ];
-
-    aliases = lib.mkForce [ ];
-
-    environment = {
-      USERBORN_MUTABLE_USERS = "true";
-      USERBORN_PREVIOUS_CONFIG = previousConfigPath;
+  options = {
+    system.activationScripts.users = lib.mkOption {
+      type = lib.types.str;
+      default = "";
     };
-    serviceConfig = {
-      StateDirectory = "userborn";
-      ExecStartPost = [
-        "${pkgs.coreutils}/bin/ln -sf ${userbornConfigJson} ${previousConfigPath}"
-      ];
+
+    system.etc.overlay.mutable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+    };
+  };
+
+  config = {
+    services.userborn.enable = lib.mkDefault true;
+    services.userborn.package = userborn;
+
+    # Mask the base image's systemd-sysusers since userborn handles users/groups.
+    systemd.maskedUnits = lib.mkIf config.services.userborn.enable [
+      "systemd-sysusers.service"
+    ];
+
+    systemd.services.userborn = lib.mkIf config.services.userborn.enable {
+      # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
+      aliases = lib.mkForce [ ];
+
+      environment = {
+        USERBORN_MUTABLE_USERS = "true";
+        USERBORN_PREVIOUS_CONFIG = previousConfigPath;
+      };
+      serviceConfig = {
+        StateDirectory = "userborn";
+        ExecStartPost = [
+          "${pkgs.coreutils}/bin/ln -sf ${userbornConfigJson} ${previousConfigPath}"
+        ];
+      };
     };
   };
 }
