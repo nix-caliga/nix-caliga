@@ -74,18 +74,20 @@ Here is an example flake.nix
 
   outputs = { self, nixpkgs, nix-caliga }:
     let
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs; caligaConfigs = self.caligaConfigs; };
-    in
-    {
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
       caligaConfigs = {
         myimage = nix-caliga.lib.makeCaligaConfig {
           inherit pkgs;
           modules = [ ./images/myimage ];
         };
       };
+      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs caligaConfigs; };
+    in
+    {
+      caligaConfigs.${system} = caligaConfigs;
 
-      devShells.x86_64-linux.default = pkgs.mkShell {
+      devShells.${system}.default = pkgs.mkShell {
         packages = [ caliga ];
         shellHook = ''
           source ${caliga}/share/bash-completion/completions/caliga
