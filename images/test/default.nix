@@ -29,6 +29,8 @@
     };
   };
 
+  # environment.systemPackages = [ pkgs.cowsay ];
+
   system.stateVersion = "25.05";
 
   systemd.defaultUnit = "multi-user.target";

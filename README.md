@@ -38,6 +38,7 @@ Nix-caliga aims to keep these strengths while being more flexible and compatible
 - Automatic bootc update management with optional authentication.
 - Experimental SELinux configuration  and default labels for Nix store paths.
 - Firewall configuration with nftables through `networking.firewall` 
+- Nix packages to $PATH with `environment.systemPackages`
 - Testing against Fedora's bootc images.
 
 ## Going forwards

@@ -45,4 +45,17 @@
 
   };
 
+  config = let
+    systemPath = pkgs.buildEnv {
+      name = "system-path";
+      paths = config.environment.systemPackages;
+      pathsToLink = [ "/bin" "/sbin" ] ++ config.environment.pathsToLink;
+    };
+  in lib.mkIf (config.environment.systemPackages != []) {
+    environment.etc."profile.d/nix-packages.sh".text = ''
+      export PATH="${systemPath}/bin:${systemPath}/sbin''${PATH:+:$PATH}"
+    '';
+  };
+
+
 }
