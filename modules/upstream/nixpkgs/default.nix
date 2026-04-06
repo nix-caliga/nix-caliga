@@ -11,6 +11,8 @@
     ./userborn.nix
     "${pkgs.path}/nixos/modules/misc/ids.nix"
     ./firewall.nix
+    ./openssh.nix
+    ./programs/ssh.nix
     "${pkgs.path}/nixos/modules/misc/meta.nix"
     "${pkgs.path}/nixos/modules/system/build.nix"
   ];
@@ -32,6 +34,12 @@
     boot.kernel.sysctl = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
       default = { };
+    };
+
+    networking.enableIPv6 = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable IPv6 networking.";
     };
 
     boot.kernelPackages.kernel.version = lib.mkOption {

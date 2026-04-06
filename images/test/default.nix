@@ -29,9 +29,9 @@
     };
   };
 
-  # environment.systemPackages = [ pkgs.cowsay ];
+  environment.systemPackages = [ pkgs.cowsay ];
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
 
   systemd.defaultUnit = "multi-user.target";
 
@@ -39,10 +39,12 @@
     "sleep.target"
   ];
 
-  networking.nftables.enable = true;
-  networking.firewall = {
+  services.openssh = {
     enable = true;
-    allowedTCPPorts = [ 22 ];
+    settings.PermitRootLogin = "yes";
   };
+
+  networking.nftables.enable = true;
+  networking.firewall.enable = true;
 
 }

@@ -38,19 +38,20 @@ Nix-caliga aims to keep these strengths while being more flexible and compatible
 - Automatic bootc update management with optional authentication.
 - Experimental SELinux configuration  and default labels for Nix store paths.
 - Firewall configuration with nftables through `networking.firewall` 
+- Openssh server and program configuration via `services.openssh` and `programs.ssh`
 - Nix packages to $PATH with `environment.systemPackages`
 - Testing against Fedora's bootc images.
 
 ## Going forwards
 
 - Documentation
+- Tests
 - Expand to ublue's "distroless" bootc image ([dakota](https://github.com/projectbluefin/dakota)) as it becomes stable.
 - Potentially build an image from the ground up with Nix.
 - Keep an eye on system-manager and bring over useful features.
 - Secret management, hopefully with [Vars](https://clan.lol/blog/vars/).
 - Expand available pre-built services and modules, first focusing on:
   - Networking
-  - SSH
   - PAM?
 - Create a separate nix-caliga based kiosk configuration and set of images. (The original reason I went down this rabbit hole.)
 
