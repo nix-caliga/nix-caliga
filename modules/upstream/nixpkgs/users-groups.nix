@@ -810,9 +810,7 @@ in
       cryptSchemeIdPatternGroup = "(${lib.concatStringsSep "|" pkgs.libxcrypt.enabledCryptSchemeIds})";
 
       # Userborn cannot create home dirs at boot because /home is read-only.
-      normalUsersWithHome = lib.filter
-        (u: u.createHome)
-        (lib.attrValues cfg.users);
+      normalUsersWithHome = lib.filter (u: u.createHome) (lib.attrValues cfg.users);
     in
     {
 
@@ -902,12 +900,14 @@ in
       # Pre-create user home dirs under /var/home and symlink them under /home
       layeredImage.enableFakechroot = lib.mkIf (normalUsersWithHome != [ ]) true;
       layeredImage.fakeRootCommands = lib.mkIf (normalUsersWithHome != [ ]) (
-        lib.concatMapStringsSep "\n" (user:
+        lib.concatMapStringsSep "\n" (
+          user:
           let
             gid = cfg.groups.${user.group}.gid;
             varHome = "var/home/${user.name}";
             homeLink = lib.removePrefix "/" user.home;
-          in ''
+          in
+          ''
             mkdir -p "${varHome}"
             chmod ${user.homeMode} "${varHome}"
             chown ${toString user.uid}:${toString gid} "${varHome}"

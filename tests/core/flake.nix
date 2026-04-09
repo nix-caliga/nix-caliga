@@ -74,7 +74,12 @@
                     name = "localhost/caliga-test-${name}";
                     tag = "test";
                     fromImage = pkgs.dockerTools.pullImage {
-                      inherit (image) imageName imageDigest hash finalImageTag;
+                      inherit (image)
+                        imageName
+                        imageDigest
+                        hash
+                        finalImageTag
+                        ;
                     };
                   };
 
@@ -240,18 +245,22 @@
 
       tests = lib.mapAttrs mkTest baseImages;
 
-      mkAllRunner = attr: suffix: pkgs.writeShellScript "caliga-test-all${suffix}" ''
-        failed_images=""
-        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: t: ''
-          if ${t.${attr}}/bin/caliga-test-${name}${suffix}; then :; else failed_images="$failed_images ${name}"; fi
-        '') tests)}
-        if [ -z "$failed_images" ]; then
-          echo "All images passed."
-        else
-          echo "Failed:$failed_images"
-          exit 1
-        fi
-      '';
+      mkAllRunner =
+        attr: suffix:
+        pkgs.writeShellScript "caliga-test-all${suffix}" ''
+          failed_images=""
+          ${lib.concatStringsSep "\n" (
+            lib.mapAttrsToList (name: t: ''
+              if ${t.${attr}}/bin/caliga-test-${name}${suffix}; then :; else failed_images="$failed_images ${name}"; fi
+            '') tests
+          )}
+          if [ -z "$failed_images" ]; then
+            echo "All images passed."
+          else
+            echo "Failed:$failed_images"
+            exit 1
+          fi
+        '';
     in
     {
       packages.x86_64-linux =

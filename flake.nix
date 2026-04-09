@@ -70,6 +70,7 @@
               pkgs.jq
               pkgs.nixfmt
               pkgs.nixfmt-tree
+              pkgs.nix-prefetch-docker
               caliga
             ];
             shellHook = ''
