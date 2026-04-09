@@ -47,4 +47,6 @@
   networking.nftables.enable = true;
   networking.firewall.enable = true;
 
+  nix.enable = true;
+
 }

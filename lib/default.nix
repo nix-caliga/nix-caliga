@@ -1,5 +1,6 @@
 {
   userborn,
+  nixpkgs,
 }:
 {
   mkCaligaCli = { pkgs, caligaConfigs }: import ../dev/caliga-cli.nix { inherit pkgs caligaConfigs; };
@@ -16,6 +17,7 @@
         { config, ... }:
         {
           _module.args = {
+            inherit nixpkgs;
             userborn = userborn.packages.${pkgs.stdenv.hostPlatform.system}.default;
             utils =
               let

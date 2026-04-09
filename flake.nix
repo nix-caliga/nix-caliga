@@ -33,7 +33,7 @@
       };
     in
     {
-      lib = import ./lib { inherit userborn; };
+      lib = import ./lib { inherit userborn nixpkgs; };
 
       inherit imageConfigs;
 

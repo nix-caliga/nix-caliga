@@ -52,6 +52,12 @@
         check_contains "sshd port 22"        "ss -tlnp" ":22"
         check_contains "firewall port 8042"  "nft list chain inet nixos-fw input-allow" "8042"
         check "cowsay in PATH"               "cowsay test"
+        check "nix-daemon socket enabled"      "systemctl is-enabled nix-daemon.socket"
+        check "nix-directory-setup"          "systemctl is-active nix-directory-setup.service"
+        check "nix.conf exists"              "test -f /etc/nix/nix.conf"
+        check_contains "nix.conf nixpkgs"    "cat /etc/nix/nix.conf" "nix-path = nixpkgs=/nix/store/"
+        check_contains "nix --version"       "nix --version" "nix"
+        check "nix-shell -p hello"           "nix-shell -p hello --run hello"
       '';
 
       sshKey = pkgs.runCommand "caliga-test-ssh-key" { } ''
@@ -119,6 +125,8 @@
                   networking.firewall.allowedTCPPorts = [ 8042 ];
 
                   systemd.maskedUnits = [ "sleep.target" ];
+
+                  nix.enable = true;
                 }
               )
             ];

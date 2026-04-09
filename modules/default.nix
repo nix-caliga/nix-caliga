@@ -15,6 +15,7 @@ in
     ./systemd
     ./bootc-update.nix
     ./selinux.nix
+    ./nix.nix
     ./upstream/nixpkgs
   ];
 
