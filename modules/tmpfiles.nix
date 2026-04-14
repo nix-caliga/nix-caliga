@@ -174,35 +174,29 @@ in
 
   };
 
-  config = {
-    environment.etc = {
-      "tmpfiles.d".source = pkgs.symlinkJoin {
-        name = "tmpfiles.d";
-        paths = map (p: p + "/lib/tmpfiles.d") config.systemd.tmpfiles.packages;
-        postBuild = ''
-          for i in $(cat $pathsPath); do
-            (test -d "$i" && test $(ls "$i"/*.conf | wc -l) -ge 1) || (
-              echo "ERROR: The path '$i' from systemd.tmpfiles.packages contains no *.conf files."
-              exit 1
-            )
-          done
-        '';
-      };
-    };
-    systemd.tmpfiles.packages = [
-      (pkgs.writeTextFile {
+  config =
+    let
+      hasTmpfiles = config.systemd.tmpfiles.packages != [ ];
+    in
+    {
+    layeredImage.enableFakechroot = lib.mkIf hasTmpfiles true;
+
+    layeredImage.fakeRootCommands = lib.mkIf hasTmpfiles ''
+      mkdir -p usr/lib/tmpfiles.d
+      ${lib.concatMapStringsSep "\n" (p: ''
+        for f in ${p}/lib/tmpfiles.d/*.conf; do
+          install -m 0644 -o 0 -g 0 "$f" usr/lib/tmpfiles.d/
+        done
+      '') config.systemd.tmpfiles.packages}
+    '';
+    systemd.tmpfiles.packages =
+      lib.optional (config.systemd.tmpfiles.rules != [ ]) (pkgs.writeTextFile {
         name = "nix-caliga-tmpfiles.d";
         destination = "/lib/tmpfiles.d/00-nix-caliga.conf";
-        text = ''
-          # This file is created automatically and should not be modified.
-          # Please change the option 'systemd.tmpfiles.rules' instead.
-
-          ${concatStringsSep "\n" config.systemd.tmpfiles.rules}
-        '';
+        text = concatStringsSep "\n" config.systemd.tmpfiles.rules + "\n";
       })
-    ]
-    ++ (mapAttrsToList (
-      name: paths: pkgs.writeTextDir "lib/tmpfiles.d/${name}.conf" (mkRuleFileContent paths)
-    ) config.systemd.tmpfiles.settings);
+      ++ (mapAttrsToList (
+        name: paths: pkgs.writeTextDir "lib/tmpfiles.d/${name}.conf" (mkRuleFileContent paths)
+      ) config.systemd.tmpfiles.settings);
   };
 }

@@ -41,7 +41,8 @@
         check "bootc-update timer"           "systemctl is-active bootc-update.timer"
         check "test user home"               "test -d /var/home/test"
         check_contains "nftables nixos-fw"   "nft list tables" "nixos-fw"
-        check "tmpfiles config"              "test -f /etc/tmpfiles.d/00-nix-caliga.conf"
+        check "tmpfiles config"              "test -f /usr/lib/tmpfiles.d/00-nix-caliga.conf"
+        check_contains "tmpfiles new file"   "cat /var/tmp/caliga-test" "tmpfiles working"
         check "sshd-nix-caliga active"       "systemctl is-active sshd-nix-caliga.service"
         check "ssh host keys"                "test -f /etc/ssh/ssh_host_ed25519_key"
         check_contains "bootc-fetch masked"  "systemctl is-enabled bootc-fetch-apply-updates.service 2>&1 || true" "masked"
@@ -51,7 +52,7 @@
         check_contains "sshd port 22"        "ss -tlnp" ":22"
         check_contains "firewall port 8042"  "nft list chain inet nixos-fw input-allow" "8042"
         check "cowsay in PATH"               "cowsay test"
-        check "nix-daemon socket active"       "systemctl is-active nix-daemon.socket"
+        check "nix-daemon socket active"     "systemctl is-active nix-daemon.socket"
         check "nix-directory-setup"          "systemctl is-active nix-directory-setup.service"
         check "nix.conf exists"              "test -f /etc/nix/nix.conf"
         check_contains "nix.conf nixpkgs"    "cat /etc/nix/nix.conf" "nix-path = nixpkgs=/nix/store/"
@@ -122,6 +123,8 @@
                   networking.nftables.enable = true;
                   networking.firewall.enable = true;
                   networking.firewall.allowedTCPPorts = [ 8042 ];
+
+                  systemd.tmpfiles.rules = [ "f /var/tmp/caliga-test 0644 root root - tmpfiles working" ];
 
                   systemd.maskedUnits = [ "sleep.target" ];
 
