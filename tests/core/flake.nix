@@ -23,8 +23,7 @@
         fedora-43 = {
           imageName = "quay.io/fedora/fedora-bootc";
           imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-          hash = "sha256-uB5M1w2ag2SJUoCWMqCAa+NLDnT2m9TVxL82/1eOzic=";
-          finalImageName = "quay.io/fedora/fedora-bootc";
+          hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
           finalImageTag = "43";
         };
         aurora = {
@@ -52,7 +51,7 @@
         check_contains "sshd port 22"        "ss -tlnp" ":22"
         check_contains "firewall port 8042"  "nft list chain inet nixos-fw input-allow" "8042"
         check "cowsay in PATH"               "cowsay test"
-        check "nix-daemon socket enabled"      "systemctl is-enabled nix-daemon.socket"
+        check "nix-daemon socket active"       "systemctl is-active nix-daemon.socket"
         check "nix-directory-setup"          "systemctl is-active nix-directory-setup.service"
         check "nix.conf exists"              "test -f /etc/nix/nix.conf"
         check_contains "nix.conf nixpkgs"    "cat /etc/nix/nix.conf" "nix-path = nixpkgs=/nix/store/"

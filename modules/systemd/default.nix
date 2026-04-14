@@ -1,4 +1,4 @@
-# builds systemd services and copies /etc/systemd/system via fakeRootCommands.
+# builds systemd services and copies /usr/lib/systemd/system via fakeRootCommands.
 # conflict handling follows system-manager
 # adds: systemd.defaultUnit option, unit masking, dependency symlinks (wantedBy/requiredBy)
 {
@@ -32,7 +32,7 @@ let
         allowSubstitutes = false;
       }
       ''
-        dir=$out/etc/systemd/system
+        dir=$out/usr/lib/systemd/system
         mkdir -p "$dir"
 
         # Copy units from systemd.packages
@@ -96,17 +96,17 @@ in
 
     layeredImage.fakeRootCommands =
       let
-        src = "${systemdUnits}/etc/systemd/system";
+        src = "${systemdUnits}/usr/lib/systemd/system";
       in
       ''
         find ${src} -type d | while read -r d; do
-          mkdir -p "etc/systemd/system/''${d#${src}/}"
+          mkdir -p "usr/lib/systemd/system/''${d#${src}/}"
         done
         find ${src} -type f | while read -r f; do
-          install -m 0644 -o 0 -g 0 "$f" "etc/systemd/system/''${f#${src}/}"
+          install -m 0644 -o 0 -g 0 "$f" "usr/lib/systemd/system/''${f#${src}/}"
         done
         find ${src} -type l | while read -r l; do
-          ln -sfn "$(readlink "$l")" "etc/systemd/system/''${l#${src}/}"
+          ln -sfn "$(readlink "$l")" "usr/lib/systemd/system/''${l#${src}/}"
         done
       '';
   };
