@@ -39,14 +39,6 @@
     "sleep.target"
   ];
 
-  services.openssh = {
-    enable = true;
-    settings.PermitRootLogin = "yes";
-  };
-
-  networking.nftables.enable = true;
-  networking.firewall.enable = true;
-
   nix.enable = true;
 
   bootc.ostree-prepare-root.transientEtc = true;

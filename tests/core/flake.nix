@@ -40,17 +40,11 @@
         check "selinux nix store ctx"        "grep -q /nix/store /etc/selinux/targeted/contexts/files/file_contexts.local"
         check "bootc-update timer"           "systemctl is-active bootc-update.timer"
         check "test user home"               "test -d /var/home/test"
-        check_contains "nftables nixos-fw"   "nft list tables" "nixos-fw"
         check "tmpfiles config"              "test -f /usr/lib/tmpfiles.d/00-nix-caliga.conf"
         check_contains "tmpfiles new file"   "cat /var/tmp/caliga-test" "tmpfiles working"
-        check "sshd-nix-caliga active"       "systemctl is-active sshd-nix-caliga.service"
-        check "ssh host keys"                "test -f /etc/ssh/ssh_host_ed25519_key"
         check_contains "bootc-fetch masked"  "systemctl is-enabled bootc-fetch-apply-updates.service 2>&1 || true" "masked"
-        check_contains "sshd.service masked" "systemctl is-enabled sshd.service 2>&1 || true" "masked"
         check_contains "sleep.target masked" "systemctl is-enabled sleep.target 2>&1 || true" "masked"
         check_contains "test user uid"       "id test" "uid=1001"
-        check_contains "sshd port 22"        "ss -tlnp" ":22"
-        check_contains "firewall port 8042"  "nft list chain inet nixos-fw input-allow" "8042"
         check "cowsay in PATH"               "cowsay test"
         check "nix-daemon socket active"     "systemctl is-active nix-daemon.socket"
         check "nix-directory-setup"          "systemctl is-active nix-directory-setup.service"
@@ -59,13 +53,6 @@
         check_contains "nix --version"       "nix --version" "nix"
         check "nix-shell -p hello"           "nix-shell -p hello --run hello"
       '';
-
-      sshKey = pkgs.runCommand "caliga-test-ssh-key" { } ''
-        mkdir -p $out
-        ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f $out/key -N "" -q
-      '';
-
-      sshBaseOpts = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o BatchMode=yes -o ConnectTimeout=5 -p 2222";
 
       mkTest =
         name: image:
@@ -94,9 +81,6 @@
 
                   users.users.root = {
                     hashedPassword = "";
-                    openssh.authorizedKeys.keys = [
-                      (builtins.readFile "${sshKey}/key.pub")
-                    ];
                   };
                   users.users.test = {
                     isNormalUser = true;
@@ -114,15 +98,6 @@
                   };
 
                   environment.systemPackages = [ pkgs.cowsay ];
-
-                  services.openssh = {
-                    enable = true;
-                    settings.PermitRootLogin = "yes";
-                  };
-
-                  networking.nftables.enable = true;
-                  networking.firewall.enable = true;
-                  networking.firewall.allowedTCPPorts = [ 8042 ];
 
                   systemd.tmpfiles.rules = [ "f /var/tmp/caliga-test 0644 root root - tmpfiles working" ];
 
@@ -176,16 +151,11 @@
 
             TMPDIR=$(${pkgs.coreutils}/bin/mktemp -d)
             cleanup() {
-              [ -n "''${QEMU_PID:-}" ] && kill "$QEMU_PID" 2>/dev/null && wait "$QEMU_PID" 2>/dev/null || true
               sudo ${pkgs.coreutils}/bin/rm -rf "$TMPDIR"
             }
             trap cleanup EXIT
 
-            SSH_KEY="$TMPDIR/ssh_key"
-            cp ${sshKey}/key "$SSH_KEY"
-            chmod 600 "$SSH_KEY"
-
-            ${imageStream} | sudo ${pkgs.podman}/bin/podman load
+            ${imageStream} | sudo ${pkgs.podman}/bin/podman load >/dev/null 2>&1
 
             configfile="$TMPDIR/config.toml"
             cat > "$configfile" <<'TOML'
@@ -201,51 +171,11 @@
               quay.io/centos-bootc/bootc-image-builder:latest \
               --type raw --rootfs ext4 "${imageRef}"
 
-            sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
+            exec sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
               -M q35 -m 2048 -cpu host -enable-kvm \
-              -nographic -monitor none \
-              -serial file:"$TMPDIR/serial.log" \
+              -nographic \
               -drive file="$TMPDIR/image/disk.raw",format=raw,if=virtio \
-              -nic user,model=virtio-net-pci,hostfwd=tcp::2222-:22 \
-              >/dev/null 2>&1 &
-            QEMU_PID=$!
-
-            echo "Waiting for SSH..."
-            for _ in $(${pkgs.coreutils}/bin/seq 1 120); do
-              if ${pkgs.openssh}/bin/ssh ${sshBaseOpts} -i "$SSH_KEY" root@localhost true 2>/dev/null; then
-                break
-              fi
-              sleep 1
-            done
-
-            echo "Waiting for system to finish booting..."
-            for _ in $(${pkgs.coreutils}/bin/seq 1 60); do
-              ${pkgs.openssh}/bin/ssh ${sshBaseOpts} -i "$SSH_KEY" root@localhost \
-                "systemctl is-active --quiet multi-user.target" 2>/dev/null && break
-              sleep 1
-            done
-            sleep 10
-
-            if [ "''${1:-}" = "--shell" ]; then
-              ${pkgs.openssh}/bin/ssh ${sshBaseOpts} -i "$SSH_KEY" -t root@localhost
-              ${pkgs.openssh}/bin/ssh ${sshBaseOpts} -i "$SSH_KEY" root@localhost poweroff 2>/dev/null || true
-              wait "$QEMU_PID" 2>/dev/null || true
-              QEMU_PID=""
-              exit 0
-            fi
-
-            REMOTE="${pkgs.openssh}/bin/ssh ${sshBaseOpts} -i $SSH_KEY root@localhost"
-            export REMOTE
-            source ${./check.sh}
-
-            echo "testing ${name} (vm)"
-            ${testChecks}
-            summary || result=1
-
-            $REMOTE poweroff 2>/dev/null || true
-            wait "$QEMU_PID" 2>/dev/null || true
-            QEMU_PID=""
-            exit "''${result:-0}"
+              -nic user,model=virtio-net-pci
           '';
         in
         {
