@@ -9,11 +9,13 @@
 }:
 {
   options = {
-    # stub: referenced by upstream nixpkgs modules?
-    system.etc = {
-      overlay = {
-        enable = lib.mkEnableOption "/etc overlay";
-      };
+    system.etc.overlay.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Stub. NixOS specific option.
+        To configure bootc /etc behaviour, see `bootc.ostree-prepare-root.transientEtc`.
+      '';
     };
 
     environment.etc = lib.mkOption {
@@ -117,13 +119,14 @@
                 '';
               };
 
-              replaceExisting = lib.mkOption {
-                type = lib.types.bool;
-                default = false;
-                description = lib.mdDoc ''
-                  Whether to replace a pre-existing file at the target path.
-                '';
-              };
+              # system-manager only option
+              # replaceExisting = lib.mkOption {
+              #   type = lib.types.bool;
+              #   default = false;
+              #   description = lib.mdDoc ''
+              #     Whether to replace a pre-existing file at the target path.
+              #   '';
+              # };
             };
 
             config = {

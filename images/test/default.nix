@@ -49,4 +49,6 @@
 
   nix.enable = true;
 
+  bootc.ostree-prepare-root.transientEtc = true;
+
 }

@@ -13,6 +13,7 @@ in
     ./etc.nix
     ./tmpfiles.nix
     ./systemd
+    ./bootc.nix
     ./bootc-update.nix
     ./selinux.nix
     ./nix.nix

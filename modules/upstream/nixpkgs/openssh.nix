@@ -694,7 +694,6 @@ in
         // {
           "ssh/sshd_config" = {
             source = sshconf;
-            replaceExisting = lib.mkDefault true;
           };
           # # HACK: dirty hack to go around
           # # https://github.com/numtide/system-manager/issues/423

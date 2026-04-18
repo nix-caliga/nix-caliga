@@ -65,6 +65,15 @@ in
       # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
       aliases = lib.mkForce [ ];
 
+      # transientEtc needs this — etc.mount appears during boot with transient /etc
+      after = lib.mkIf config.bootc.ostree-prepare-root.transientEtc [ "ostree-remount.service" ];
+      # Remove systemd-tmpfiles-setup-dev.service
+      before = lib.mkIf config.bootc.ostree-prepare-root.transientEtc (lib.mkForce [
+        "sysinit.target"
+        "shutdown.target"
+        "sysinit-reactivation.target"
+      ]);
+
       environment = {
         USERBORN_MUTABLE_USERS = "true";
         USERBORN_PREVIOUS_CONFIG = previousConfigPath;
