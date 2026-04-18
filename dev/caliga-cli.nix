@@ -27,8 +27,9 @@ let
 
         usage() {
           cat <<EOF
-      caliga build [--qcow] [--installer-iso] <imagename>   Build and load an image from the flake
-      caliga run [--qcow] <imagename>      Run an image (podman or qcow2 VM)
+      caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename>
+                                           Build and load an image from the flake
+      caliga run [--vm] <imagename>        Run an image (podman or qcow2 VM)
       caliga exec <imagename>              Exec into a running container by image
       caliga stop                          Stop all running containers from flake images
       caliga list                          List flake images loaded in podman
@@ -58,16 +59,18 @@ let
 
         case "$cmd" in
           build)
-            qcow=false
+            vm=false
             installer_iso=false
+            regen_initramfs=false
             while [[ "''${1:-}" == -* ]]; do
               case "$1" in
-                --qcow) qcow=true; shift ;;
+                --vm) vm=true; shift ;;
                 --installer-iso) installer_iso=true; shift ;;
+                --regen-initramfs) regen_initramfs=true; shift ;;
                 *) echo "Unknown option: $1"; exit 1 ;;
               esac
             done
-            [ $# -eq 1 ] || { echo "Usage: caliga build [--qcow] [--installer-iso] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
+            [ $# -eq 1 ] || { echo "Usage: caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
             imagename="$1"
             image=$(resolve "$imagename")
             echo "Building image '$imagename'..."
@@ -75,27 +78,39 @@ let
             echo "Loading image from $path..."
             "$path" | sudo podman load
 
-            if $qcow; then
+            if $regen_initramfs; then
+              echo "Regenerating initramfs for '$image'..."
+              containerfile=$(mktemp /tmp/caliga-regen-XXXXXX.Containerfile)
+              trap 'rm -f "$containerfile"' EXIT
+              cat > "$containerfile" <<EOF
+    FROM $image
+    RUN kver=\$(cd /usr/lib/modules && echo *) && \
+        dracut --no-hostonly -vf /usr/lib/modules/\$kver/initramfs.img \$kver
+    EOF
+              sudo podman build -t "$image" -f "$containerfile" "$(dirname "$containerfile")"
+            fi
+
+            if $vm; then
               outdir="$REPO_ROOT/tmp/$imagename"
               mkdir -p "$outdir"
               configfile=$(mktemp /tmp/bib-config-XXXXXX.toml)
-              trap 'rm -f "$configfile"' EXIT
+              trap 'rm -f "$configfile" "''${containerfile:-}"' EXIT
               cat > "$configfile" <<'TOML'
     [[customizations.filesystem]]
     mountpoint = "/"
     minsize = "20 GiB"
     TOML
-              echo "Building qcow2 disk image for '$imagename'..."
+              echo "Building raw disk image for '$imagename'..."
               sudo podman run --rm -it --privileged \
                 --pull=newer \
                 -v /var/lib/containers/storage:/var/lib/containers/storage \
                 -v "$outdir":/output \
                 -v "$configfile":/config.toml:ro \
                 quay.io/centos-bootc/bootc-image-builder:latest \
-                --type qcow2 \
+                --type raw \
                 --rootfs ext4 \
                 "$image"
-              echo "qcow2 image written to $REPO_ROOT/tmp/$imagename/qcow2/disk.qcow2"
+              echo "raw disk image written to $REPO_ROOT/tmp/$imagename/image/disk.raw"
             fi
 
             if $installer_iso; then
@@ -117,25 +132,25 @@ let
             ;;
 
           run)
-            qcow=false
+            vm=false
             while [[ "''${1:-}" == -* ]]; do
               case "$1" in
-                --qcow) qcow=true; shift ;;
+                --vm) vm=true; shift ;;
                 *) echo "Unknown option: $1"; exit 1 ;;
               esac
             done
-            [ $# -eq 1 ] || { echo "Usage: caliga run [--qcow] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
+            [ $# -eq 1 ] || { echo "Usage: caliga run [--vm] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
             imagename="$1"
             image=$(resolve "$imagename")
 
-            if $qcow; then
-              qcow_path="$REPO_ROOT/tmp/$imagename/qcow2/disk.qcow2"
-              if [ ! -f "$qcow_path" ]; then
-                echo "No qcow2 image found at $qcow_path"
-                echo "Run 'caliga build --qcow $imagename' first"
+            if $vm; then
+              raw_path="$REPO_ROOT/tmp/$imagename/image/disk.raw"
+              if [ ! -f "$raw_path" ]; then
+                echo "No raw disk image found at $raw_path"
+                echo "Run 'caliga build --vm $imagename' first"
                 exit 1
               fi
-              echo "Running qcow2 VM for '$imagename'..."
+              echo "Running VM for '$imagename'..."
               sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
                 -M q35 \
                 -m 2048 \
@@ -143,7 +158,7 @@ let
                 -enable-kvm \
                 -nographic \
                 -serial mon:stdio \
-                -drive file="$qcow_path",format=qcow2,if=virtio \
+                -drive file="$raw_path",format=raw,if=virtio \
                 -nic user,model=virtio-net-pci
             else
               echo "Running image '$imagename' ($image)..."
@@ -234,7 +249,7 @@ let
         build|run|exec)
           COMPREPLY=( $(compgen -W "$image_names" -- "$cur") )
           ;;
-        --qcow|--installer-iso)
+        --vm|--installer-iso|--regen-initramfs)
           COMPREPLY=( $(compgen -W "$image_names" -- "$cur") )
           ;;
         list)

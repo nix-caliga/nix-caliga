@@ -199,13 +199,13 @@
               -v "$TMPDIR":/output \
               -v "$configfile":/config.toml:ro \
               quay.io/centos-bootc/bootc-image-builder:latest \
-              --type qcow2 --rootfs ext4 "${imageRef}"
+              --type raw --rootfs ext4 "${imageRef}"
 
             sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
               -M q35 -m 2048 -cpu host -enable-kvm \
               -nographic -monitor none \
               -serial file:"$TMPDIR/serial.log" \
-              -drive file="$TMPDIR/qcow2/disk.qcow2",format=qcow2,if=virtio \
+              -drive file="$TMPDIR/image/disk.raw",format=raw,if=virtio \
               -nic user,model=virtio-net-pci,hostfwd=tcp::2222-:22 \
               >/dev/null 2>&1 &
             QEMU_PID=$!
