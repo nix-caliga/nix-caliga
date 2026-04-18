@@ -12,10 +12,6 @@
     "${pkgs.path}/nixos/modules/services/networking/firewall-nftables.nix"
   ];
 
-  config = {
-    networking.nftables.checkRuleset = lib.mkDefault false;
-  };
-
   options = {
     services.firewalld.enable = lib.mkOption {
       type = lib.types.bool;
@@ -52,4 +48,11 @@
       default = [ ];
     };
   };
+
+  config = {
+    networking.nftables.checkRuleset = lib.mkDefault false;
+    # nftables uses scripts not in a /bin and so needs additional selinux labels
+    selinux.labelServiceExecs = lib.mkIf config.networking.nftables.enable [ "nftables" ];
+  };
+
 }
