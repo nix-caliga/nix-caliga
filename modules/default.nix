@@ -59,7 +59,33 @@ in
     build.image = lib.mkOption {
       type = lib.types.package;
       readOnly = true;
-      description = "The final streamLayeredImage derivation.";
+      description = "The final image script (Either streamLayeredImage, or streamLayeredImage followed with postBuild.containerfile).";
+    };
+
+    # Not sure this should be handled by nix-caliga, but it is opt in.
+    # If enabled, it takes the image built by nix, and runs it over with a contaienrfile in podman.
+    # streamLayeredImage is limited in the changes it can make. It can't regen the initramfs for example.
+    build.postBuild.containerfile = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Apply a Containerfile on top of the streamLayeredImage output.";
+      };
+      file = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Path to a Containerfile. Takes precedence over containerfile.extraCommands and generated commands if set.";
+      };
+      extraCommands = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = "Containerfile commands included in the postBuild.";
+      };
+      _generatedFile = lib.mkOption {
+        type = lib.types.path;
+        readOnly = true;
+        description = "Generated Containerfile path built from extraCommands.";
+      };
     };
 
     build.imageArgs = lib.mkOption {
@@ -165,7 +191,28 @@ in
         }
       ];
 
-    build.image = pkgs.dockerTools.streamLayeredImage config.build.imageArgs;
+    build.postBuild.containerfile._generatedFile =
+      pkgs.writeText "Containerfile" "FROM base\n${config.build.postBuild.containerfile.extraCommands}";
+
+    build.image =
+      let
+        baseImage = pkgs.dockerTools.streamLayeredImage config.build.imageArgs;
+        pbCfg = config.build.postBuild.containerfile;
+      in
+      if pbCfg.enable then
+        let
+          containerfile = if pbCfg.file != null then pbCfg.file else pbCfg._generatedFile;
+        in
+        pkgs.writeShellScript "stream-rebuilt-image" ''
+          set -euo pipefail
+          tmp=$(${pkgs.coreutils}/bin/mktemp -d)
+          trap '${pkgs.coreutils}/bin/rm -rf "$tmp"' EXIT
+          ${baseImage} > "$tmp/base.tar"
+          sudo ${pkgs.podman}/bin/podman build --from "docker-archive:$tmp/base.tar" -f ${containerfile} -t "${imgCfg.name}:${imgCfg.tag}" "$tmp" >&2
+          sudo ${pkgs.podman}/bin/podman save "${imgCfg.name}:${imgCfg.tag}"
+        ''
+      else
+        baseImage;
 
     build.contents = imgCfg.extraContents;
 

@@ -39,7 +39,7 @@
 
       modules.default = ./modules;
 
-      caligaConfigs = forAllSystems (
+      caligaConfigurations = forAllSystems (
         system:
         let
           pkgs = pkgsFor system;
@@ -59,7 +59,7 @@
           pkgs = pkgsFor system;
           caliga = self.lib.mkCaligaCli {
             inherit pkgs;
-            caligaConfigs = self.caligaConfigs.${system};
+            caligaConfigurations = self.caligaConfigurations.${system};
           };
         in
         {

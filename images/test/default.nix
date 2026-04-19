@@ -42,5 +42,5 @@
   nix.enable = true;
 
   bootc.ostree-prepare-root.transientEtc = true;
-
+  build.postBuild.containerfile.enable = true;
 }

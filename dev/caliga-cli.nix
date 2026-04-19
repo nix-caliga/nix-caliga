@@ -1,3 +1,6 @@
+# TODO cli is essencially raw vibes right now
+# once I figure out what I really want here, I'll work on doing it right
+# so far it is effective for conveniently building and running images for testing
 {
   pkgs,
   caligaConfigs,
@@ -74,8 +77,9 @@ let
             imagename="$1"
             image=$(resolve "$imagename")
             echo "Building image '$imagename'..."
-            path=$(nix build ".#caligaConfigs.${pkgs.stdenv.hostPlatform.system}.$imagename.config.build.image" --no-link --print-out-paths)
+            path=$(nix build ".#caligaConfigurations.${pkgs.stdenv.hostPlatform.system}.$imagename.config.build.image" --no-link --print-out-paths)
             echo "Loading image from $path..."
+            sudo -v
             "$path" | sudo podman load
 
             if $regen_initramfs; then

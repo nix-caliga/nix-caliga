@@ -53,6 +53,22 @@ in
     })
 
     (lib.mkIf cfg.transientEtc {
+      # etc.transient needs initramfs to regenerate to take effect
+      build.postBuild.containerfile.extraCommands = lib.mkAfter ''
+        RUN kver=$(cd /usr/lib/modules && echo *) && dracut --no-hostonly -vf /usr/lib/modules/$kver/initramfs.img $kver
+      '';
+
+      warnings =
+        lib.optional (!config.build.postBuild.containerfile.enable) ''
+          bootc.ostree-prepare-root.transientEtc is enabled but build.postBuild.containerfile.enable is false.
+          The initramfs will not be rebuilt automatically.
+          Enable build.postBuild.containerfile or rebuild the initramfs manually.
+        ''
+        ++ lib.optional (config.build.postBuild.containerfile.enable && config.build.postBuild.containerfile.file != null) ''
+          bootc.ostree-prepare-root.transientEtc is enabled but build.postBuild.containerfile.file is set.
+          The built-in initramfs regenerate command will not be used. You will need to add the regenerate command manually to your Containerfile.
+        '';
+
       # TODO, issues with /etc/fstab https://github.com/bootc-dev/bootc/issues/364
       # boot.automount seems to be mounting the efi at /boot?
       # create our own mount service for /boot and /bootc/efi

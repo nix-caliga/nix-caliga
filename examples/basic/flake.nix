@@ -16,16 +16,16 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      caligaConfigs = {
+      caligaConfigurations = {
         myimage = nix-caliga.lib.makeCaligaConfig {
           inherit pkgs;
           modules = [ ./images/myimage ];
         };
       };
-      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs caligaConfigs; };
+      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs caligaConfigurations; };
     in
     {
-      caligaConfigs.${system} = caligaConfigs;
+      caligaConfigurations.${system} = caligaConfigurations;
 
       devShells.${system}.default = pkgs.mkShell {
         packages = [ caliga ];

@@ -104,6 +104,9 @@
                   systemd.maskedUnits = [ "sleep.target" ];
 
                   nix.enable = true;
+
+                  bootc.ostree-prepare-root.transientEtc = true;
+                  build.postBuild.containerfile.enable = true;
                 }
               )
             ];
@@ -155,7 +158,7 @@
             }
             trap cleanup EXIT
 
-            ${imageStream} | sudo ${pkgs.podman}/bin/podman load >/dev/null 2>&1
+            ${imageStream} | sudo ${pkgs.podman}/bin/podman load >/dev/null
 
             configfile="$TMPDIR/config.toml"
             cat > "$configfile" <<'TOML'
@@ -171,7 +174,7 @@
               quay.io/centos-bootc/bootc-image-builder:latest \
               --type raw --rootfs ext4 "${imageRef}"
 
-            exec sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
+            sudo ${pkgs.qemu}/bin/qemu-system-x86_64 \
               -M q35 -m 2048 -cpu host -enable-kvm \
               -nographic \
               -drive file="$TMPDIR/image/disk.raw",format=raw,if=virtio \

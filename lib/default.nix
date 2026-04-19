@@ -3,7 +3,7 @@
   nixpkgs,
 }:
 {
-  mkCaligaCli = { pkgs, caligaConfigs }: import ../dev/caliga-cli.nix { inherit pkgs caligaConfigs; };
+  mkCaligaCli = { pkgs, caligaConfigurations }: import ../dev/caliga-cli.nix { inherit pkgs; caligaConfigs = caligaConfigurations; };
 
   makeCaligaConfig =
     {
