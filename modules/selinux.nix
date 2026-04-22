@@ -53,12 +53,6 @@ let
     + "\n"
   );
 
-  enforcementModeMap = {
-    enforcing = "SELINUX=enforcing";
-    permissive = "SELINUX=permissive";
-    disabled = "SELINUX=disabled";
-  };
-
 in
 {
   options.selinux = {
@@ -119,10 +113,11 @@ in
       })
 
       (lib.mkIf (cfg.enforcementMode != null) {
-        environment.etc."selinux/config".text = ''
-          ${enforcementModeMap.${cfg.enforcementMode}}
-          SELINUXTYPE=targeted
-        '';
+        environment.etc."selinux/config".text = lib.concatStringsSep "\n" [
+          "SELINUX=${cfg.enforcementMode}"
+          "SELINUXTYPE=targeted"
+          ""
+        ];
       })
     ]
   );
