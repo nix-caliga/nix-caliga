@@ -47,6 +47,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      { assertion = config.caliga.core.etc.enable; message = "nix.enable requires caliga.core.etc.enable = true"; }
+      { assertion = config.caliga.core.systemd.enable; message = "nix.enable requires caliga.core.systemd.enable = true"; }
+      { assertion = config.caliga.core.tmpfiles.enable; message = "nix.enable requires caliga.core.tmpfiles.enable = true"; }
+      { assertion = config.caliga.core.users.enable; message = "nix.enable requires caliga.core.users.enable = true"; }
+    ];
+
     environment.systemPackages = [ cfg.package ];
 
     # Pick up nix-daemon.service, nix-daemon.socket, tmpfiles

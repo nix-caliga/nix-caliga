@@ -170,7 +170,7 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf config.caliga.core.systemd.enable {
     systemd = {
       sysusers.enable = false;
 

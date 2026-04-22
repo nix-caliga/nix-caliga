@@ -56,10 +56,10 @@ let
 in
 {
   options.selinux = {
-    enable = lib.mkOption {
+    ignoreWarnings = lib.mkOption {
       type = lib.types.bool;
-      default = true;
-      description = "Whether to enable the SELinux module.";
+      default = false;
+      description = "Suppress SELinux-related warnings from other modules.";
     };
 
     enforcementMode = lib.mkOption {
@@ -106,7 +106,7 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable (
+  config = lib.mkIf config.caliga.core.selinux.enable (
     lib.mkMerge [
       (lib.mkIf (allRules != { }) {
         environment.etc."selinux/targeted/contexts/files/file_contexts.local".source = fileContextsLocal;

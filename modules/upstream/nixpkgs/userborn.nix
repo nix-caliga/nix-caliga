@@ -53,15 +53,26 @@ in
   };
 
   config = {
-    services.userborn.enable = lib.mkDefault true;
+    services.userborn.enable = lib.mkIf config.caliga.core.users.enable true;
     services.userborn.package = userborn;
 
+    assertions = lib.mkIf config.caliga.core.users.enable [
+      { assertion = config.caliga.core.systemd.enable; message = "caliga.core.users.enable requires caliga.core.systemd.enable = true"; }
+      { assertion = config.caliga.core.etc.enable; message = "caliga.core.users.enable requires caliga.core.etc.enable = true"; }
+    ];
+
+    warnings = lib.optional (config.caliga.core.users.enable && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
+      caliga.core.users.enable is active but caliga.core.selinux.enable is false.
+      Userborn may fail if selinux is enforcing.
+      Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
+    '';
+
     # Mask the base image's systemd-sysusers since userborn handles users/groups.
-    systemd.maskedUnits = lib.mkIf config.services.userborn.enable [
+    systemd.maskedUnits = lib.mkIf config.caliga.core.users.enable [
       "systemd-sysusers.service"
     ];
 
-    systemd.services.userborn = lib.mkIf config.services.userborn.enable {
+    systemd.services.userborn = lib.mkIf config.caliga.core.users.enable {
       # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
       aliases = lib.mkForce [ ];
 

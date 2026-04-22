@@ -67,6 +67,14 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      { assertion = config.caliga.core.systemd.enable; message = "services.bootc-update.enable requires caliga.core.systemd.enable = true"; }
+      { assertion = cfg.authFile == null || config.caliga.core.tmpfiles.enable;
+        message = "services.bootc-update.authFile requires caliga.core.tmpfiles.enable = true"; }
+      { assertion = cfg.authFile != null || cfg.auth == { } || config.caliga.core.etc.enable;
+        message = "services.bootc-update.auth requires caliga.core.etc.enable = true"; }
+    ];
+
     # Mask any upstream bootc auto-update units
     systemd.maskedUnits = [
       "bootc-fetch-apply-updates.service"

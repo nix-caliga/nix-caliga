@@ -178,7 +178,7 @@ in
     let
       hasTmpfiles = config.systemd.tmpfiles.packages != [ ];
     in
-    {
+    lib.mkIf config.caliga.core.tmpfiles.enable {
     layeredImage.enableFakechroot = lib.mkIf hasTmpfiles true;
 
     layeredImage.fakeRootCommands = lib.mkIf hasTmpfiles ''

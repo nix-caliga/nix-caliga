@@ -53,6 +53,10 @@ in
     })
 
     (lib.mkIf cfg.transientEtc {
+      assertions = [
+        { assertion = config.caliga.core.systemd.enable; message = "bootc.ostree-prepare-root.transientEtc requires caliga.core.systemd.enable = true"; }
+      ];
+
       # etc.transient needs initramfs to regenerate to take effect
       build.postBuild.containerfile.extraCommands = lib.mkAfter ''
         RUN kver=$(cd /usr/lib/modules && echo *) && dracut --no-hostonly -vf /usr/lib/modules/$kver/initramfs.img $kver

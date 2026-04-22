@@ -10,6 +10,7 @@ let
 in
 {
   imports = [
+    ./caliga.nix
     ./etc.nix
     ./tmpfiles.nix
     ./systemd
@@ -184,8 +185,9 @@ in
         enabledUnitNames = lib.attrNames (lib.filterAttrs (_: u: u.enable) config.systemd.units);
         overlap = lib.intersectLists enabledUnitNames config.systemd.maskedUnits;
       in
-      [
+      lib.optionals config.caliga.core.systemd.enable [
         {
+          # TODO moving this next commit, why is it here
           assertion = overlap == [ ];
           message = "units cannot be both defined and masked: ${lib.concatStringsSep ", " overlap}";
         }

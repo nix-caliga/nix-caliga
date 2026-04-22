@@ -76,6 +76,8 @@
                     };
                   };
 
+                  caliga.core.enable = true;
+
                   system.stateVersion = "25.11";
                   systemd.defaultUnit = "multi-user.target";
 

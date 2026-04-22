@@ -91,7 +91,13 @@ in
     description = "Default target unit.";
   };
 
-  config = lib.mkIf hasUnits {
+  config = lib.mkIf (config.caliga.core.systemd.enable && hasUnits) {
+    warnings = lib.optional (!config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
+      caliga.core.systemd.enable is active but caliga.core.selinux.enable is false.
+      Systemd units may fail if selinux is enforcing.
+      Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
+    '';
+
     layeredImage.enableFakechroot = true;
 
     layeredImage.fakeRootCommands =

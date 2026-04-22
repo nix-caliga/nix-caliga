@@ -39,6 +39,8 @@
     "sleep.target"
   ];
 
+  caliga.core.enable = true;
+
   nix.enable = true;
 
   bootc.ostree-prepare-root.transientEtc = true;

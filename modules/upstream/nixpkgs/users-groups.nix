@@ -812,7 +812,7 @@ in
       # Userborn cannot create home dirs at boot because /home is read-only.
       normalUsersWithHome = lib.filter (u: u.createHome) (lib.attrValues cfg.users);
     in
-    {
+    lib.mkIf config.caliga.core.users.enable {
 
       users.defaultUserShell = lib.mkDefault pkgs.bashInteractive;
       users.users = {
