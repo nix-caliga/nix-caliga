@@ -58,18 +58,18 @@ in
       ];
 
       # etc.transient needs initramfs to regenerate to take effect
-      build.postBuild.containerfile.extraCommands = lib.mkAfter ''
+      caliga.core.containerfile.extraCommands = lib.mkAfter ''
         RUN kver=$(cd /usr/lib/modules && echo *) && dracut --no-hostonly -vf /usr/lib/modules/$kver/initramfs.img $kver
       '';
 
       warnings =
-        lib.optional (!config.build.postBuild.containerfile.enable) ''
-          bootc.ostree-prepare-root.transientEtc is enabled but build.postBuild.containerfile.enable is false.
+        lib.optional (!config.caliga.core.containerfile.enable) ''
+          bootc.ostree-prepare-root.transientEtc is enabled but caliga.core.containerfile.enable is false.
           The initramfs will not be rebuilt automatically.
-          Enable build.postBuild.containerfile or rebuild the initramfs manually.
+          Enable caliga.core.containerfile or rebuild the initramfs manually.
         ''
-        ++ lib.optional (config.build.postBuild.containerfile.enable && config.build.postBuild.containerfile.file != null) ''
-          bootc.ostree-prepare-root.transientEtc is enabled but build.postBuild.containerfile.file is set.
+        ++ lib.optional (config.caliga.core.containerfile.enable && config.caliga.core.containerfile.file != null) ''
+          bootc.ostree-prepare-root.transientEtc is enabled but caliga.core.containerfile.file is set.
           The built-in initramfs regenerate command will not be used. You will need to add the regenerate command manually to your Containerfile.
         '';
 

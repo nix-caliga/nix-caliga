@@ -92,6 +92,18 @@ in
   };
 
   config = lib.mkIf (config.caliga.core.systemd.enable && hasUnits) {
+    assertions =
+      let
+        enabledUnitNames = lib.attrNames enabledUnits;
+        overlap = lib.intersectLists enabledUnitNames cfg.maskedUnits;
+      in
+      [
+        {
+          assertion = overlap == [ ];
+          message = "units cannot be both defined and masked: ${lib.concatStringsSep ", " overlap}";
+        }
+      ];
+
     warnings = lib.optional (!config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
       caliga.core.systemd.enable is active but caliga.core.selinux.enable is false.
       Systemd units may fail if selinux is enforcing.

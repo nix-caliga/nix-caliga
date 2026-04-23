@@ -8,7 +8,7 @@
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable all core caliga modules (etc, systemd, tmpfiles, selinux, users).";
+      description = "Enable core caliga modules (etc, systemd, tmpfiles, selinux, users). Containerfile is enabled seperately";
     };
     etc.enable = lib.mkOption {
       type = lib.types.bool;
@@ -34,6 +34,30 @@
       type = lib.types.bool;
       default = false;
       description = "Enable user/group management via userborn.";
+    };
+
+    # Not sure this should be handled by nix-caliga, but it is opt in.
+    # If enabled, it takes the image built by nix, and runs it over with a containerfile in podman.
+    # streamLayeredImage is limited in the changes it can make. It can't regen the initramfs for example.
+    containerfile = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Apply a Containerfile on top of the streamLayeredImage output.
+          Using for tasks like regenerating the initramfs as streamLayeredImage cannot do this.
+        '';
+      };
+      file = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Path to a Containerfile. Takes precedence over containerfile.extraCommands and generated commands if set.";
+      };
+      extraCommands = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = "Containerfile commands included along side generated commands. Applied after streamLayeredImage.";
+      };
     };
   };
 
