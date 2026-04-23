@@ -1,40 +1,12 @@
-# copied from system-manager's nix/modules/upstream/nixpkgs/userborn.nix
-# adds: systemd-sysusers mask, alias removal for bootc compatibility
+# Imports upstream nixpkgs userborn module with bootc-specific overrides:
+# - systemd-sysusers mask and alias removal (bootc ships its own sysusers)
+# - transientEtc ordering (userborn must write after /etc overlay is mounted)
 {
   config,
   pkgs,
   lib,
-  utils,
-  userborn,
   ...
 }:
-let
-  userbornConfig = {
-    groups = lib.mapAttrsToList (username: opts: {
-      inherit (opts) name gid members;
-    }) config.users.groups;
-
-    users = lib.mapAttrsToList (username: opts: {
-      inherit (opts)
-        name
-        uid
-        group
-        description
-        home
-        password
-        hashedPassword
-        hashedPasswordFile
-        initialPassword
-        initialHashedPassword
-        ;
-      isNormal = opts.isNormalUser;
-      shell = utils.toShellPath opts.shell;
-    }) (lib.filterAttrs (_: u: u.enable) config.users.users);
-  };
-
-  previousConfigPath = "/var/lib/userborn/previous-userborn.json";
-  userbornConfigJson = pkgs.writeText "userborn.json" (builtins.toJSON userbornConfig);
-in
 {
   imports = [
     "${pkgs.path}/nixos/modules/services/system/userborn.nix"
@@ -54,7 +26,6 @@ in
 
   config = {
     services.userborn.enable = lib.mkIf config.caliga.core.users.enable true;
-    services.userborn.package = userborn;
 
     assertions = lib.mkIf config.caliga.core.users.enable [
       { assertion = config.caliga.core.systemd.enable; message = "caliga.core.users.enable requires caliga.core.systemd.enable = true"; }
@@ -84,17 +55,6 @@ in
         "shutdown.target"
         "sysinit-reactivation.target"
       ]);
-
-      environment = {
-        USERBORN_MUTABLE_USERS = "true";
-        USERBORN_PREVIOUS_CONFIG = previousConfigPath;
-      };
-      serviceConfig = {
-        StateDirectory = "userborn";
-        ExecStartPost = [
-          "${pkgs.coreutils}/bin/ln -sf ${userbornConfigJson} ${previousConfigPath}"
-        ];
-      };
     };
   };
 }

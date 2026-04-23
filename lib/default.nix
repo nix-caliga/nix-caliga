@@ -1,5 +1,4 @@
 {
-  userborn,
   nixpkgs,
 }:
 {
@@ -18,7 +17,6 @@
         {
           _module.args = {
             inherit nixpkgs;
-            userborn = userborn.packages.${pkgs.stdenv.hostPlatform.system}.default;
             utils =
               let
                 nixosUtils = import "${pkgs.path}/nixos/lib/utils.nix" {
@@ -27,6 +25,7 @@
               in
               nixosUtils
               // {
+                # required for userborn
                 toShellPath =
                   shell:
                   if lib.types.shellPackage.check shell then
