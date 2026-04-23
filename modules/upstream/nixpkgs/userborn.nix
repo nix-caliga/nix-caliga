@@ -28,15 +28,28 @@
     services.userborn.enable = lib.mkIf config.caliga.core.users.enable true;
 
     assertions = lib.mkIf config.caliga.core.users.enable [
-      { assertion = config.caliga.core.systemd.enable; message = "caliga.core.users.enable requires caliga.core.systemd.enable = true"; }
-      { assertion = config.caliga.core.etc.enable; message = "caliga.core.users.enable requires caliga.core.etc.enable = true"; }
+      {
+        assertion = config.caliga.core.systemd.enable;
+        message = "caliga.core.users.enable requires caliga.core.systemd.enable = true";
+      }
+      {
+        assertion = config.caliga.core.etc.enable;
+        message = "caliga.core.users.enable requires caliga.core.etc.enable = true";
+      }
     ];
 
-    warnings = lib.optional (config.caliga.core.users.enable && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
-      caliga.core.users.enable is active but caliga.core.selinux.enable is false.
-      Userborn may fail if selinux is enforcing.
-      Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
-    '';
+    warnings =
+      lib.optional
+        (
+          config.caliga.core.users.enable
+          && !config.caliga.core.selinux.enable
+          && !config.selinux.ignoreWarnings
+        )
+        ''
+          caliga.core.users.enable is active but caliga.core.selinux.enable is false.
+          Userborn may fail if selinux is enforcing.
+          Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
+        '';
 
     # Mask the base image's systemd-sysusers since userborn handles users/groups.
     systemd.maskedUnits = lib.mkIf config.caliga.core.users.enable [
@@ -50,11 +63,13 @@
       # transientEtc needs this — etc.mount appears during boot with transient /etc
       after = lib.mkIf config.bootc.ostree-prepare-root.transientEtc [ "ostree-remount.service" ];
       # Remove systemd-tmpfiles-setup-dev.service
-      before = lib.mkIf config.bootc.ostree-prepare-root.transientEtc (lib.mkForce [
-        "sysinit.target"
-        "shutdown.target"
-        "sysinit-reactivation.target"
-      ]);
+      before = lib.mkIf config.bootc.ostree-prepare-root.transientEtc (
+        lib.mkForce [
+          "sysinit.target"
+          "shutdown.target"
+          "sysinit-reactivation.target"
+        ]
+      );
     };
   };
 }

@@ -9,7 +9,8 @@
   ...
 }:
 let
-  mkFileOption = prefix:
+  mkFileOption =
+    prefix:
     lib.mkOption {
       default = { };
       example = lib.literalExpression ''
@@ -125,7 +126,8 @@ let
       );
     };
 
-  mkFakeRootCommands = prefix: files:
+  mkFakeRootCommands =
+    prefix: files:
     lib.concatStringsSep "\n" (
       lib.mapAttrsToList (_: f: ''
         if [ -d ${f.source} ]; then
@@ -164,11 +166,13 @@ in
       hasFiles = hasEtc || hasUsr;
     in
     lib.mkIf config.caliga.core.etc.enable {
-      warnings = lib.optional (hasEtc && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
-        caliga.core.etc.enable is active but caliga.core.selinux.enable is false.
-        Files written to /etc may not be usable if selinux is enforcing.
-        Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
-      '';
+      warnings =
+        lib.optional (hasEtc && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings)
+          ''
+            caliga.core.etc.enable is active but caliga.core.selinux.enable is false.
+            Files written to /etc may not be usable if selinux is enforcing.
+            Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
+          '';
 
       layeredImage.enableFakechroot = lib.mkIf hasFiles true;
 

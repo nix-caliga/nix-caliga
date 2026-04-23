@@ -179,23 +179,27 @@ in
       hasTmpfiles = config.systemd.tmpfiles.packages != [ ];
     in
     lib.mkIf config.caliga.core.tmpfiles.enable {
-    environment.usr = lib.mkIf hasTmpfiles (
-      lib.listToAttrs (map (p: {
-        name = "lib/tmpfiles.d/${p.name}";
-        value = {
-          target = "lib/tmpfiles.d";
-          source = "${p}/lib/tmpfiles.d";
-        };
-      }) config.systemd.tmpfiles.packages)
-    );
-    systemd.tmpfiles.packages =
-      lib.optional (config.systemd.tmpfiles.rules != [ ]) (pkgs.writeTextFile {
-        name = "nix-caliga-tmpfiles.d";
-        destination = "/lib/tmpfiles.d/00-nix-caliga.conf";
-        text = concatStringsSep "\n" config.systemd.tmpfiles.rules + "\n";
-      })
-      ++ (mapAttrsToList (
-        name: paths: pkgs.writeTextDir "lib/tmpfiles.d/${name}.conf" (mkRuleFileContent paths)
-      ) config.systemd.tmpfiles.settings);
-  };
+      environment.usr = lib.mkIf hasTmpfiles (
+        lib.listToAttrs (
+          map (p: {
+            name = "lib/tmpfiles.d/${p.name}";
+            value = {
+              target = "lib/tmpfiles.d";
+              source = "${p}/lib/tmpfiles.d";
+            };
+          }) config.systemd.tmpfiles.packages
+        )
+      );
+      systemd.tmpfiles.packages =
+        lib.optional (config.systemd.tmpfiles.rules != [ ]) (
+          pkgs.writeTextFile {
+            name = "nix-caliga-tmpfiles.d";
+            destination = "/lib/tmpfiles.d/00-nix-caliga.conf";
+            text = concatStringsSep "\n" config.systemd.tmpfiles.rules + "\n";
+          }
+        )
+        ++ (mapAttrsToList (
+          name: paths: pkgs.writeTextDir "lib/tmpfiles.d/${name}.conf" (mkRuleFileContent paths)
+        ) config.systemd.tmpfiles.settings);
+    };
 }

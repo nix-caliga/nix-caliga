@@ -128,8 +128,10 @@ in
       if pbCfg.enable then
         let
           containerfile =
-            if pbCfg.file != null then pbCfg.file
-            else pkgs.writeText "Containerfile" "FROM base\n${pbCfg.extraCommands}";
+            if pbCfg.file != null then
+              pbCfg.file
+            else
+              pkgs.writeText "Containerfile" "FROM base\n${pbCfg.extraCommands}";
         in
         pkgs.writeShellScript "stream-rebuilt-image" ''
           set -euo pipefail

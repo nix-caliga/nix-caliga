@@ -52,7 +52,10 @@ in
 
     (lib.mkIf cfg.transientEtc {
       assertions = [
-        { assertion = config.caliga.core.systemd.enable; message = "bootc.ostree-prepare-root.transientEtc requires caliga.core.systemd.enable = true"; }
+        {
+          assertion = config.caliga.core.systemd.enable;
+          message = "bootc.ostree-prepare-root.transientEtc requires caliga.core.systemd.enable = true";
+        }
       ];
 
       # etc.transient needs initramfs to regenerate to take effect
@@ -66,10 +69,13 @@ in
           The initramfs will not be rebuilt automatically.
           Enable caliga.core.containerfile or rebuild the initramfs manually.
         ''
-        ++ lib.optional (config.caliga.core.containerfile.enable && config.caliga.core.containerfile.file != null) ''
-          bootc.ostree-prepare-root.transientEtc is enabled but caliga.core.containerfile.file is set.
-          The built-in initramfs regenerate command will not be used. You will need to add the regenerate command manually to your Containerfile.
-        '';
+        ++
+          lib.optional
+            (config.caliga.core.containerfile.enable && config.caliga.core.containerfile.file != null)
+            ''
+              bootc.ostree-prepare-root.transientEtc is enabled but caliga.core.containerfile.file is set.
+              The built-in initramfs regenerate command will not be used. You will need to add the regenerate command manually to your Containerfile.
+            '';
 
       # TODO, issues with /etc/fstab https://github.com/bootc-dev/bootc/issues/364
       # boot.automount seems to be mounting the efi at /boot?

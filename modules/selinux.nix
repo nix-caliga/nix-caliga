@@ -22,29 +22,41 @@ let
 
   # Extract Exec store paths from selected services and label as bin_t.
   # Handles writeShellScript etc which will be missed by default labels
-  execs = [ "ExecStart" "ExecStartPre" "ExecStartPost" "ExecReload" "ExecStop" "ExecStopPost" ];
-  getExecs = svc: exec:
-    if svc.serviceConfig ? ${exec}
-    then map toString (lib.toList svc.serviceConfig.${exec})
-    else [ ];
+  execs = [
+    "ExecStart"
+    "ExecStartPre"
+    "ExecStartPost"
+    "ExecReload"
+    "ExecStop"
+    "ExecStopPost"
+  ];
+  getExecs =
+    svc: exec:
+    if svc.serviceConfig ? ${exec} then map toString (lib.toList svc.serviceConfig.${exec}) else [ ];
 
   # Strip prefixes and check for store path
   cleanPath = s: builtins.head (builtins.match "[!@+-]*(.*)" s);
   inStore = p: builtins.match "/nix/store/[^/]+" (cleanPath p) != null;
 
   execLabelRules = lib.listToAttrs (
-    map (p: { name = builtins.unsafeDiscardStringContext (cleanPath p); value = "bin_t"; })
-      (lib.unique (lib.filter inStore (
-        lib.concatMap (name:
-          lib.concatMap (getExecs config.systemd.services.${name}) execs
-        ) cfg.labelServiceExecs
-      )))
+    map
+      (p: {
+        name = builtins.unsafeDiscardStringContext (cleanPath p);
+        value = "bin_t";
+      })
+      (
+        lib.unique (
+          lib.filter inStore (
+            lib.concatMap (
+              name: lib.concatMap (getExecs config.systemd.services.${name}) execs
+            ) cfg.labelServiceExecs
+          )
+        )
+      )
   );
 
   allRules =
-    (lib.optionalAttrs cfg.nixStoreContexts.enable nixStoreRules)
-    // cfg.fileContexts
-    // execLabelRules;
+    (lib.optionalAttrs cfg.nixStoreContexts.enable nixStoreRules) // cfg.fileContexts // execLabelRules;
 
   fileContextsLocal = pkgs.writeText "file_contexts.local" (
     lib.concatStringsSep "\n" (
