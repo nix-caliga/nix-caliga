@@ -1,35 +1,27 @@
 # copied from system-manager's nix/modules/etc.nix
-# changes: uses fakeRootCommands to copy etc files as real files (not store symlinks)
+# changes: uses fakeRootCommands to copy files as real files (not store symlinks)
 #   mode default changed from "symlink" to "0644", overlay stub
+#   added environment.usr identical to environment.etc but for /usr
 {
   lib,
   config,
   pkgs,
   ...
 }:
-{
-  options = {
-    system.etc.overlay.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = ''
-        Stub. NixOS specific option.
-        To configure bootc /etc behaviour, see `bootc.ostree-prepare-root.transientEtc`.
-      '';
-    };
-
-    environment.etc = lib.mkOption {
+let
+  mkFileOption = prefix:
+    lib.mkOption {
       default = { };
       example = lib.literalExpression ''
-        { example-configuration-file =
-            { source = "/nix/store/.../etc/dir/file.conf.example";
+        { "some/config-file" =
+            { source = "/nix/store/.../file.conf";
               mode = "0440";
             };
           "default/useradd".text = "GROUP=100 ...";
         }
       '';
       description = lib.mdDoc ''
-        Set of files that have to be linked in {file}`/etc`.
+        Set of files to be placed in {file}`/${prefix}`.
       '';
 
       type = lib.types.attrsOf (
@@ -47,17 +39,16 @@
                 type = lib.types.bool;
                 default = true;
                 description = lib.mdDoc ''
-                  Whether this /etc file should be generated.  This
-                  option allows specific /etc files to be disabled.
+                  Whether this /${prefix} file should be generated.  This
+                  option allows specific /${prefix} files to be disabled.
                 '';
               };
 
               target = lib.mkOption {
                 type = lib.types.str;
                 description = lib.mdDoc ''
-                  Name of symlink (relative to
-                  {file}`/etc`).  Defaults to the attribute
-                  name.
+                  Path relative to {file}`/${prefix}`.
+                  Defaults to the attribute name.
                 '';
               };
 
@@ -118,22 +109,13 @@
                   Changing this option takes precedence over `gid`.
                 '';
               };
-
-              # system-manager only option
-              # replaceExisting = lib.mkOption {
-              #   type = lib.types.bool;
-              #   default = false;
-              #   description = lib.mdDoc ''
-              #     Whether to replace a pre-existing file at the target path.
-              #   '';
-              # };
             };
 
             config = {
               target = lib.mkDefault name;
               source = lib.mkIf (config.text != null) (
                 let
-                  name' = "etc-" + baseNameOf name;
+                  name' = "${prefix}-" + baseNameOf name;
                 in
                 lib.mkDerivedConfig options.text (pkgs.writeText name')
               );
@@ -142,11 +124,44 @@
         )
       );
     };
+
+  mkFakeRootCommands = prefix: files:
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (_: f: ''
+        if [ -d ${f.source} ]; then
+          mkdir -p ${prefix}/${f.target}
+          for file in $(find -L ${f.source} -type f); do
+            rel="''${file#${f.source}/}"
+            install -D -m ${f.mode} -o ${f.user} -g ${f.group} "$file" "${prefix}/${f.target}/$rel"
+          done
+        else
+          mkdir -p ${prefix}/$(dirname "${f.target}")
+          install -m ${f.mode} -o ${f.user} -g ${f.group} ${f.source} ${prefix}/${f.target}
+        fi
+      '') files
+    );
+in
+{
+  options = {
+    system.etc.overlay.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Stub. NixOS specific option.
+        To configure bootc /etc behaviour, see `bootc.ostree-prepare-root.transientEtc`.
+      '';
+    };
+
+    environment.etc = mkFileOption "etc";
+    environment.usr = mkFileOption "usr";
   };
   config =
     let
       filteredEtc = lib.filterAttrs (_: f: f.enable) config.environment.etc;
+      filteredUsr = lib.filterAttrs (_: f: f.enable) config.environment.usr;
       hasEtc = filteredEtc != { };
+      hasUsr = filteredUsr != { };
+      hasFiles = hasEtc || hasUsr;
     in
     lib.mkIf config.caliga.core.etc.enable {
       warnings = lib.optional (hasEtc && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings) ''
@@ -155,23 +170,11 @@
         Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
       '';
 
-      layeredImage.enableFakechroot = lib.mkIf hasEtc true;
+      layeredImage.enableFakechroot = lib.mkIf hasFiles true;
 
-      layeredImage.fakeRootCommands = lib.mkIf hasEtc (
-        lib.concatStringsSep "\n" (
-          lib.mapAttrsToList (_: f: ''
-            if [ -d ${f.source} ]; then
-              mkdir -p etc/${f.target}
-              for file in $(find -L ${f.source} -type f); do
-                rel="''${file#${f.source}/}"
-                install -D -m ${f.mode} -o ${f.user} -g ${f.group} "$file" "etc/${f.target}/$rel"
-              done
-            else
-              mkdir -p etc/$(dirname "${f.target}")
-              install -m ${f.mode} -o ${f.user} -g ${f.group} ${f.source} etc/${f.target}
-            fi
-          '') filteredEtc
-        )
-      );
+      layeredImage.fakeRootCommands =
+        lib.optionalString hasEtc (mkFakeRootCommands "etc" filteredEtc)
+        + lib.optionalString (hasEtc && hasUsr) "\n"
+        + lib.optionalString hasUsr (mkFakeRootCommands "usr" filteredUsr);
     };
 }

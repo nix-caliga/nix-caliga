@@ -7,7 +7,7 @@
   imports = [
     ./buildImage.nix
     ./caliga.nix
-    ./etc.nix
+    ./etc-usr.nix
     ./tmpfiles.nix
     ./systemd
     ./bootc.nix
