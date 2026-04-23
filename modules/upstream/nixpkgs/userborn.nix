@@ -1,6 +1,3 @@
-# Imports upstream nixpkgs userborn module with bootc-specific overrides:
-# - systemd-sysusers mask and alias removal (bootc ships its own sysusers)
-# - transientEtc ordering (userborn must write after /etc overlay is mounted)
 {
   config,
   pkgs,
@@ -60,10 +57,10 @@
       # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
       aliases = lib.mkForce [ ];
 
-      # transientEtc needs this — etc.mount appears during boot with transient /etc
-      after = lib.mkIf config.bootc.ostree-prepare-root.transientEtc [ "ostree-remount.service" ];
+      # TODO possibly setup targets specifically for nix-caliga services can use
+      after = [ "ostree-remount.service" ];
       # Remove systemd-tmpfiles-setup-dev.service
-      before = lib.mkIf config.bootc.ostree-prepare-root.transientEtc (
+      before = (
         lib.mkForce [
           "sysinit.target"
           "shutdown.target"
