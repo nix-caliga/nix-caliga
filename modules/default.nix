@@ -1,5 +1,7 @@
 {
   lib,
+  config,
+  pkgs,
   ...
 }:
 
@@ -18,6 +20,11 @@
   ];
 
   options = {
+
+    environment.systemPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+    };
 
     assertions = lib.mkOption {
       type = lib.types.listOf lib.types.unspecified;
@@ -47,4 +54,30 @@
       '';
     };
   };
+
+  config =
+    let
+      systemPath = pkgs.buildEnv {
+        name = "system-path";
+        paths = config.environment.systemPackages;
+        pathsToLink = [
+          "/bin"
+          "/sbin"
+        ];
+      };
+    in
+    lib.mkIf (config.environment.systemPackages != [ ]) {
+      # TODO
+      # not sure if this is the best option
+      # I want to make nix packages built into the bootc image available to sudo
+      # Trying to avoid needing to control secure_path
+      layeredImage.extraCommands = ''
+        mkdir -p usr/local/bin
+        for dir in ${systemPath}/bin ${systemPath}/sbin; do
+          [ -d "$dir" ] && for bin in "$dir"/*; do
+            ln -sf "$bin" usr/local/bin/
+          done
+        done
+      '';
+    };
 }

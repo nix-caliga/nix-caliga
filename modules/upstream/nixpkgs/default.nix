@@ -11,16 +11,10 @@
     ./userborn.nix
     "${pkgs.path}/nixos/modules/misc/ids.nix"
     "${pkgs.path}/nixos/modules/misc/meta.nix"
-    "${pkgs.path}/nixos/modules/system/build.nix"
   ];
 
   options = {
     # system-manager handles these in their environment.nix
-
-    environment.systemPackages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
-      default = [ ];
-    };
 
     environment.pathsToLink = lib.mkOption {
       type = lib.types.listOf lib.types.str;
@@ -30,35 +24,5 @@
     system.stateVersion = lib.mkOption {
       type = lib.types.str;
     };
-
   };
-
-  config =
-    let
-      systemPath = pkgs.buildEnv {
-        name = "system-path";
-        paths = config.environment.systemPackages;
-        pathsToLink = [
-          "/bin"
-          "/sbin"
-        ]
-        ++ config.environment.pathsToLink;
-      };
-    in
-    lib.mkIf (config.environment.systemPackages != [ ]) {
-
-      # TODO
-      # not sure if this is the best option
-      # I want to make nix packages built into the bootc image available to sudo
-      # Trying to avoid needing to control secure_path
-      layeredImage.extraCommands = ''
-        mkdir -p usr/local/bin
-        for dir in ${systemPath}/bin ${systemPath}/sbin; do
-          [ -d "$dir" ] && for bin in "$dir"/*; do
-            ln -sf "$bin" usr/local/bin/
-          done
-        done
-      '';
-    };
-
 }
