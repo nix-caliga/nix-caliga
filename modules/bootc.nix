@@ -18,6 +18,8 @@ let
 
 in
 {
+  # I believe the configuration in this file will be moving eslewhere soon
+  # https://github.com/bootc-dev/bootc/issues/2079
   options.bootc.ostree-prepare-root = {
     transientEtc = lib.mkOption {
       type = lib.types.bool;
