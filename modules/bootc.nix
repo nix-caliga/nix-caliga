@@ -45,11 +45,7 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf (cfg.transientEtc || cfg.additionalConf != "") {
-      # TODO considering maybe making an `environment.usr` for placing files in /usr?
-      layeredImage.extraCommands = ''
-        mkdir -p usr/lib/ostree
-        cp ${prepareRootConf} usr/lib/ostree/prepare-root.conf
-      '';
+      environment.usr."lib/ostree/prepare-root.conf".source = prepareRootConf;
     })
 
     (lib.mkIf cfg.transientEtc {

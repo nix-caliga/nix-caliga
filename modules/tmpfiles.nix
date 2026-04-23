@@ -179,16 +179,15 @@ in
       hasTmpfiles = config.systemd.tmpfiles.packages != [ ];
     in
     lib.mkIf config.caliga.core.tmpfiles.enable {
-    layeredImage.enableFakechroot = lib.mkIf hasTmpfiles true;
-
-    layeredImage.fakeRootCommands = lib.mkIf hasTmpfiles ''
-      mkdir -p usr/lib/tmpfiles.d
-      ${lib.concatMapStringsSep "\n" (p: ''
-        for f in ${p}/lib/tmpfiles.d/*.conf; do
-          install -m 0644 -o 0 -g 0 "$f" usr/lib/tmpfiles.d/
-        done
-      '') config.systemd.tmpfiles.packages}
-    '';
+    environment.usr = lib.mkIf hasTmpfiles (
+      lib.listToAttrs (map (p: {
+        name = "lib/tmpfiles.d/${p.name}";
+        value = {
+          target = "lib/tmpfiles.d";
+          source = "${p}/lib/tmpfiles.d";
+        };
+      }) config.systemd.tmpfiles.packages)
+    );
     systemd.tmpfiles.packages =
       lib.optional (config.systemd.tmpfiles.rules != [ ]) (pkgs.writeTextFile {
         name = "nix-caliga-tmpfiles.d";
