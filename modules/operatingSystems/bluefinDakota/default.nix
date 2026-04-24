@@ -20,6 +20,10 @@
         assertion = !config.bootc.initramfs.regenerate;
         message = "bootc.initramfs.regenerate is not supported on bluefin-dakota";
       }
+      {
+        assertion = !config.bootc.ostree-prepare-root.createConf;
+        message = "config.bootc.ostree-prepare-root.createConf is not supported on bluefin-dakota";
+      }
     ];
   };
 }

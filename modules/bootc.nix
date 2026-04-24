@@ -31,6 +31,16 @@ in
   # I believe the configuration in this file will be moving eslewhere soon
   # https://github.com/bootc-dev/bootc/issues/2079
   options.bootc.ostree-prepare-root = {
+    # TODO there is likely a better way to handle this file creation, I'll review nixos for similar cases soon.
+    createConf = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = lib.mdDoc ''
+        Enable to over-write the default prepare-root.conf file with bootc.ostree-prepare-root.transientEtc and bootc.ostree-prepare-root.additionalConf
+        Enabled if transientEtc is enabled.
+      '';
+    };
+
     transientEtc = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -42,6 +52,8 @@ in
 
         Sets `etc.transient = true` in `/usr/lib/ostree/prepare-root.conf`.
         See [ostree-prepare-root(1)](https://ostreedev.github.io/ostree/man/ostree-prepare-root.html).
+
+        If enabled, sets bootc.ostree-prepare-root.createConf to true
       '';
     };
 
@@ -94,6 +106,7 @@ in
         }
       ];
 
+      bootc.ostree-prepare-root.createConf = true;
       bootc.initramfs.regenerate = lib.mkDefault true;
       warnings = lib.optional (!config.bootc.initramfs.regenerate) ''
         bootc.ostree-prepare-root.transientEtc is enabled but bootc.initramfs.regenerate is false.
