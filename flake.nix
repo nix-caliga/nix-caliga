@@ -25,6 +25,7 @@
 
       imageConfigs = {
         test = ./images/test;
+        dakota = ./images/dakota;
       };
     in
     {
