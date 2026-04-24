@@ -76,6 +76,7 @@
                     };
                   };
 
+                  caliga.os = "fedora";
                   caliga.core.enable = true;
 
                   system.stateVersion = "25.11";

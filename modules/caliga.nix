@@ -8,7 +8,10 @@
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable core caliga modules (etc, systemd, tmpfiles, selinux, users). Containerfile is enabled seperately";
+      description = ''
+        Enable core caliga modules (etc, systemd, tmpfiles, users). Containerfile is enabled seperately
+        SELinux is enabled based on caliga.os
+      '';
     };
     etc.enable = lib.mkOption {
       type = lib.types.bool;
@@ -62,10 +65,10 @@
   };
 
   config.caliga.core = lib.mkIf config.caliga.core.enable {
+    # selinux is enabled depending on the caliga.os
     etc.enable = lib.mkDefault true;
     systemd.enable = lib.mkDefault true;
     tmpfiles.enable = lib.mkDefault true;
-    selinux.enable = lib.mkDefault true;
     users.enable = lib.mkDefault true;
   };
 }

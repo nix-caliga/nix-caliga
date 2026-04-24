@@ -815,55 +815,6 @@ in
     lib.mkIf config.caliga.core.users.enable {
 
       users.defaultUserShell = lib.mkDefault pkgs.bashInteractive;
-      users.users = {
-        root = {
-          uid = ids.uids.root;
-          description = "System administrator";
-          home = "/root";
-          shell = mkDefault cfg.defaultUserShell;
-          group = "root";
-        };
-        nobody = {
-          uid = lib.mkDefault 65534; # Fedora default (matches setup.conf)
-          isSystemUser = true;
-          description = "Kernel Overflow User";
-          group = "nobody";
-        };
-      };
-
-      # nix-caliga: Fedora GIDs (system-manager uses Debian/Ubuntu defaults)
-      # GIDs are set to match Fedora defaults to avoid conflicts with
-      # pre-existing system groups on the bootc base image.
-      #
-      # To add a user to a group via extraGroups, the group must be declared here.
-      # For pre-existing system groups, declare them with the matching GID.
-      users.groups = {
-        root.gid = lib.mkDefault 0;
-        wheel.gid = lib.mkDefault 10; # system-manager: 900
-        # sudo.gid = lib.mkDefault 27;     # nix-caliga: not used on Fedora, wheel is used instead
-        disk.gid = lib.mkDefault 6;
-        # floppy.gid = lib.mkDefault 19;    # nix-caliga: not needed for bootc images
-        kmem.gid = lib.mkDefault 9; # system-manager: 15
-        tty.gid = lib.mkDefault 5;
-        uucp.gid = lib.mkDefault 14; # system-manager: 10
-        lp.gid = lib.mkDefault 7;
-        cdrom.gid = lib.mkDefault 11; # system-manager: 24
-        tape.gid = lib.mkDefault 33; # system-manager: 26
-        audio.gid = lib.mkDefault 63; # system-manager: 29
-        video.gid = lib.mkDefault 39; # system-manager: 44
-        dialout.gid = lib.mkDefault 18; # system-manager: 20
-        nobody.gid = lib.mkDefault 65534; # Fedora default (matches setup.conf)
-        # nogroup not used on Fedora; nobody serves as the overflow group
-        users.gid = lib.mkDefault 100;
-        # nix-caliga: removed nixbld group (system-manager uses ids.gids.nixbld)
-        utmp.gid = lib.mkDefault 22; # system-manager: 43
-        adm.gid = lib.mkDefault 4;
-        input.gid = lib.mkDefault 104; # Fedora default (system-manager: 996)
-        kvm.gid = lib.mkDefault 36;
-        render.gid = lib.mkDefault 105; # Fedora default (system-manager: 993)
-        sgx.gid = lib.mkDefault 106; # Fedora default
-        shadow.gid = lib.mkDefault 15; # required by userborn in mutable mode
-      };
 
       systemd.services.linger-users = lib.mkIf ((length lingeringUsers) > 0) {
         wantedBy = [ "multi-user.target" ];

@@ -95,11 +95,10 @@ in
       ];
 
       bootc.initramfs.regenerate = lib.mkDefault true;
-      warnings =
-        lib.optional (!config.bootc.initramfs.regenerate) ''
-          bootc.ostree-prepare-root.transientEtc is enabled but bootc.initramfs.regenerate is false.
-          Either enable bootc.initramfs.regenerate or handle the regeneration yourself.
-        '';
+      warnings = lib.optional (!config.bootc.initramfs.regenerate) ''
+        bootc.ostree-prepare-root.transientEtc is enabled but bootc.initramfs.regenerate is false.
+        Either enable bootc.initramfs.regenerate or handle the regeneration yourself.
+      '';
 
       # TODO, issues with /etc/fstab https://github.com/bootc-dev/bootc/issues/364
       # boot.automount seems to be mounting the efi at /boot?

@@ -26,6 +26,10 @@
 
     assertions = lib.mkIf config.caliga.core.users.enable [
       {
+        assertion = config.caliga.os != null;
+        message = "caliga.core.users.enable requires caliga.os to be set. Users and groups are defined per OS.";
+      }
+      {
         assertion = config.caliga.core.systemd.enable;
         message = "caliga.core.users.enable requires caliga.core.systemd.enable = true";
       }

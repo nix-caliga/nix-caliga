@@ -22,5 +22,6 @@
 
   system.stateVersion = "25.11";
 
+  caliga.os = "bluefin-dakota";
   caliga.core.enable = true;
 }

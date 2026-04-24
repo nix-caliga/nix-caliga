@@ -39,6 +39,7 @@
     "sleep.target"
   ];
 
+  caliga.os = "fedora";
   caliga.core.enable = true;
 
   nix.enable = true;

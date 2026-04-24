@@ -16,6 +16,7 @@
     ./bootc-update.nix
     ./selinux.nix
     ./nix.nix
+    ./operatingSystems
     ./upstream/nixpkgs
   ];
 

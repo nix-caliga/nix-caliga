@@ -25,7 +25,7 @@
 
       imageConfigs = {
         test = ./images/test;
-        dakota = ./images/dakota;
+        bluefin-dakota = ./images/bluefin-dakota;
       };
     in
     {
