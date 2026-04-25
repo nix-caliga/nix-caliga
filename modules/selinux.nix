@@ -13,6 +13,7 @@ let
     "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
     "/nix/store/[^/]+/lib(/.*)?" = "lib_t";
     "/nix/store/[^/]+/lib/systemd/system(/.*)?" = "systemd_unit_file_t";
+    "/nix/store/[^/]+/usr/lib/systemd/system(/.*)?" = "systemd_unit_file_t";
     "/nix/store/[^/]+/man(/.*)?" = "man_t";
     "/nix/store/[^/]+/s?bin(/.*)?" = "bin_t";
     "/nix/store/[^/]+/share(/.*)?" = "usr_t";

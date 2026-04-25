@@ -110,22 +110,6 @@ in
       Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
     '';
 
-    layeredImage.enableFakechroot = true;
-
-    layeredImage.fakeRootCommands =
-      let
-        src = "${systemdUnits}/usr/lib/systemd/system";
-      in
-      ''
-        find ${src} -type d | while read -r d; do
-          mkdir -p "usr/lib/systemd/system/''${d#${src}/}"
-        done
-        find ${src} -type f | while read -r f; do
-          install -m 0644 -o 0 -g 0 "$f" "usr/lib/systemd/system/''${f#${src}/}"
-        done
-        find ${src} -type l | while read -r l; do
-          ln -sfn "$(readlink "$l")" "usr/lib/systemd/system/''${l#${src}/}"
-        done
-      '';
+    layeredImage.contents = [ systemdUnits ];
   };
 }
