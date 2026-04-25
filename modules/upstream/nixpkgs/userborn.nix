@@ -52,6 +52,10 @@
           Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
         '';
 
+    # Upstream userborn generates tmpfiles rules for home directories
+    # Bootc needs these to be symlinks to /var/home and we handle that ourselves
+    systemd.tmpfiles.settings.home-directories = lib.mkIf config.caliga.core.users.enable (lib.mkForce { });
+
     # Mask the base image's systemd-sysusers since userborn handles users/groups.
     systemd.maskedUnits = lib.mkIf config.caliga.core.users.enable [
       "systemd-sysusers.service"
