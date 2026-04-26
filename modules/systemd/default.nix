@@ -1,6 +1,5 @@
-# builds systemd services and copies /usr/lib/systemd/system via fakeRootCommands.
-# conflict handling follows system-manager
-# adds: systemd.defaultUnit option, unit masking, dependency symlinks (wantedBy/requiredBy)
+# builds /usr/lib/systemd/system for layeredImage.contents.
+# follows NixOS generateUnits; adds: systemd.defaultUnit option, unit masking
 {
   lib,
   config,
@@ -21,11 +20,14 @@ let
         lib.concatMapStrings (target: ''
           mkdir -p "$dir"/'${target}.${suffix}'
           ln -sfn '../${name}' "$dir"/'${target}.${suffix}'/
-        '') unit.${attr}
+        '') (unit.${attr} or [ ])
       ) enabledUnits
     );
 
   systemdUnits =
+    # copying the files here instead of linking them fixes issues with selinux, by making it clear what selinux needs to label
+    # copying doesnt result in a image size increase that matters so we go with this for now
+    # TODO figure out if theres a better way to label systemd services in selinux
     pkgs.runCommand "systemd-units"
       {
         preferLocalBuild = true;
@@ -36,18 +38,15 @@ let
         mkdir -p "$dir"
 
         # Copy units from systemd.packages
-        ${lib.concatStringsSep "\n" (
-          map (package: ''
-            if [ -d "${package}/lib/systemd/system" ]; then
-              for unit in "${package}/lib/systemd/system"/*; do
-                cp -L "$unit" "$dir"/
-              done
-            fi
-          '') cfg.packages
-        )}
+        for package in ${lib.escapeShellArgs (lib.unique cfg.packages)}; do
+          for basedir in $package/etc/systemd/system $package/lib/systemd/system; do
+            [ -e "$basedir" ] || continue
+            cp -rL "$basedir"/. "$dir"/
+          done
+        done
 
-        # Copy unit files, handling conflicts with drop-in overrides
-        for i in ${toString (lib.mapAttrsToList (_: v: v.unit) enabledUnits)}; do
+        # Link unit files, handling conflicts with drop-in overrides
+        for i in ${toString (lib.mapAttrsToList (n: v: v.unit) (lib.filterAttrs (n: v: v.overrideStrategy == "asDropinIfExists") enabledUnits))}; do
           fn=$(basename $i/*)
           if [ -e "$dir"/$fn ]; then
             if [ "$(readlink -f $i/$fn)" = /dev/null ]; then
@@ -61,9 +60,23 @@ let
           fi
         done
 
+        for i in ${toString (lib.mapAttrsToList (n: v: v.unit) (lib.filterAttrs (n: v: v.overrideStrategy == "asDropin") enabledUnits))}; do
+          fn=$(basename $i/*)
+          mkdir -p "$dir"/$fn.d
+          cp -L $i/$fn "$dir"/$fn.d/overrides.conf
+        done
+
         # Create dependency symlinks
         ${mkDepLinks "wantedBy" "wants"}
         ${mkDepLinks "requiredBy" "requires"}
+        ${mkDepLinks "upheldBy" "upholds"}
+
+        # Create aliases
+        ${lib.concatStrings (lib.mapAttrsToList (name: unit:
+          lib.concatMapStrings (alias: ''
+            ln -sfn '${name}' "$dir"/'${alias}'
+          '') (unit.aliases or [ ])
+        ) enabledUnits)}
 
         # Mask units
         ${lib.concatMapStrings (unit: ''
