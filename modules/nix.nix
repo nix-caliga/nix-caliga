@@ -68,6 +68,9 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
+    # include the nix db from the layeredImage.contents so the nix daemon can see it
+    layeredImage.includeNixDB = true;
+
     # Pick up nix-daemon.service, nix-daemon.socket, tmpfiles
     systemd.packages = [ cfg.package ];
     systemd.tmpfiles.packages = [ cfg.package ];
