@@ -74,8 +74,13 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf (cfg.transientEtc || cfg.additionalConf != "") {
-      environment.usr."lib/ostree/prepare-root.conf".source = prepareRootConf;
+    (lib.mkIf cfg.createConf {
+      # needs mode set so that environment.usr doesn't use a symlink
+      # symlink doesnt work as the file is read in initramfs
+      environment.usr."lib/ostree/prepare-root.conf" = {
+        source = prepareRootConf;
+        mode = "0644";
+      };
     })
 
     (lib.mkIf config.bootc.initramfs.regenerate {

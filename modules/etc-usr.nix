@@ -1,7 +1,8 @@
-# copied from system-manager's nix/modules/etc.nix
-# changes: uses fakeRootCommands to copy files as real files (not store symlinks)
-#   mode default changed from "symlink" to "0644", overlay stub
-#   added environment.usr identical to environment.etc but for /usr
+# originally copied from system-manager's nix/modules/etc.nix
+#
+# files with the default mode are symlinked to their location in /etc or /usr using layeredImage.contents
+# files that are used early in boot, (prepare-root.conf, selinux configs etc) don't work as symlinks and need real files
+# if a mode is set (0600 etc) then the file is placed using fakeRootCommands and does not show up in layeredImage.contents
 {
   lib,
   config,
@@ -40,8 +41,7 @@ let
                 type = lib.types.bool;
                 default = true;
                 description = lib.mdDoc ''
-                  Whether this /${prefix} file should be generated.  This
-                  option allows specific /${prefix} files to be disabled.
+                  Whether this /${prefix} file should be created.
                 '';
               };
 
@@ -66,10 +66,12 @@ let
 
               mode = lib.mkOption {
                 type = lib.types.str;
-                default = "0644";
+                default = "symlink";
                 example = "0600";
                 description = lib.mdDoc ''
-                  The file mode for the copied file.
+                  If `symlink`, the file is symlinked via layeredImage.contents.
+                  Otherwise, the file is copied as a real file with the given mode via fakeRootCommands and uid/gid/user/group take effect.
+                  Set an explicit mode for files read at install-time or early boot (selinux, ostree-prepare-root, etc).
                 '';
               };
 
@@ -77,8 +79,7 @@ let
                 default = 0;
                 type = lib.types.int;
                 description = lib.mdDoc ''
-                  UID of created file. Only takes effect when the file is
-                  copied (that is, the mode is not 'symlink').
+                  UID of created file.
                 '';
               };
 
@@ -86,8 +87,7 @@ let
                 default = 0;
                 type = lib.types.int;
                 description = lib.mdDoc ''
-                  GID of created file. Only takes effect when the file is
-                  copied (that is, the mode is not 'symlink').
+                  GID of created file.
                 '';
               };
 
@@ -95,9 +95,7 @@ let
                 default = "+${toString config.uid}";
                 type = lib.types.str;
                 description = lib.mdDoc ''
-                  User name of created file.
-                  Only takes effect when the file is copied (that is, the mode is not 'symlink').
-                  Changing this option takes precedence over `uid`.
+                  User name of created file. Takes precedence over `uid`.
                 '';
               };
 
@@ -105,9 +103,7 @@ let
                 default = "+${toString config.gid}";
                 type = lib.types.str;
                 description = lib.mdDoc ''
-                  Group name of created file.
-                  Only takes effect when the file is copied (that is, the mode is not 'symlink').
-                  Changing this option takes precedence over `gid`.
+                  Group name of created file. Takes precedence over `gid`.
                 '';
               };
             };
@@ -125,7 +121,7 @@ let
         )
       );
     };
-
+  # real files are placed with fakeRootCommands
   mkFakeRootCommands =
     prefix: files:
     lib.concatStringsSep "\n" (
@@ -137,11 +133,29 @@ let
             install -D -m ${f.mode} -o ${f.user} -g ${f.group} "$file" "${prefix}/${f.target}/$rel"
           done
         else
-          mkdir -p ${prefix}/$(dirname "${f.target}")
-          install -m ${f.mode} -o ${f.user} -g ${f.group} ${f.source} ${prefix}/${f.target}
+          install -D -m ${f.mode} -o ${f.user} -g ${f.group} ${f.source} ${prefix}/${f.target}
         fi
       '') files
     );
+  # default mode, symlinked files are placed with layeredImage.contents
+  mkContents =
+    prefix: files:
+    pkgs.runCommand "${prefix}-files"
+      {
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+      }
+      (lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (_: f: ''
+          if [ -d ${f.source} ]; then
+            mkdir -p $out/${prefix}/${f.target}
+            cp -rL ${f.source}/. $out/${prefix}/${f.target}/
+          else
+            mkdir -p $out/${prefix}/${builtins.dirOf f.target}
+            cp -L ${f.source} $out/${prefix}/${f.target}
+          fi
+        '') files
+      ));
 in
 {
   options = {
@@ -159,26 +173,46 @@ in
   };
   config =
     let
-      filteredEtc = lib.filterAttrs (_: f: f.enable) config.environment.etc;
-      filteredUsr = lib.filterAttrs (_: f: f.enable) config.environment.usr;
-      hasEtc = filteredEtc != { };
-      hasUsr = filteredUsr != { };
-      hasFiles = hasEtc || hasUsr;
-    in
-    lib.mkIf config.caliga.core.etc.enable {
-      warnings =
-        lib.optional (hasEtc && !config.caliga.core.selinux.enable && !config.selinux.ignoreWarnings)
-          ''
-            caliga.core.etc.enable is active but caliga.core.selinux.enable is false.
-            Files written to /etc may not be usable if selinux is enforcing.
-            Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
-          '';
+      sort =
+        files:
+        let
+          enabled = lib.filterAttrs (_: f: f.enable) files;
+        in
+        {
+          symlink = lib.filterAttrs (_: f: f.mode == "symlink") enabled;
+          file = lib.filterAttrs (_: f: f.mode != "symlink") enabled;
+        };
 
-      layeredImage.enableFakechroot = lib.mkIf hasFiles true;
+      etcParts = sort config.environment.etc;
+      usrParts = sort config.environment.usr;
+
+      hasEtcSymlink = etcParts.symlink != { };
+      hasUsrSymlink = usrParts.symlink != { };
+      hasEtcFile = etcParts.file != { };
+      hasUsrFile = usrParts.file != { };
+    in
+    lib.mkIf config.caliga.core.etc-usr.enable {
+      warnings =
+        lib.optional (
+          (hasEtcSymlink || hasUsrSymlink)
+          && !config.caliga.core.selinux.enable
+          && !config.selinux.ignoreWarnings
+        ) ''
+          caliga.core.etc-usr.enable has symlink entries but caliga.core.selinux.enable is false.
+          Symlinks in /etc and /usr resolve into /nix/store paths that the base image's SELinux policy likely does not cover;
+
+          Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
+        '';
+
+      layeredImage.enableFakechroot = lib.mkIf (hasEtcFile || hasUsrFile) true;
 
       layeredImage.fakeRootCommands =
-        lib.optionalString hasEtc (mkFakeRootCommands "etc" filteredEtc)
-        + lib.optionalString (hasEtc && hasUsr) "\n"
-        + lib.optionalString hasUsr (mkFakeRootCommands "usr" filteredUsr);
+        lib.optionalString hasEtcFile (mkFakeRootCommands "etc" etcParts.file)
+        + lib.optionalString (hasEtcFile && hasUsrFile) "\n"
+        + lib.optionalString hasUsrFile (mkFakeRootCommands "usr" usrParts.file);
+
+      layeredImage.contents =
+        lib.optional hasEtcSymlink (mkContents "etc" etcParts.symlink)
+        ++ lib.optional hasUsrSymlink (mkContents "usr" usrParts.symlink);
     };
 }

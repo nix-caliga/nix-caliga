@@ -34,8 +34,8 @@
         message = "caliga.core.users.enable requires caliga.core.systemd.enable = true";
       }
       {
-        assertion = config.caliga.core.etc.enable;
-        message = "caliga.core.users.enable requires caliga.core.etc.enable = true";
+        assertion = config.caliga.core.etc-usr.enable;
+        message = "caliga.core.users.enable requires caliga.core.etc-usr.enable = true";
       }
     ];
 

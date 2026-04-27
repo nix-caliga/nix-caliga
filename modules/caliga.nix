@@ -13,10 +13,10 @@
         SELinux is enabled based on caliga.os
       '';
     };
-    etc.enable = lib.mkOption {
+    etc-usr.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable the /etc file generation module.";
+      description = "Enable the /etc and /usr file generation module.";
     };
     systemd.enable = lib.mkOption {
       type = lib.types.bool;
@@ -66,7 +66,7 @@
 
   config.caliga.core = lib.mkIf config.caliga.core.enable {
     # selinux is enabled depending on the caliga.os
-    etc.enable = lib.mkDefault true;
+    etc-usr.enable = lib.mkDefault true;
     systemd.enable = lib.mkDefault true;
     tmpfiles.enable = lib.mkDefault true;
     users.enable = lib.mkDefault true;

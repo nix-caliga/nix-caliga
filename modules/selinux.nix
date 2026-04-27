@@ -13,6 +13,7 @@ let
     "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
     "/nix/store/[^/]+/lib(/.*)?" = "lib_t";
     "/nix/store/[^/]+/lib/systemd/system(/.*)?" = "systemd_unit_file_t";
+    "/nix/store/[^/]+/usr(/.*)?" = "usr_t";
     "/nix/store/[^/]+/usr/lib/systemd/system(/.*)?" = "systemd_unit_file_t";
     "/nix/store/[^/]+/man(/.*)?" = "man_t";
     "/nix/store/[^/]+/s?bin(/.*)?" = "bin_t";
@@ -122,15 +123,23 @@ in
   config = lib.mkIf config.caliga.core.selinux.enable (
     lib.mkMerge [
       (lib.mkIf (allRules != { }) {
-        environment.etc."selinux/targeted/contexts/files/file_contexts.local".source = fileContextsLocal;
+        # needs mode set so that environment.usr doesn't use a symlink
+        environment.etc."selinux/targeted/contexts/files/file_contexts.local" = {
+          source = fileContextsLocal;
+          mode = "0644";
+        };
       })
 
       (lib.mkIf (cfg.enforcementMode != null) {
-        environment.etc."selinux/config".text = lib.concatStringsSep "\n" [
-          "SELINUX=${cfg.enforcementMode}"
-          "SELINUXTYPE=targeted"
-          ""
-        ];
+        # needs mode set so that environment.usr doesn't use a symlink
+        environment.etc."selinux/config" = {
+          text = lib.concatStringsSep "\n" [
+            "SELINUX=${cfg.enforcementMode}"
+            "SELINUXTYPE=targeted"
+            ""
+          ];
+          mode = "0644";
+        };
       })
     ]
   );

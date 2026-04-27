@@ -49,8 +49,8 @@ in
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = config.caliga.core.etc.enable;
-        message = "nix.enable requires caliga.core.etc.enable = true";
+        assertion = config.caliga.core.etc-usr.enable;
+        message = "nix.enable requires caliga.core.etc-usr.enable = true";
       }
       {
         assertion = config.caliga.core.systemd.enable;

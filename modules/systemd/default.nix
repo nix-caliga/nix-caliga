@@ -24,10 +24,8 @@ let
       ) enabledUnits
     );
 
+  # we move the generated units into the correct directory, and allow layeredImage.contents to symlink the files into place
   systemdUnits =
-    # copying the files here instead of linking them fixes issues with selinux, by making it clear what selinux needs to label
-    # copying doesnt result in a image size increase that matters so we go with this for now
-    # TODO figure out if theres a better way to label systemd services in selinux
     pkgs.runCommand "systemd-units"
       {
         preferLocalBuild = true;

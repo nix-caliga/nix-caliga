@@ -77,8 +77,8 @@ in
         message = "services.bootc-update.authFile requires caliga.core.tmpfiles.enable = true";
       }
       {
-        assertion = cfg.authFile != null || cfg.auth == { } || config.caliga.core.etc.enable;
-        message = "services.bootc-update.auth requires caliga.core.etc.enable = true";
+        assertion = cfg.authFile != null || cfg.auth == { } || config.caliga.core.etc-usr.enable;
+        message = "services.bootc-update.auth requires caliga.core.etc-usr.enable = true";
       }
     ];
 
