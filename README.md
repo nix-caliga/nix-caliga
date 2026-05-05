@@ -29,17 +29,6 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 
 All modules are disabled by default, and you opt in to the parts of nix-caliga you need.
 
-## Going forwards
-
-- Proper tests
-- Keep an eye on system-manager and bring over useful features.
-- Secret management, with Agenix, Sops-nix and hopefully [Vars](https://clan.lol/blog/vars/).
-- Home-manager 
-- Importing more nixos services
-- Networking (watching to see how system-manager will handle this)
-- Fully design a caliga-cli tool
-- Create a separate nix-caliga based kiosk configuration and set of images. (The original reason I went down this rabbit hole.)
-
 ## Getting started
 
 Here is an example flake.nix
@@ -107,6 +96,19 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
 
 }
 ```
+And to build/load the resulting image:  
+`nix build .#caligaConfigurations.x86_64-linux.myimage.config.build.image && ./result | podman load`
+
+## Going forwards
+
+- Proper tests
+- Keep an eye on system-manager and bring over useful features.
+- Secret management, with Agenix, Sops-nix and hopefully [Vars](https://clan.lol/blog/vars/).
+- Home-manager 
+- Importing more nixos services
+- Networking (watching to see how system-manager will handle this)
+- Fully design a caliga-cli tool
+- Create a separate nix-caliga based kiosk configuration and set of images. (The original reason I went down this rabbit hole.)
 
 
 ## LLM/AI usage note
@@ -115,7 +117,7 @@ The nix modules are being writen/designed by human hands using the assistance of
 
 Documentation is writen by a human as well.
 
-Currently the caliga-cli and tests are pretty much raw vibes. I am not sure what I want these to look like long term, and are currently just tools to help me in testing/developing Nix-caliga while I work out what I need them to be.
+Currently the caliga-cli and tests are pretty much raw vibes. I am not sure what I want these to look like long term, and are currently just tools to help me in testing/developing Nix-caliga while I work out what I need them to be.  
 I would not recommend using/relying on the caliga-cli or tests under /tests unless you review the code for them yourself.
 
 The rest of the code (The nix modules themselves) are in a state where the code matches my own human ability.
