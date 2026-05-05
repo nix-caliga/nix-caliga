@@ -7,31 +7,13 @@
     };
   };
 
-  outputs =
+  outputs = { nixpkgs, nix-caliga, ... }:
     {
-      self,
-      nixpkgs,
-      nix-caliga,
-    }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      caligaConfigurations = {
+      caligaConfigurations.x86_64-linux = {
         myimage = nix-caliga.lib.makeCaligaConfig {
-          inherit pkgs;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [ ./images/myimage ];
         };
-      };
-      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs caligaConfigurations; };
-    in
-    {
-      caligaConfigurations.${system} = caligaConfigurations;
-
-      devShells.${system}.default = pkgs.mkShell {
-        packages = [ caliga ];
-        shellHook = ''
-          source ${caliga}/share/bash-completion/completions/caliga
-        '';
       };
     };
 }

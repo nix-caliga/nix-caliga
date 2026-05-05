@@ -9,52 +9,36 @@ Snow boot(c)
 
 Nix-caliga aims to be to bootc images what [system-manager](https://github.com/numtide/system-manager) and [nix-darwin](https://github.com/nix-community/nix-darwin) are to Linux and macOS.
 
-Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayeredImage` outputs designed for bootc images.
-This provides modularity to bootc image creation and access to nixpkgs.
-
-## Why nix-caliga?
-
-[BlueBuild](https://blue-build.org/) Is a set of tools for modular recipes that assemble bootc Containerfiles. Being familiar with NixOS, I wanted additional control over the configuration along with the package diversity and dependency management from nixpkgs.
-
-This also provides a few additional benefits over standard NixOS:
-- *It's NOT NixOS.* Providing options for:
-  - POSIX-compatiblility
-  - SELinux
-  - Secure Boot (by default)
-- Increased package availability. Some software is extremely unlikely to make it into nixpkgs for various reasons, but often has official support for mainline Linux distributions, which you can make use of with a base bootc image.
-- Configuring bootc images with nix-caliga does not stop traditional oci image workflows from being useful alongside it.
-
-In my experience with NixOS, its strength isn't the fact that it is NixOS. It's the reliability, reproducibility, and modularity.
-Nix-caliga aims to keep these strengths while being more flexible and compatible with the growing bootc toolset.
+Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayeredImage` outputs to configure bootc images.
 
 ## Current features
 
 > Currently in the very early stages.  
-> Heavily based on numtide's [system-manager](https://github.com/numtide/system-manager), with the majority of modules copied directly from it and adjusted to work with bootc image layering.
+> Heavily based on numtide's [system-manager](https://github.com/numtide/system-manager), with a number of modules copied directly from it and adjusted to work with bootc image layering.
 
 - Systemd configuration through familiar NixOS-based `systemd` options.
-- File creation/placement through NixOS-based `environment.etc` and `systemd.tmpfiles` options.
+- File creation/placement through NixOS-based `environment.etc`, `environment.usr` and `systemd.tmpfiles` options.
 - User/group creation and management with NixOS-based `users.users` options, powered by userborn (as [system-manager](https://github.com/numtide/system-manager) does).
 - Automatic bootc update management with optional authentication.
-- Experimental SELinux configuration and default labels for Nix store paths.
+- SELinux configuration and default labels for Nix store paths.
+- Nix-daemon, not required for nix-caliga images, but is an optional service you can enable
 - Nix packages to $PATH with `environment.systemPackages`
-- Testing against Fedora's bootc images.
+- Bootc's ostree-prepare-root configuration at `bootc.ostree-prepare-root`
+- Optional nix configured containerfile to handle tasks streamLayeredImage can't (rebuild initramfs etc)
+- Testing against Fedora's bootc images, and expanding to ublue and projectbluefin/dakota images.
+
+All modules are disabled by default, and you opt in to the parts of nix-caliga you need.
 
 ## Going forwards
 
-- Documentation
-- Tests
-- Expand to ublue's "distroless" bootc image ([dakota](https://github.com/projectbluefin/dakota)) as it becomes stable.
+- Proper tests
 - Keep an eye on system-manager and bring over useful features.
-- Secret management, hopefully with [Vars](https://clan.lol/blog/vars/).
+- Secret management, with Agenix, Sops-nix and hopefully [Vars](https://clan.lol/blog/vars/).
+- Home-manager 
 - Importing more nixos services
 - Networking (watching to see how system-manager will handle this)
+- Fully design a caliga-cli tool
 - Create a separate nix-caliga based kiosk configuration and set of images. (The original reason I went down this rabbit hole.)
-
-
-## Caliga-cli
-Commands for development/testing that are flake-aware with tab completion
-
 
 ## Getting started
 
@@ -70,32 +54,19 @@ Here is an example flake.nix
     };
   };
 
-  outputs = { self, nixpkgs, nix-caliga }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      caligaConfigs = {
+  outputs = { nixpkgs, nix-caliga, ... }:
+    {
+      caligaConfigurations.x86_64-linux = {
         myimage = nix-caliga.lib.makeCaligaConfig {
-          inherit pkgs;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [ ./images/myimage ];
         };
-      };
-      caliga = nix-caliga.lib.mkCaligaCli { inherit pkgs caligaConfigs; };
-    in
-    {
-      caligaConfigs.${system} = caligaConfigs;
-
-      devShells.${system}.default = pkgs.mkShell {
-        packages = [ caliga ];
-        shellHook = ''
-          source ${caliga}/share/bash-completion/completions/caliga
-        '';
       };
     };
 }
 ```
 
-And an example caligaConfig
+And an example caligaConfiguration (placed at ./images/myimage relative to the flake.nix)
 Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
 ```nix
 { pkgs, ... }:
@@ -106,31 +77,45 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
     tag = "test";
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:850575ab43ae474135fa91dbf10b3a208ceaf0168158cff45fe2b37d2ee11fe9";
-      sha256 = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
+      imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
+      hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
       finalImageTag = "43";
     };
   };
 
-  users.users.test1 = {
-    isNormalUser = true;
-    uid = 1001;
-    description = "Test User";
-    initialPassword = "test";
-  };
+  caliga.os = "fedora";
+  caliga.core.enable = true;
 
   system.stateVersion = "25.11";
+
+  users.users.example = {
+    isNormalUser = true;
+    uid = 1001;
+    description = "Example User";
+    initialPassword = "password";
+  };
+
+  environment.systemPackages = [ pkgs.cowsay ];
 
   services.bootc-update = {
     enable = true;
     schedule = {
       onBootSec = "20s";
-      onUnitActiveSec = "20s";
+      onUnitActiveSec = "2h";
     };
   };
 
-  systemd.maskedUnits = [
-    "sleep.target"
-  ];
 }
 ```
+
+
+## LLM/AI usage note
+Language models are being used as a tool in the development of Nix-caliga.  
+The nix modules are being writen/designed by human hands using the assistance of language models to speed up work.
+
+Documentation is writen by a human as well.
+
+Currently the caliga-cli and tests are pretty much raw vibes. I am not sure what I want these to look like long term, and are currently just tools to help me in testing/developing Nix-caliga while I work out what I need them to be.
+I would not recommend using/relying on the caliga-cli or tests under /tests unless you review the code for them yourself.
+
+The rest of the code (The nix modules themselves) are in a state where the code matches my own human ability.

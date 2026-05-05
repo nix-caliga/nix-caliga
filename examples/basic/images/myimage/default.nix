@@ -12,24 +12,26 @@
     };
   };
 
-  users.users.test1 = {
-    isNormalUser = true;
-    uid = 1001;
-    description = "Test User";
-    initialPassword = "test";
-  };
+  caliga.os = "fedora";
+  caliga.core.enable = true;
 
   system.stateVersion = "25.11";
+
+  users.users.example = {
+    isNormalUser = true;
+    uid = 1001;
+    description = "Example User";
+    initialPassword = "password";
+  };
+
+  environment.systemPackages = [ pkgs.cowsay ];
 
   services.bootc-update = {
     enable = true;
     schedule = {
       onBootSec = "20s";
-      onUnitActiveSec = "20s";
+      onUnitActiveSec = "2h";
     };
   };
 
-  systemd.maskedUnits = [
-    "sleep.target"
-  ];
 }
