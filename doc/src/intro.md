@@ -8,51 +8,54 @@ Example of a caligaConfiguration:
 { pkgs, ... }:
 
 {
-  layeredImage = {
-    name = "ghcr.io/nix-caliga/nix-caliga";
-    tag = "test";
-    fromImage = pkgs.dockerTools.pullImage {
-      imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-      hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-      finalImageTag = "43";
+  config = {
+    layeredImage = {
+      name = "ghcr.io/nix-caliga/nix-caliga";
+      tag = "test";
+      fromImage = pkgs.dockerTools.pullImage {
+        imageName = "quay.io/fedora/fedora-bootc";
+        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
+        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
+        finalImageTag = "43";
+      };
+    };
+
+    caliga.os = "fedora";
+    caliga.core.enable = true;
+
+    system.stateVersion = "25.11";
+
+    users.users.example = {
+      isNormalUser = true;
+      uid = 1001;
+      description = "Example User";
+      initialPassword = "password";
+    };
+
+    environment.systemPackages = [ pkgs.cowsay ];
+
+    services.bootc-update = {
+      enable = true;
+      schedule = {
+        onBootSec = "20s";
+        onUnitActiveSec = "2h";
+      };
     };
   };
-
-  caliga.os = "fedora";
-  caliga.core.enable = true;
-
-  system.stateVersion = "25.11";
-
-  users.users.example = {
-    isNormalUser = true;
-    uid = 1001;
-    description = "Example User";
-    initialPassword = "password";
-  };
-
-  environment.systemPackages = [ pkgs.cowsay ];
-
-  services.bootc-update = {
-    enable = true;
-    schedule = {
-      onBootSec = "20s";
-      onUnitActiveSec = "2h";
-    };
-  };
-
 }
 ```
 
 ## Nix-Caliga vs NixOS
-Because Nix-caliga is able to build on top of more traditional OS bootc images as a base, we gain a number of advantages. (If supported by the chosen base image)
+Because Nix-caliga is able to build on top of more traditional OS bootc images as a base, we gain a number of benefits. (If supported by the chosen base image)
 * POSIX compatablility
 * SELinux 
 * Secure boot out of the box 
 * Supports applications nixpkgs struggles to package, but that often have first party support in traditional OS repositories.    
 
 Additonally, Nix-caliga doesn't lock the system down to one tool, and can be used along side other existing bootc workflows and tools.  
-For example, an expected use case scenario would be to take a base image built by another team. Maybe they built it with standard containerfiles, BlueBuild, or BuildStream. Then you use Nix-caliga on top of their image to customize to your use case(s), before finishing up with a final containerfile to rebuild the initramfs, and install a couple base-image specific packages. 
+For example, an expected use case scenario would be to take a base image built by another team. Maybe they built it with standard containerfiles, BlueBuild, or BuildStream. Then you use Nix-caliga on top of their image to customize to your use case(s), before finishing up with a final containerfile to rebuild the initramfs, and install a couple base-image specific packages.  
+
+NixOS has a number of strong advantages, such as the **full** system being build by nix. But Nix-caliga should be able to bring the power of Nix to more places.
 
 ## Nix-Caliga vs "Traditional" Bootc Tools
 
@@ -61,7 +64,7 @@ There are a number of discussions online comparing nix to yaml/containerfile/tom
 Different tools will be better suited to different usecases. Nix-caliga expands the tools available for the job.
 
 ### Nix Ecosystem
-While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. And others.
+While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. Microvm.nix for NixOS based microvms. And others.
 
 ### Cross Configuration
 Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.

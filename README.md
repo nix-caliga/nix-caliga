@@ -61,39 +61,40 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
 { pkgs, ... }:
 
 {
-  layeredImage = {
-    name = "ghcr.io/nix-caliga/nix-caliga";
-    tag = "test";
-    fromImage = pkgs.dockerTools.pullImage {
-      imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-      hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-      finalImageTag = "43";
+  config = {
+    layeredImage = {
+      name = "ghcr.io/nix-caliga/nix-caliga";
+      tag = "test";
+      fromImage = pkgs.dockerTools.pullImage {
+        imageName = "quay.io/fedora/fedora-bootc";
+        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
+        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
+        finalImageTag = "43";
+      };
+    };
+
+    caliga.os = "fedora";
+    caliga.core.enable = true;
+
+    system.stateVersion = "25.11";
+
+    users.users.example = {
+      isNormalUser = true;
+      uid = 1001;
+      description = "Example User";
+      initialPassword = "password";
+    };
+
+    environment.systemPackages = [ pkgs.cowsay ];
+
+    services.bootc-update = {
+      enable = true;
+      schedule = {
+        onBootSec = "20s";
+        onUnitActiveSec = "2h";
+      };
     };
   };
-
-  caliga.os = "fedora";
-  caliga.core.enable = true;
-
-  system.stateVersion = "25.11";
-
-  users.users.example = {
-    isNormalUser = true;
-    uid = 1001;
-    description = "Example User";
-    initialPassword = "password";
-  };
-
-  environment.systemPackages = [ pkgs.cowsay ];
-
-  services.bootc-update = {
-    enable = true;
-    schedule = {
-      onBootSec = "20s";
-      onUnitActiveSec = "2h";
-    };
-  };
-
 }
 ```
 And to build/load the resulting image:  

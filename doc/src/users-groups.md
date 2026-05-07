@@ -23,6 +23,7 @@ Enabled with `config.caliga.core.users.enable`.
 - `config.users.users`
 - `config.users.groups`
 - `config.users.mutableUsers`
+  - Defaults to `true`
 - `config.users.defaultUserShell`
 - `config.users.enforceIdUniqueness`
 - `config.users.allowNoPasswordLogin`
