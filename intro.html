@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-17be2b77.js";
+            window.path_to_searchindex_js = "searchindex-45a5e08d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-1845dff0.js"></script>
+        <script src="toc-3fbc038d.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -180,43 +180,44 @@
 <pre><code class="language-nix">{ pkgs, ... }:
 
 {
-  layeredImage = {
-    name = "ghcr.io/nix-caliga/nix-caliga";
-    tag = "test";
-    fromImage = pkgs.dockerTools.pullImage {
-      imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-      hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-      finalImageTag = "43";
+  config = {
+    layeredImage = {
+      name = "ghcr.io/nix-caliga/nix-caliga";
+      tag = "test";
+      fromImage = pkgs.dockerTools.pullImage {
+        imageName = "quay.io/fedora/fedora-bootc";
+        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
+        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
+        finalImageTag = "43";
+      };
+    };
+
+    caliga.os = "fedora";
+    caliga.core.enable = true;
+
+    system.stateVersion = "25.11";
+
+    users.users.example = {
+      isNormalUser = true;
+      uid = 1001;
+      description = "Example User";
+      initialPassword = "password";
+    };
+
+    environment.systemPackages = [ pkgs.cowsay ];
+
+    services.bootc-update = {
+      enable = true;
+      schedule = {
+        onBootSec = "20s";
+        onUnitActiveSec = "2h";
+      };
     };
   };
-
-  caliga.os = "fedora";
-  caliga.core.enable = true;
-
-  system.stateVersion = "25.11";
-
-  users.users.example = {
-    isNormalUser = true;
-    uid = 1001;
-    description = "Example User";
-    initialPassword = "password";
-  };
-
-  environment.systemPackages = [ pkgs.cowsay ];
-
-  services.bootc-update = {
-    enable = true;
-    schedule = {
-      onBootSec = "20s";
-      onUnitActiveSec = "2h";
-    };
-  };
-
 }
 </code></pre>
 <h2 id="nix-caliga-vs-nixos"><a class="header" href="#nix-caliga-vs-nixos">Nix-Caliga vs NixOS</a></h2>
-<p>Because Nix-caliga is able to build on top of more traditional OS bootc images as a base, we gain a number of advantages. (If supported by the chosen base image)</p>
+<p>Because Nix-caliga is able to build on top of more traditional OS bootc images as a base, we gain a number of benefits. (If supported by the chosen base image)</p>
 <ul>
 <li>POSIX compatablility</li>
 <li>SELinux</li>
@@ -224,11 +225,12 @@
 <li>Supports applications nixpkgs struggles to package, but that often have first party support in traditional OS repositories.</li>
 </ul>
 <p>Additonally, Nix-caliga doesn’t lock the system down to one tool, and can be used along side other existing bootc workflows and tools.<br>For example, an expected use case scenario would be to take a base image built by another team. Maybe they built it with standard containerfiles, BlueBuild, or BuildStream. Then you use Nix-caliga on top of their image to customize to your use case(s), before finishing up with a final containerfile to rebuild the initramfs, and install a couple base-image specific packages.</p>
+<p>NixOS has a number of strong advantages, such as the <strong>full</strong> system being build by nix. But Nix-caliga should be able to bring the power of Nix to more places.</p>
 <h2 id="nix-caliga-vs-traditional-bootc-tools"><a class="header" href="#nix-caliga-vs-traditional-bootc-tools">Nix-Caliga vs “Traditional” Bootc Tools</a></h2>
 <h3 id="nix-language"><a class="header" href="#nix-language">Nix Language</a></h3>
 <p>There are a number of discussions online comparing nix to yaml/containerfile/toml/json/etc and I won’t dive into it here. Nix(language) is not perfect, but it offers significantly more power over yaml.<br>Different tools will be better suited to different usecases. Nix-caliga expands the tools available for the job.</p>
 <h3 id="nix-ecosystem"><a class="header" href="#nix-ecosystem">Nix Ecosystem</a></h3>
-<p>While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. And others.</p>
+<p>While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. Microvm.nix for NixOS based microvms. And others.</p>
 <h3 id="cross-configuration"><a class="header" href="#cross-configuration">Cross Configuration</a></h3>
 <p>Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
@@ -240,6 +242,9 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="getting-started.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
                             <a rel="next prefetch" href="systemd.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
@@ -251,6 +256,9 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="getting-started.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
                     <a rel="next prefetch" href="systemd.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
