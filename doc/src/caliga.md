@@ -21,16 +21,24 @@ SELinux is controlled separately through `config.caliga.core.selinux.enable` and
 
 Each module can be enabled independently:
 
-- `config.caliga.core.etc-usr.enable` Enables `/etc` and `/usr` file generation. Required by most other modules. See [etc-usr](etc-usr.md).
-- `config.caliga.core.systemd.enable` Enables systemd unit generation. See [systemd](systemd.md).
-- `config.caliga.core.tmpfiles.enable` Enables `config.systemd.tmpfiles` rule management.
-- `config.caliga.core.users.enable` Enables user and group management through userborn. See [users-groups](users-groups.md).
-- `config.caliga.core.selinux.enable` Enables SELinux file context labeling. See [selinux](selinux.md).
+- `config.caliga.core.etc-usr.enable`
+  - Enables `/etc` and `/usr` file generation. Required by most other modules. See [etc-usr](etc-usr.md).
+- `config.caliga.core.systemd.enable`
+  - Enables systemd unit generation. See [systemd](systemd.md).
+- `config.caliga.core.tmpfiles.enable`
+  - Enables `config.systemd.tmpfiles` rule management.
+- `config.caliga.core.users.enable`
+  - Enables user and group management through userborn. See [users-groups](users-groups.md).
+- `config.caliga.core.selinux.enable`
+  - Enables SELinux file context labeling. See [selinux](selinux.md).
 
 ## Containerfile
 
 `config.caliga.core.containerfile` configures an optional `podman build` step that runs after `streamLayeredImage`. Some operations (such as initramfs regeneration) cannot be done inside `streamLayeredImage` and require a Containerfile instead. See [buildImage](buildImage.md).
 
-- `config.caliga.core.containerfile.enable` Apply a Containerfile on top of the `streamLayeredImage` output. Defaults to `false`.
-- `config.caliga.core.containerfile.file` Path to a custom Containerfile. If set, takes full precedence — any commands from `config.caliga.core.containerfile.extraCommands` or generated commands (e.g. from `config.bootc.initramfs.regenerate`) are not used.
-- `config.caliga.core.containerfile.extraCommands` Additional Containerfile commands appended to generated commands. Ignored if `config.caliga.core.containerfile.file` is set.
+- `config.caliga.core.containerfile.enable`
+  - Apply a Containerfile on top of the `streamLayeredImage` output. Defaults to `false`.
+- `config.caliga.core.containerfile.file`
+  - Path to a custom Containerfile. If set, takes full precedence — any commands from `config.caliga.core.containerfile.extraCommands` or generated commands (e.g. from `config.bootc.initramfs.regenerate`) are not used.
+- `config.caliga.core.containerfile.extraCommands`
+  - Additional Containerfile commands appended to generated commands. Ignored if `config.caliga.core.containerfile.file` is set.

@@ -42,8 +42,10 @@ Requires `config.caliga.core.systemd.enable = true`.
 
 Two options are provided for authenticating with private registries:
 
-- `config.services.bootc-update.auth` builds `auth.json` into the image at `/etc/ostree/auth.json`. Credentials are baked in at image build time. Requires `config.caliga.core.etc-usr.enable` (see [etc-usr](etc-usr.md)) = true.
-- `config.services.bootc-update.authFile` symlinks an existing file on the host to `/etc/ostree/auth.json` at runtime through tmpfiles. Requires `config.caliga.core.tmpfiles.enable = true`. Takes priority over `config.services.bootc-update.auth` if both are set.
+- `config.services.bootc-update.auth`
+  - Builds `auth.json` into the image at `/etc/ostree/auth.json`. Credentials are baked in at image build time. Requires `config.caliga.core.etc-usr.enable` (see [etc-usr](etc-usr.md)) = true.
+- `config.services.bootc-update.authFile`
+  - Symlinks an existing file on the host to `/etc/ostree/auth.json` at runtime through tmpfiles. Requires `config.caliga.core.tmpfiles.enable = true`. Takes priority over `config.services.bootc-update.auth` if both are set.
 
 Auth values are base64-encoded `user:pass` strings, generate with `echo -n 'user:pass' | base64`.
 
@@ -51,20 +53,31 @@ Auth values are base64-encoded `user:pass` strings, generate with `echo -n 'user
 
 ### `config.bootc.ostree-prepare-root`
 
-- `config.bootc.ostree-prepare-root.createConf` Write `/usr/lib/ostree/prepare-root.conf` into the image. Defaults to `false`.
-- `config.bootc.ostree-prepare-root.transientEtc` Mount `/etc` as a transient overlay at boot. Defaults to `false`.
-- `config.bootc.ostree-prepare-root.additionalConf` Additional lines appended to `prepare-root.conf`. Defaults to enabling composefs and readonly sysroot.
+- `config.bootc.ostree-prepare-root.createConf`
+  - Write `/usr/lib/ostree/prepare-root.conf` into the image. Defaults to `false`.
+- `config.bootc.ostree-prepare-root.transientEtc`
+  - Mount `/etc` as a transient overlay at boot. Defaults to `false`.
+- `config.bootc.ostree-prepare-root.additionalConf`
+  - Additional lines appended to `prepare-root.conf`. Defaults to enabling composefs and readonly sysroot.
 
 ### `config.bootc.initramfs`
 
-- `config.bootc.initramfs.regenerate` Append a dracut initramfs regeneration step to the Containerfile. Defaults to `false`.
+- `config.bootc.initramfs.regenerate`
+  - Append a dracut initramfs regeneration step to the Containerfile. Defaults to `false`.
 
 ### `config.services.bootc-update`
 
-- `config.services.bootc-update.enable` Enable the automatic update timer.
-- `config.services.bootc-update.autoReboot` Reboot after applying an update (`bootc upgrade --apply`). Defaults to `true`.
-- `config.services.bootc-update.schedule.onBootSec` Delay after boot before the first update check. Defaults to `30s`.
-- `config.services.bootc-update.schedule.onUnitActiveSec` Interval between update checks. Defaults to `1h`.
-- `config.services.bootc-update.schedule.onCalendar` If set, overrides `config.services.bootc-update.schedule.onBootSec` and `config.services.bootc-update.schedule.onUnitActiveSec` with a calendar expression (e.g. "daily"). Defaults to `null`.
-- `config.services.bootc-update.auth` Registry credentials baked into the image.
-- `config.services.bootc-update.authFile` Path to a `containers-auth.json` file on the host, symlinked at runtime.
+- `config.services.bootc-update.enable`
+  - Enable the automatic update timer.
+- `config.services.bootc-update.autoReboot`
+  - Reboot after applying an update (`bootc upgrade --apply`). Defaults to `true`.
+- `config.services.bootc-update.schedule.onBootSec`
+  - Delay after boot before the first update check. Defaults to `30s`.
+- `config.services.bootc-update.schedule.onUnitActiveSec`
+  - Interval between update checks. Defaults to `1h`.
+- `config.services.bootc-update.schedule.onCalendar`
+  - If set, overrides `config.services.bootc-update.schedule.onBootSec` and `config.services.bootc-update.schedule.onUnitActiveSec` with a calendar expression (e.g. "daily"). Defaults to `null`.
+- `config.services.bootc-update.auth`
+  - Registry credentials baked into the image.
+- `config.services.bootc-update.authFile`
+  - Path to a `containers-auth.json` file on the host, symlinked at runtime.
