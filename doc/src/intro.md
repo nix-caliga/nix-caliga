@@ -43,7 +43,7 @@ Example of a caligaConfiguration:
 
 }
 ```
-# Why
+
 ## Nix-Caliga vs NixOS
 Because Nix-caliga is able to build on top of more traditional OS bootc images as a base, we gain a number of advantages. (If supported by the chosen base image)
 * POSIX compatablility
@@ -55,21 +55,24 @@ Additonally, Nix-caliga doesn't lock the system down to one tool, and can be use
 For example, an expected use case scenario would be to take a base image built by another team. Maybe they built it with standard containerfiles, BlueBuild, or BuildStream. Then you use Nix-caliga on top of their image to customize to your use case(s), before finishing up with a final containerfile to rebuild the initramfs, and install a couple base-image specific packages. 
 
 ## Nix-Caliga vs "Traditional" Bootc Tools
-### Nix(language) vs yaml/containerfile/toml/json/etc. 
-There are a number of discussions online comparing these and I won't dive into it here. Nix(language) is not perfect, but it offers significantly more power over yaml.  
+
+### Nix Language
+There are a number of discussions online comparing nix to yaml/containerfile/toml/json/etc and I won't dive into it here. Nix(language) is not perfect, but it offers significantly more power over yaml.  
 Different tools will be better suited to different usecases. Nix-caliga expands the tools available for the job.
+
 ### Nix Ecosystem
 While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. And others.
-### Cross configuration with NixOS hosts/other nix projects.
+
+### Cross Configuration
 Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.
 
-# How
+## How It Works
 This project is built on [nixpkgs.dockerTools' streamLayeredImage](https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage) which "builds a script which, when run, will stream to stdout a Docker-compatible repository tarball containing a single image, using multiple layers to improve sharing between images."  
-Using streamLayeredImage, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.  
+Using `streamLayeredImage`, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.  
 Base images in testing right now are Fedora and a handful of uBlue images including the new projectbluefin/dakota image based off of GnomeOS.  
 The result is a configured image that does not require a nix-package, or a nix-daemon. Both are available to be included if desired, but are not required and disabled by default.
 
-Where possible we use streamLayeredImage.contents to deliver the configuration as simlinks to the image's nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.  
-At times, symlinks don't cut it and we use streamLayeredImage.fakeRootCommands to copy files into place with required permissions.
+Where possible we use `streamLayeredImage.contents` to deliver the configuration as symlinks to the image's nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.  
+At times, symlinks don't cut it and we use `streamLayeredImage.fakeRootCommands` to copy files into place with required permissions.
 
-Optionially there is a nix configured containerfile that podman will run after streamLayeredImage. Allowing for some workflows such as rebuilding the initramfs, that aren't available with streamLayeredImage alone. This is disabled by default, and can be handled by external workflows if desired.
+Optionally there is a nix configured containerfile that podman will run after `streamLayeredImage`. Allowing for some workflows such as rebuilding the initramfs, that aren't available with `streamLayeredImage` alone. This is disabled by default, and can be handled by external workflows if desired.

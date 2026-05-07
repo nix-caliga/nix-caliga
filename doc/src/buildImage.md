@@ -3,56 +3,57 @@ Nix-caliga builds bootc-compatible OCI images using `pkgs.dockerTools.streamLaye
 
 The final image script is available at `config.build.image`.
 
-## streamLayeredImage
+## StreamLayeredImage
 `pkgs.dockerTools.streamLayeredImage.*` options are made directly available at `config.layeredImage.*`. See the [NixOS Manual](https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage).
 
 The image is labeled with `containers.bootc = "1"` and `ostree.bootable = "true"` by default.
 
-### streamLayeredImage limitations
-`streamLayeredImage` only has access to the files built by streamLayeredImage.  
-This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in fakeRootCommands. Use the containerfile option instead.
+### Limitations
+`streamLayeredImage` only has access to the files built by `streamLayeredImage`.  
+This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in `streamLayeredImage.fakeRootCommands`. Use the containerfile option instead.
 
 ## Containerfile
-When `caliga.core.containerfile.enable` is true, the build gains a second stage. After `streamLayeredImage` streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc's `prepare-root.conf` changes to take effect.
+When `config.caliga.core.containerfile.enable` is true, the build gains a second stage. After `streamLayeredImage` streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc's `prepare-root.conf` changes to take effect.
 
-You can either provide a complete Containerfile with `caliga.core.containerfile.file`, or list commands with `caliga.core.containerfile.extraCommands`.  
-Other modules may add to `caliga.core.containerfile.extraCommands` automatically. For example, `bootc.ostree-prepare-root.transientEtc` (see [bootc](bootc.md)) adds an initramfs regeneration command since `streamLayeredImage` alone cannot do this.
-`caliga.core.containerfile.file` takes precedence over extraCommands if set.
+You can either provide a complete Containerfile with `config.caliga.core.containerfile.file`, or list commands with `config.caliga.core.containerfile.extraCommands`.  
+Other modules may add to `config.caliga.core.containerfile.extraCommands` automatically. For example, `config.bootc.ostree-prepare-root.transientEtc` (see [bootc](bootc.md)) adds an initramfs regeneration command since `streamLayeredImage` alone cannot do this.
+`config.caliga.core.containerfile.file` takes precedence over `config.caliga.core.containerfile.extraCommands` if set.
 
-# Options
-## `build.image`
-- The final image script. Read-only. Result is either the streamLayeredImage script, or a script with the streamLayeredImage script wrapped by a podman build with the containerfile.
+## Options
 
-## `layeredImage.*`
-- `layeredImage.name`
+### `config.build.image`
+- The final image script. Read-only. Result is either the `streamLayeredImage` script, or a script with the `streamLayeredImage` script wrapped by a podman build with the containerfile.
+
+### `config.layeredImage.*`
+- `config.layeredImage.name`
   - The full image name (e.g. ghcr.io/org/image).
-- `layeredImage.tag`
+- `config.layeredImage.tag`
   - Image tag. Defaults to "latest".
-- `layeredImage.maxLayers`
-  - Maximum number of layers in the image. Defaults to 80.
-- `layeredImage.fromImage`
+- `config.layeredImage.maxLayers`
+  - Maximum number of layers in the image. Defaults to `80`.
+- `config.layeredImage.fromImage`
   - Base image to layer on top of, typically from `pkgs.dockerTools.pullImage`.
-- `layeredImage.contents`
+- `config.layeredImage.contents`
   - Derivations to include in the image contents.
-- `layeredImage.created`
+- `config.layeredImage.created`
   - Timestamp for the image creation date.
-- `layeredImage.extraCommands`
+- `config.layeredImage.extraCommands`
   - Shell commands to run after creating the layer directory.
-- `layeredImage.fakeRootCommands`
+- `config.layeredImage.fakeRootCommands`
   - Shell commands to run inside a fakeroot environment.
-- `layeredImage.enableFakechroot`
-  - Whether to run fakeRootCommands in a fakechroot environment.
-- `layeredImage.includeStorePaths`
-  - Whether to include Nix store paths in the image. Defaults to true.
-- `layeredImage.includeNixDB`
-  - Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to false.
-- `layeredImage.config`
+- `config.layeredImage.enableFakechroot`
+  - Whether to run `config.layeredImage.fakeRootCommands` in a fakechroot environment.
+- `config.layeredImage.includeStorePaths`
+  - Whether to include Nix store paths in the image. Defaults to `true`.
+- `config.layeredImage.includeNixDB`
+  - Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to `false`.
+- `config.layeredImage.config`
   - OCI container config (Cmd, Env, Labels, Entrypoint, etc.).
 
-## `caliga.core.containerfile.*`
-- `caliga.core.containerfile.enable`
-  - Apply a Containerfile on top of the streamLayeredImage output.
-- `caliga.core.containerfile.file`
-  - Path to a Containerfile. Takes precedence over extraCommands if set.
-- `caliga.core.containerfile.extraCommands`
-  - Containerfile commands included alongside generated commands. Applied after streamLayeredImage.
+### `config.caliga.core.containerfile.*`
+- `config.caliga.core.containerfile.enable`
+  - Apply a Containerfile on top of the `streamLayeredImage` output.
+- `config.caliga.core.containerfile.file`
+  - Path to a Containerfile. Takes precedence over `config.caliga.core.containerfile.extraCommands` if set.
+- `config.caliga.core.containerfile.extraCommands`
+  - Containerfile commands included alongside generated commands. Applied after `streamLayeredImage`.
