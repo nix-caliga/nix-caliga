@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-291048ea.js";
+            window.path_to_searchindex_js = "searchindex-514d18f0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -176,16 +176,16 @@
                     <main>
                         <h1 id="nix-caliga-options"><a class="header" href="#nix-caliga-options">Nix-caliga options</a></h1>
 <p>All nix-caliga options are disabled by default.<br>You can pick and choose which parts of nix-caliga you want to make use of.</p>
-<h2 id="caligaos"><a class="header" href="#caligaos"><code>caliga.os</code></a></h2>
-<p>Optional, can be left empty.<br>Selects the base operating system of the bootc image. This sets OS-specific defaults such as SELinux, and system group GIDs to match those already present in the base image.</p>
+<h2 id="setting-base-image-os"><a class="header" href="#setting-base-image-os">Setting Base Image OS</a></h2>
+<p><code>config.caliga.os</code> is optional, can be left empty.<br>Selects the base operating system of the bootc image. This sets OS-specific defaults such as SELinux, and system group GIDs to match those already present in the base image.</p>
 <p>Currently Available:</p>
 <ul>
 <li>Fedora <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
 <li>Bluefin-dakota <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
 </ul>
-<h2 id="caligacoreenable"><a class="header" href="#caligacoreenable"><code>caliga.core.enable</code></a></h2>
-<p>Enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>caliga.core.selinux.enable</code> and is set automatically based on <code>caliga.os</code>.</p>
-<h2 id="individual-core-modules"><a class="header" href="#individual-core-modules">Individual core modules</a></h2>
+<h2 id="enabling-all-core-options"><a class="header" href="#enabling-all-core-options">Enabling all core options</a></h2>
+<p><code>caliga.core.enable</code> enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>caliga.core.selinux.enable</code> and is set automatically based on <code>caliga.os</code>.</p>
+<h2 id="individual-core-modules"><a class="header" href="#individual-core-modules">Individual Core Modules</a></h2>
 <p>Each module can be enabled independently:</p>
 <ul>
 <li><code>caliga.core.etc-usr.enable</code> Enables <code>/etc</code> and <code>/usr</code> file generation. Required by most other modules. See <a href="etc-usr.html">etc-usr</a>.</li>
@@ -194,8 +194,8 @@
 <li><code>caliga.core.users.enable</code> Enables user and group management through userborn. See <a href="users-groups.html">users-groups</a>.</li>
 <li><code>caliga.core.selinux.enable</code> Enables SELinux file context labeling. See <a href="selinux.html">selinux</a>.</li>
 </ul>
-<h2 id="caligacorecontainerfile"><a class="header" href="#caligacorecontainerfile"><code>caliga.core.containerfile</code></a></h2>
-<p>An optional <code>podman build</code> step that runs after <code>streamLayeredImage</code>. Some operations (such as initramfs regeneration) cannot be done inside <code>streamLayeredImage</code> and require a Containerfile instead. See <a href="buildImage.html">buildImage</a>.</p>
+<h2 id="containerfile"><a class="header" href="#containerfile">Containerfile</a></h2>
+<p><code>caliga.core.containerfile</code> configures an optional <code>podman build</code> step that runs after <code>streamLayeredImage</code>. Some operations (such as initramfs regeneration) cannot be done inside <code>streamLayeredImage</code> and require a Containerfile instead. See <a href="buildImage.html">buildImage</a>.</p>
 <ul>
 <li><code>caliga.core.containerfile.enable</code> Apply a Containerfile on top of the <code>streamLayeredImage</code> output. Defaults to <code>false</code>.</li>
 <li><code>caliga.core.containerfile.file</code> Path to a custom Containerfile. If set, takes full precedence any commands from <code>extraCommands</code> or generated commands (e.g. from <code>bootc.initramfs.regenerate</code>) are not used.</li>

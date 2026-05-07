@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-291048ea.js";
+            window.path_to_searchindex_js = "searchindex-514d18f0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -174,9 +174,9 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="bootc"><a class="header" href="#bootc">bootc</a></h1>
+                        <h1 id="bootc"><a class="header" href="#bootc">Bootc</a></h1>
 <p>Nix-caliga is gradually increasing the number of bootc specific options over time.<br>Mainly focused on Fedora, there will likely be a lot of breaking changes here as the Fedora-bootc image itself changes.</p>
-<h2 id="ostree-prepare-root"><a class="header" href="#ostree-prepare-root">ostree-prepare-root</a></h2>
+<h2 id="ostree-prepare-root"><a class="header" href="#ostree-prepare-root">Ostree-prepare-root</a></h2>
 <p><code>config.bootc.ostree-prepare-root</code> configures <code>/usr/lib/ostree/prepare-root.conf</code>.
 This file is read during initramfs to configure how the root filesystem is set up at boot. See <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>.<br>Because this file is read from the initramfs, any changes require regenerating the initramfs to take effect.</p>
 <h3 id="transient-etc"><a class="header" href="#transient-etc">Transient /etc</a></h3>
@@ -188,33 +188,33 @@ This file is read during initramfs to configure how the root filesystem is set u
 </ul>
 <p>When <code>transientEtc</code> is enabled, <code>boot.automount</code> is masked and replaced with mount units for <code>/boot</code> (ext4, by-label <code>boot</code>) and <code>/boot/efi</code> (vfat, by-label <code>EFI-SYSTEM</code>).<br>This works around issues seemingly with <code>/etc/fstab</code> handling under transient etc.</p>
 <p>Requires <code>caliga.core.systemd.enable = true</code>.</p>
-<h2 id="initramfs-regeneration"><a class="header" href="#initramfs-regeneration">Initramfs regeneration</a></h2>
+<h2 id="initramfs-regeneration"><a class="header" href="#initramfs-regeneration">Initramfs Regeneration</a></h2>
 <p>Because <code>streamLayeredImage</code> cannot run commands against the base image’s kernel or modules, initramfs regeneration must happen in a separate <code>podman build</code> step using a <a href="buildImage.html">Containerfile</a>.
 Setting <code>bootc.initramfs.regenerate = true</code> appends a <code>dracut</code> command to the generated Containerfile.</p>
 <p>Requires <code>caliga.core.containerfile.enable = true</code>.</p>
 <p>If <code>caliga.core.containerfile.file</code> is set the built-in dracut command is ignored in favor of your containerfile.</p>
-<h2 id="automatic-updates-servicesbootc-update"><a class="header" href="#automatic-updates-servicesbootc-update">Automatic updates (<code>services.bootc-update</code>)</a></h2>
+<h2 id="automatic-updates"><a class="header" href="#automatic-updates">Automatic Updates</a></h2>
 <p>The <code>services.bootc-update</code> module sets up a systemd timer that runs <code>bootc upgrade</code> on a schedule.<br>It masks the upstream <code>bootc-fetch-apply-updates</code> units to avoid conflicts.</p>
 <p>Requires <code>caliga.core.systemd.enable = true</code>.</p>
-<h3 id="registry-authentication"><a class="header" href="#registry-authentication">Registry authentication</a></h3>
+<h3 id="registry-authentication"><a class="header" href="#registry-authentication">Registry Authentication</a></h3>
 <p>Two options are provided for authenticating with private registries:</p>
 <ul>
 <li><code>auth</code> builds <code>auth.json</code> into the image at <code>/etc/ostree/auth.json</code>. Credentials are baked in at image build time. Requires <code>caliga.core.etc-usr.enable</code> (see <a href="etc-usr.html">etc-usr</a>) = true.</li>
 <li><code>authFile</code> symlinks an existing file on the host to <code>/etc/ostree/auth.json</code> at runtime through tmpfiles. Requires <code>caliga.core.tmpfiles.enable = true</code>. Takes priority over <code>auth</code> if both are set.</li>
 </ul>
 <p>Auth values are base64-encoded <code>user:pass</code> strings, generate with <code>echo -n 'user:pass' | base64</code>.</p>
-<h1 id="options"><a class="header" href="#options">Options</a></h1>
-<h2 id="bootcostree-prepare-root"><a class="header" href="#bootcostree-prepare-root"><code>bootc.ostree-prepare-root</code></a></h2>
+<h2 id="options"><a class="header" href="#options">Options</a></h2>
+<h3 id="bootcostree-prepare-root"><a class="header" href="#bootcostree-prepare-root"><code>bootc.ostree-prepare-root</code></a></h3>
 <ul>
 <li><code>createConf</code> Write <code>/usr/lib/ostree/prepare-root.conf</code> into the image. Defaults to <code>false</code>.</li>
 <li><code>transientEtc</code> Mount <code>/etc</code> as a transient overlay at boot. Defaults to <code>false</code>.</li>
 <li><code>additionalConf</code> Additional lines appended to <code>prepare-root.conf</code>. Defaults to enabling composefs and readonly sysroot.</li>
 </ul>
-<h2 id="bootcinitramfs"><a class="header" href="#bootcinitramfs"><code>bootc.initramfs</code></a></h2>
+<h3 id="bootcinitramfs"><a class="header" href="#bootcinitramfs"><code>bootc.initramfs</code></a></h3>
 <ul>
 <li><code>regenerate</code> Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
 </ul>
-<h2 id="servicesbootc-update"><a class="header" href="#servicesbootc-update"><code>services.bootc-update</code></a></h2>
+<h3 id="servicesbootc-update"><a class="header" href="#servicesbootc-update"><code>services.bootc-update</code></a></h3>
 <ul>
 <li><code>enable</code> Enable the automatic update timer.</li>
 <li><code>autoReboot</code> Reboot after applying an update (<code>bootc upgrade --apply</code>). Defaults to <code>true</code>.</li>

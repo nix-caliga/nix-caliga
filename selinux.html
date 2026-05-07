@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-291048ea.js";
+            window.path_to_searchindex_js = "searchindex-514d18f0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -190,18 +190,18 @@ This file is placed using <code>environment.etc</code> as a real file, as SELinu
 <li><code>/nix/var/nix/daemon-socket/</code> &gt; <code>var_run_t</code></li>
 </ul>
 <p>This mostly follows the same SELinux types used by the nix-community/nix-installers SELinux policy, with a few additions for /usr and systemd.</p>
-<h2 id="systemd-service-exceptions"><a class="header" href="#systemd-service-exceptions">Systemd service exceptions</a></h2>
+<h2 id="service-exec-labels"><a class="header" href="#service-exec-labels">Service Exec Labels</a></h2>
 <p>Some NixOS modules produce scripts with <code>pkgs.writeShellScript</code> or <code>pkgs.writeTextFile</code> that end up at store paths that dont have a /bin or /sbin. This means the scripts do not get labels by default.<br>The <code>selinux.labelServiceExecs</code> option accepts a list of systemd service names and it will extract all <code>Exec*</code> paths (ExecStart, ExecStartPre, etc.) from those services, and add <code>bin_t</code> rules for all nix store paths.</p>
-<h2 id="selinux-enforcement"><a class="header" href="#selinux-enforcement">SELinux enforcement</a></h2>
+<h2 id="enforcement-mode"><a class="header" href="#enforcement-mode">Enforcement Mode</a></h2>
 <p>By default, the base image’s SELinux enforcement mode is left unchanged. The <code>selinux.enforcementMode</code> option can override it by writing <code>/etc/selinux/config</code> with the specified mode.</p>
-<h2 id="custom-file-contexts"><a class="header" href="#custom-file-contexts">Custom file contexts</a></h2>
+<h2 id="custom-file-contexts"><a class="header" href="#custom-file-contexts">Custom File Contexts</a></h2>
 <p>Additional file context rules can be added with <code>selinux.fileContexts</code>:</p>
 <pre><code class="language-nix">selinux.fileContexts = {
   "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
 };
 </code></pre>
-<h1 id="options"><a class="header" href="#options">Options</a></h1>
-<h2 id="made-available-with-configcaligacoreselinuxenable"><a class="header" href="#made-available-with-configcaligacoreselinuxenable">made available with <code>config.caliga.core.selinux.enable</code></a></h2>
+<h2 id="options"><a class="header" href="#options">Options</a></h2>
+<p>Enabled with <code>config.caliga.core.selinux.enable</code>.</p>
 <ul>
 <li><code>selinux.nixStoreContexts.enable</code>
 <ul>

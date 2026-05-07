@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-291048ea.js";
+            window.path_to_searchindex_js = "searchindex-514d18f0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -179,9 +179,9 @@
 <p>Both <code>systemd</code>, and <code>systemd.tmpfiles</code> through <code>environment.usr</code> are placed in the /usr directory and not the /etc directoy like on NixOS. See <a href="etc-usr.html">etc-usr</a> for more information.</p>
 <p>Optionally, selinux labels can be assigned with <code>config.caliga.core.selinux.enable</code>. See <a href="selinux.html">selinux</a>.<br>Some upstream NixOS services will call scripts that do not end up in nix store paths that are labeled by default (such as with pkgs.writeShellScript).
 The <code>selinux.labelServiceExecs</code> option accepts a list of systemd service names, and will ensure all of the service’s exec paths (that are in the nix store) get bin_t selinux labels.</p>
-<h1 id="options"><a class="header" href="#options">Options</a></h1>
-<p>These <code>systemd</code> options should all be fully available and compatable with their upstream NixOS counterparts.</p>
-<h2 id="made-available-with-configcaligacoresystemdenable"><a class="header" href="#made-available-with-configcaligacoresystemdenable">made available with <code>config.caliga.core.systemd.enable</code></a></h2>
+<h2 id="options"><a class="header" href="#options">Options</a></h2>
+<h3 id="core-systemd"><a class="header" href="#core-systemd">Core Systemd</a></h3>
+<p>Enabled with <code>config.caliga.core.systemd.enable</code>.<br>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
 <ul>
 <li><code>systemd.services</code></li>
 <li><code>systemd.targets</code></li>
@@ -196,7 +196,7 @@ The <code>selinux.labelServiceExecs</code> option accepts a list of systemd serv
 <li><code>systemd.globalEnvironment</code></li>
 <li><code>systemd.enableStrictShellChecks</code></li>
 </ul>
-<p>New options specific to nix-caliga</p>
+<p>New options specific to nix-caliga:</p>
 <ul>
 <li><code>systemd.maskedUnits</code>
 <ul>
@@ -209,7 +209,8 @@ The <code>selinux.labelServiceExecs</code> option accepts a list of systemd serv
 </ul>
 </li>
 </ul>
-<h2 id="made-available-with-configcaligacoretmpfilesenable"><a class="header" href="#made-available-with-configcaligacoretmpfilesenable">made available with <code>config.caliga.core.tmpfiles.enable</code></a></h2>
+<h3 id="tmpfiles"><a class="header" href="#tmpfiles">Tmpfiles</a></h3>
+<p>Enabled with <code>config.caliga.core.tmpfiles.enable</code>.</p>
 <ul>
 <li><code>systemd.tmpfiles</code></li>
 </ul>
