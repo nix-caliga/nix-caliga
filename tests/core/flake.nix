@@ -128,8 +128,7 @@
             trap cleanup EXIT
 
             ${imageStream} | sudo ${pkgs.podman}/bin/podman load >/dev/null 2>&1
-            CID=$(sudo ${pkgs.podman}/bin/podman run -d --privileged --tmpfs /tmp --tmpfs /run \
-              -v /sys/fs/cgroup:/sys/fs/cgroup:ro "${imageRef}" /sbin/init)
+            CID=$(sudo ${pkgs.podman}/bin/podman run -d "${imageRef}")
 
             for _ in $(${pkgs.coreutils}/bin/seq 1 60); do
               sudo ${pkgs.podman}/bin/podman exec $CID \

@@ -176,10 +176,10 @@ nix build .#caligaConfigurations.x86_64-linux.myimage.config.build.image && ./re
 
 ## Using the Image
 
-You can test the image directly with podman:
+You can test the image as a container with podman, replace the image name with your newly created image.
 
 ```sh
-podman run -it ghcr.io/nix-caliga/nix-caliga:tag
+podman run -it --rm ghcr.io/nix-caliga/nix-caliga:tag
 ```
 
 To install the image to a disk or VM, use [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) which can make a bunch of different disk image formats from your bootc image.  

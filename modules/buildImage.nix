@@ -144,10 +144,12 @@ in
       else
         baseImage;
 
-    layeredImage.config.Labels = lib.mkDefault {
-      "containers.bootc" = "1";
-      "ostree.bootable" = "true";
+    layeredImage.config = {
+      Labels = {
+        "containers.bootc" = lib.mkDefault "1";
+        "ostree.bootable" = lib.mkDefault "true";
+      };
+      Cmd = lib.mkDefault [ "/sbin/init" ];
     };
-
   };
 }

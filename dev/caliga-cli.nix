@@ -166,12 +166,7 @@ let
                 -nic user,model=virtio-net-pci
             else
               echo "Running image '$imagename' ($image)..."
-              exec sudo podman run -it --rm \
-                --privileged \
-                --tmpfs /tmp \
-                --tmpfs /run \
-                -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-                "$image" /sbin/init
+              exec sudo podman run -it --rm "$image"
             fi
             ;;
 
