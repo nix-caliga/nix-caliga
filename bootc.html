@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-039d766e.js";
+            window.path_to_searchindex_js = "searchindex-17be2b77.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -199,30 +199,82 @@ Setting <code>config.bootc.initramfs.regenerate = true</code> appends a <code>dr
 <h3 id="registry-authentication"><a class="header" href="#registry-authentication">Registry Authentication</a></h3>
 <p>Two options are provided for authenticating with private registries:</p>
 <ul>
-<li><code>config.services.bootc-update.auth</code> builds <code>auth.json</code> into the image at <code>/etc/ostree/auth.json</code>. Credentials are baked in at image build time. Requires <code>config.caliga.core.etc-usr.enable</code> (see <a href="etc-usr.html">etc-usr</a>) = true.</li>
-<li><code>config.services.bootc-update.authFile</code> symlinks an existing file on the host to <code>/etc/ostree/auth.json</code> at runtime through tmpfiles. Requires <code>config.caliga.core.tmpfiles.enable = true</code>. Takes priority over <code>config.services.bootc-update.auth</code> if both are set.</li>
+<li><code>config.services.bootc-update.auth</code>
+<ul>
+<li>Builds <code>auth.json</code> into the image at <code>/etc/ostree/auth.json</code>. Credentials are baked in at image build time. Requires <code>config.caliga.core.etc-usr.enable</code> (see <a href="etc-usr.html">etc-usr</a>) = true.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.authFile</code>
+<ul>
+<li>Symlinks an existing file on the host to <code>/etc/ostree/auth.json</code> at runtime through tmpfiles. Requires <code>config.caliga.core.tmpfiles.enable = true</code>. Takes priority over <code>config.services.bootc-update.auth</code> if both are set.</li>
+</ul>
+</li>
 </ul>
 <p>Auth values are base64-encoded <code>user:pass</code> strings, generate with <code>echo -n 'user:pass' | base64</code>.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <h3 id="configbootcostree-prepare-root"><a class="header" href="#configbootcostree-prepare-root"><code>config.bootc.ostree-prepare-root</code></a></h3>
 <ul>
-<li><code>config.bootc.ostree-prepare-root.createConf</code> Write <code>/usr/lib/ostree/prepare-root.conf</code> into the image. Defaults to <code>false</code>.</li>
-<li><code>config.bootc.ostree-prepare-root.transientEtc</code> Mount <code>/etc</code> as a transient overlay at boot. Defaults to <code>false</code>.</li>
-<li><code>config.bootc.ostree-prepare-root.additionalConf</code> Additional lines appended to <code>prepare-root.conf</code>. Defaults to enabling composefs and readonly sysroot.</li>
+<li><code>config.bootc.ostree-prepare-root.createConf</code>
+<ul>
+<li>Write <code>/usr/lib/ostree/prepare-root.conf</code> into the image. Defaults to <code>false</code>.</li>
+</ul>
+</li>
+<li><code>config.bootc.ostree-prepare-root.transientEtc</code>
+<ul>
+<li>Mount <code>/etc</code> as a transient overlay at boot. Defaults to <code>false</code>.</li>
+</ul>
+</li>
+<li><code>config.bootc.ostree-prepare-root.additionalConf</code>
+<ul>
+<li>Additional lines appended to <code>prepare-root.conf</code>. Defaults to enabling composefs and readonly sysroot.</li>
+</ul>
+</li>
 </ul>
 <h3 id="configbootcinitramfs"><a class="header" href="#configbootcinitramfs"><code>config.bootc.initramfs</code></a></h3>
 <ul>
-<li><code>config.bootc.initramfs.regenerate</code> Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
+<li><code>config.bootc.initramfs.regenerate</code>
+<ul>
+<li>Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
+</ul>
+</li>
 </ul>
 <h3 id="configservicesbootc-update"><a class="header" href="#configservicesbootc-update"><code>config.services.bootc-update</code></a></h3>
 <ul>
-<li><code>config.services.bootc-update.enable</code> Enable the automatic update timer.</li>
-<li><code>config.services.bootc-update.autoReboot</code> Reboot after applying an update (<code>bootc upgrade --apply</code>). Defaults to <code>true</code>.</li>
-<li><code>config.services.bootc-update.schedule.onBootSec</code> Delay after boot before the first update check. Defaults to <code>30s</code>.</li>
-<li><code>config.services.bootc-update.schedule.onUnitActiveSec</code> Interval between update checks. Defaults to <code>1h</code>.</li>
-<li><code>config.services.bootc-update.schedule.onCalendar</code> If set, overrides <code>config.services.bootc-update.schedule.onBootSec</code> and <code>config.services.bootc-update.schedule.onUnitActiveSec</code> with a calendar expression (e.g. “daily”). Defaults to <code>null</code>.</li>
-<li><code>config.services.bootc-update.auth</code> Registry credentials baked into the image.</li>
-<li><code>config.services.bootc-update.authFile</code> Path to a <code>containers-auth.json</code> file on the host, symlinked at runtime.</li>
+<li><code>config.services.bootc-update.enable</code>
+<ul>
+<li>Enable the automatic update timer.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.autoReboot</code>
+<ul>
+<li>Reboot after applying an update (<code>bootc upgrade --apply</code>). Defaults to <code>true</code>.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.schedule.onBootSec</code>
+<ul>
+<li>Delay after boot before the first update check. Defaults to <code>30s</code>.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.schedule.onUnitActiveSec</code>
+<ul>
+<li>Interval between update checks. Defaults to <code>1h</code>.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.schedule.onCalendar</code>
+<ul>
+<li>If set, overrides <code>config.services.bootc-update.schedule.onBootSec</code> and <code>config.services.bootc-update.schedule.onUnitActiveSec</code> with a calendar expression (e.g. “daily”). Defaults to <code>null</code>.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.auth</code>
+<ul>
+<li>Registry credentials baked into the image.</li>
+</ul>
+</li>
+<li><code>config.services.bootc-update.authFile</code>
+<ul>
+<li>Path to a <code>containers-auth.json</code> file on the host, symlinked at runtime.</li>
+</ul>
+</li>
 </ul>
 
                     </main>

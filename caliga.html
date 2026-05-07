@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-039d766e.js";
+            window.path_to_searchindex_js = "searchindex-17be2b77.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -188,18 +188,50 @@
 <h2 id="individual-core-modules"><a class="header" href="#individual-core-modules">Individual Core Modules</a></h2>
 <p>Each module can be enabled independently:</p>
 <ul>
-<li><code>config.caliga.core.etc-usr.enable</code> Enables <code>/etc</code> and <code>/usr</code> file generation. Required by most other modules. See <a href="etc-usr.html">etc-usr</a>.</li>
-<li><code>config.caliga.core.systemd.enable</code> Enables systemd unit generation. See <a href="systemd.html">systemd</a>.</li>
-<li><code>config.caliga.core.tmpfiles.enable</code> Enables <code>config.systemd.tmpfiles</code> rule management.</li>
-<li><code>config.caliga.core.users.enable</code> Enables user and group management through userborn. See <a href="users-groups.html">users-groups</a>.</li>
-<li><code>config.caliga.core.selinux.enable</code> Enables SELinux file context labeling. See <a href="selinux.html">selinux</a>.</li>
+<li><code>config.caliga.core.etc-usr.enable</code>
+<ul>
+<li>Enables <code>/etc</code> and <code>/usr</code> file generation. Required by most other modules. See <a href="etc-usr.html">etc-usr</a>.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.systemd.enable</code>
+<ul>
+<li>Enables systemd unit generation. See <a href="systemd.html">systemd</a>.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.tmpfiles.enable</code>
+<ul>
+<li>Enables <code>config.systemd.tmpfiles</code> rule management.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.users.enable</code>
+<ul>
+<li>Enables user and group management through userborn. See <a href="users-groups.html">users-groups</a>.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.selinux.enable</code>
+<ul>
+<li>Enables SELinux file context labeling. See <a href="selinux.html">selinux</a>.</li>
+</ul>
+</li>
 </ul>
 <h2 id="containerfile"><a class="header" href="#containerfile">Containerfile</a></h2>
 <p><code>config.caliga.core.containerfile</code> configures an optional <code>podman build</code> step that runs after <code>streamLayeredImage</code>. Some operations (such as initramfs regeneration) cannot be done inside <code>streamLayeredImage</code> and require a Containerfile instead. See <a href="buildImage.html">buildImage</a>.</p>
 <ul>
-<li><code>config.caliga.core.containerfile.enable</code> Apply a Containerfile on top of the <code>streamLayeredImage</code> output. Defaults to <code>false</code>.</li>
-<li><code>config.caliga.core.containerfile.file</code> Path to a custom Containerfile. If set, takes full precedence — any commands from <code>config.caliga.core.containerfile.extraCommands</code> or generated commands (e.g. from <code>config.bootc.initramfs.regenerate</code>) are not used.</li>
-<li><code>config.caliga.core.containerfile.extraCommands</code> Additional Containerfile commands appended to generated commands. Ignored if <code>config.caliga.core.containerfile.file</code> is set.</li>
+<li><code>config.caliga.core.containerfile.enable</code>
+<ul>
+<li>Apply a Containerfile on top of the <code>streamLayeredImage</code> output. Defaults to <code>false</code>.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.containerfile.file</code>
+<ul>
+<li>Path to a custom Containerfile. If set, takes full precedence — any commands from <code>config.caliga.core.containerfile.extraCommands</code> or generated commands (e.g. from <code>config.bootc.initramfs.regenerate</code>) are not used.</li>
+</ul>
+</li>
+<li><code>config.caliga.core.containerfile.extraCommands</code>
+<ul>
+<li>Additional Containerfile commands appended to generated commands. Ignored if <code>config.caliga.core.containerfile.file</code> is set.</li>
+</ul>
+</li>
 </ul>
 
                     </main>
