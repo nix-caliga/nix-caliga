@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -180,95 +180,95 @@
 <h2 id="streamlayeredimage"><a class="header" href="#streamlayeredimage">StreamLayeredImage</a></h2>
 <p><code>pkgs.dockerTools.streamLayeredImage.*</code> options are made directly available at <code>config.layeredImage.*</code>. See the <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">NixOS Manual</a>.</p>
 <p>The image is labeled with <code>containers.bootc = "1"</code> and <code>ostree.bootable = "true"</code> by default.</p>
-<h3 id="streamlayeredimage-limitations"><a class="header" href="#streamlayeredimage-limitations">StreamLayeredImage limitations</a></h3>
-<p><code>streamLayeredImage</code> only has access to the files built by streamLayeredImage.<br>This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in fakeRootCommands. Use the containerfile option instead.</p>
+<h3 id="limitations"><a class="header" href="#limitations">Limitations</a></h3>
+<p><code>streamLayeredImage</code> only has access to the files built by <code>streamLayeredImage</code>.<br>This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in <code>streamLayeredImage.fakeRootCommands</code>. Use the containerfile option instead.</p>
 <h2 id="containerfile"><a class="header" href="#containerfile">Containerfile</a></h2>
-<p>When <code>caliga.core.containerfile.enable</code> is true, the build gains a second stage. After <code>streamLayeredImage</code> streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc’s <code>prepare-root.conf</code> changes to take effect.</p>
-<p>You can either provide a complete Containerfile with <code>caliga.core.containerfile.file</code>, or list commands with <code>caliga.core.containerfile.extraCommands</code>.<br>Other modules may add to <code>caliga.core.containerfile.extraCommands</code> automatically. For example, <code>bootc.ostree-prepare-root.transientEtc</code> (see <a href="bootc.html">bootc</a>) adds an initramfs regeneration command since <code>streamLayeredImage</code> alone cannot do this.
-<code>caliga.core.containerfile.file</code> takes precedence over extraCommands if set.</p>
+<p>When <code>config.caliga.core.containerfile.enable</code> is true, the build gains a second stage. After <code>streamLayeredImage</code> streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc’s <code>prepare-root.conf</code> changes to take effect.</p>
+<p>You can either provide a complete Containerfile with <code>config.caliga.core.containerfile.file</code>, or list commands with <code>config.caliga.core.containerfile.extraCommands</code>.<br>Other modules may add to <code>config.caliga.core.containerfile.extraCommands</code> automatically. For example, <code>config.bootc.ostree-prepare-root.transientEtc</code> (see <a href="bootc.html">bootc</a>) adds an initramfs regeneration command since <code>streamLayeredImage</code> alone cannot do this.
+<code>config.caliga.core.containerfile.file</code> takes precedence over <code>config.caliga.core.containerfile.extraCommands</code> if set.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
-<h3 id="buildimage"><a class="header" href="#buildimage"><code>build.image</code></a></h3>
+<h3 id="configbuildimage"><a class="header" href="#configbuildimage"><code>config.build.image</code></a></h3>
 <ul>
-<li>The final image script. Read-only. Result is either the streamLayeredImage script, or a script with the streamLayeredImage script wrapped by a podman build with the containerfile.</li>
+<li>The final image script. Read-only. Result is either the <code>streamLayeredImage</code> script, or a script with the <code>streamLayeredImage</code> script wrapped by a podman build with the containerfile.</li>
 </ul>
-<h3 id="layeredimage"><a class="header" href="#layeredimage"><code>layeredImage.*</code></a></h3>
+<h3 id="configlayeredimage"><a class="header" href="#configlayeredimage"><code>config.layeredImage.*</code></a></h3>
 <ul>
-<li><code>layeredImage.name</code>
+<li><code>config.layeredImage.name</code>
 <ul>
 <li>The full image name (e.g. ghcr.io/org/image).</li>
 </ul>
 </li>
-<li><code>layeredImage.tag</code>
+<li><code>config.layeredImage.tag</code>
 <ul>
 <li>Image tag. Defaults to “latest”.</li>
 </ul>
 </li>
-<li><code>layeredImage.maxLayers</code>
+<li><code>config.layeredImage.maxLayers</code>
 <ul>
-<li>Maximum number of layers in the image. Defaults to 80.</li>
+<li>Maximum number of layers in the image. Defaults to <code>80</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.fromImage</code>
+<li><code>config.layeredImage.fromImage</code>
 <ul>
 <li>Base image to layer on top of, typically from <code>pkgs.dockerTools.pullImage</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.contents</code>
+<li><code>config.layeredImage.contents</code>
 <ul>
 <li>Derivations to include in the image contents.</li>
 </ul>
 </li>
-<li><code>layeredImage.created</code>
+<li><code>config.layeredImage.created</code>
 <ul>
 <li>Timestamp for the image creation date.</li>
 </ul>
 </li>
-<li><code>layeredImage.extraCommands</code>
+<li><code>config.layeredImage.extraCommands</code>
 <ul>
 <li>Shell commands to run after creating the layer directory.</li>
 </ul>
 </li>
-<li><code>layeredImage.fakeRootCommands</code>
+<li><code>config.layeredImage.fakeRootCommands</code>
 <ul>
 <li>Shell commands to run inside a fakeroot environment.</li>
 </ul>
 </li>
-<li><code>layeredImage.enableFakechroot</code>
+<li><code>config.layeredImage.enableFakechroot</code>
 <ul>
-<li>Whether to run fakeRootCommands in a fakechroot environment.</li>
+<li>Whether to run <code>config.layeredImage.fakeRootCommands</code> in a fakechroot environment.</li>
 </ul>
 </li>
-<li><code>layeredImage.includeStorePaths</code>
+<li><code>config.layeredImage.includeStorePaths</code>
 <ul>
-<li>Whether to include Nix store paths in the image. Defaults to true.</li>
+<li>Whether to include Nix store paths in the image. Defaults to <code>true</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.includeNixDB</code>
+<li><code>config.layeredImage.includeNixDB</code>
 <ul>
-<li>Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to false.</li>
+<li>Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to <code>false</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.config</code>
+<li><code>config.layeredImage.config</code>
 <ul>
 <li>OCI container config (Cmd, Env, Labels, Entrypoint, etc.).</li>
 </ul>
 </li>
 </ul>
-<h3 id="caligacorecontainerfile"><a class="header" href="#caligacorecontainerfile"><code>caliga.core.containerfile.*</code></a></h3>
+<h3 id="configcaligacorecontainerfile"><a class="header" href="#configcaligacorecontainerfile"><code>config.caliga.core.containerfile.*</code></a></h3>
 <ul>
-<li><code>caliga.core.containerfile.enable</code>
+<li><code>config.caliga.core.containerfile.enable</code>
 <ul>
-<li>Apply a Containerfile on top of the streamLayeredImage output.</li>
+<li>Apply a Containerfile on top of the <code>streamLayeredImage</code> output.</li>
 </ul>
 </li>
-<li><code>caliga.core.containerfile.file</code>
+<li><code>config.caliga.core.containerfile.file</code>
 <ul>
-<li>Path to a Containerfile. Takes precedence over extraCommands if set.</li>
+<li>Path to a Containerfile. Takes precedence over <code>config.caliga.core.containerfile.extraCommands</code> if set.</li>
 </ul>
 </li>
-<li><code>caliga.core.containerfile.extraCommands</code>
+<li><code>config.caliga.core.containerfile.extraCommands</code>
 <ul>
-<li>Containerfile commands included alongside generated commands. Applied after streamLayeredImage.</li>
+<li>Containerfile commands included alongside generated commands. Applied after <code>streamLayeredImage</code>.</li>
 </ul>
 </li>
 </ul>

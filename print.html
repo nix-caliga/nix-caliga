@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -233,40 +233,41 @@
 <h3 id="cross-configuration"><a class="header" href="#cross-configuration">Cross Configuration</a></h3>
 <p>Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
-<p>This project is built on <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">nixpkgs.dockerTools’ streamLayeredImage</a> which “builds a script which, when run, will stream to stdout a Docker-compatible repository tarball containing a single image, using multiple layers to improve sharing between images.”<br>Using streamLayeredImage, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.<br>Base images in testing right now are Fedora and a handful of uBlue images including the new projectbluefin/dakota image based off of GnomeOS.<br>The result is a configured image that does not require a nix-package, or a nix-daemon. Both are available to be included if desired, but are not required and disabled by default.</p>
-<p>Where possible we use streamLayeredImage.contents to deliver the configuration as simlinks to the image’s nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.<br>At times, symlinks don’t cut it and we use streamLayeredImage.fakeRootCommands to copy files into place with required permissions.</p>
-<p>Optionially there is a nix configured containerfile that podman will run after streamLayeredImage. Allowing for some workflows such as rebuilding the initramfs, that aren’t available with streamLayeredImage alone. This is disabled by default, and can be handled by external workflows if desired.</p>
+<p>This project is built on <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">nixpkgs.dockerTools’ streamLayeredImage</a> which “builds a script which, when run, will stream to stdout a Docker-compatible repository tarball containing a single image, using multiple layers to improve sharing between images.”<br>Using <code>streamLayeredImage</code>, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.<br>Base images in testing right now are Fedora and a handful of uBlue images including the new projectbluefin/dakota image based off of GnomeOS.<br>The result is a configured image that does not require a nix-package, or a nix-daemon. Both are available to be included if desired, but are not required and disabled by default.</p>
+<p>Where possible we use <code>streamLayeredImage.contents</code> to deliver the configuration as symlinks to the image’s nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.<br>At times, symlinks don’t cut it and we use <code>streamLayeredImage.fakeRootCommands</code> to copy files into place with required permissions.</p>
+<p>Optionally there is a nix configured containerfile that podman will run after <code>streamLayeredImage</code>. Allowing for some workflows such as rebuilding the initramfs, that aren’t available with <code>streamLayeredImage</code> alone. This is disabled by default, and can be handled by external workflows if desired.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="systemd"><a class="header" href="#systemd">Systemd</a></h1>
-<p>Systemd configuration is delivered through streamLayeredImage.contents, symlinking the nix store paths to their locations.<br>Tmpfiles work slightly differently than systemd services, tmpfile configurations are added using environment.usr (a duplicate of environment.etc from NixOS).</p>
-<p>Both <code>systemd</code>, and <code>systemd.tmpfiles</code> through <code>environment.usr</code> are placed in the /usr directory and not the /etc directoy like on NixOS. See <a href="#etc--usr">etc-usr</a> for more information.</p>
-<p>Optionally, selinux labels can be assigned with <code>config.caliga.core.selinux.enable</code>. See <a href="#selinux">selinux</a>.<br>Some upstream NixOS services will call scripts that do not end up in nix store paths that are labeled by default (such as with pkgs.writeShellScript).
-The <code>selinux.labelServiceExecs</code> option accepts a list of systemd service names, and will ensure all of the service’s exec paths (that are in the nix store) get bin_t selinux labels.</p>
+<p>Systemd configuration is delivered through <code>streamLayeredImage.contents</code>, symlinking the nix store paths to their locations.<br>Tmpfiles work slightly differently than systemd services, tmpfile configurations are added using <code>config.environment.usr</code> (a duplicate of <code>config.environment.etc</code> from NixOS).</p>
+<p>Both <code>config.systemd.*</code>, and <code>config.systemd.tmpfiles</code> through <code>config.environment.usr</code> are placed in the /usr directory and not the /etc directory like on NixOS. See <a href="#etc--usr">etc-usr</a> for more information.</p>
+<p>Optionally, selinux labels can be assigned with <code>config.caliga.core.selinux.enable</code>. See <a href="#selinux">selinux</a>.<br>Some upstream NixOS services will call scripts that do not end up in nix store paths that are labeled by default (such as with <code>pkgs.writeShellScript</code>).
+The <code>config.selinux.labelServiceExecs</code> option accepts a list of systemd service names, and will ensure all of the service’s exec paths (that are in the nix store) get <code>bin_t</code> selinux labels.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <h3 id="core-systemd"><a class="header" href="#core-systemd">Core Systemd</a></h3>
-<p>Enabled with <code>config.caliga.core.systemd.enable</code>.<br>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
+<p>Enabled with <code>config.caliga.core.systemd.enable</code>.</p>
+<p>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
 <ul>
-<li><code>systemd.services</code></li>
-<li><code>systemd.targets</code></li>
-<li><code>systemd.timers</code></li>
-<li><code>systemd.sockets</code></li>
-<li><code>systemd.paths</code></li>
-<li><code>systemd.mounts</code></li>
-<li><code>systemd.automounts</code></li>
-<li><code>systemd.slices</code></li>
-<li><code>systemd.units</code></li>
-<li><code>systemd.packages</code></li>
-<li><code>systemd.globalEnvironment</code></li>
-<li><code>systemd.enableStrictShellChecks</code></li>
+<li><code>config.systemd.services</code></li>
+<li><code>config.systemd.targets</code></li>
+<li><code>config.systemd.timers</code></li>
+<li><code>config.systemd.sockets</code></li>
+<li><code>config.systemd.paths</code></li>
+<li><code>config.systemd.mounts</code></li>
+<li><code>config.systemd.automounts</code></li>
+<li><code>config.systemd.slices</code></li>
+<li><code>config.systemd.units</code></li>
+<li><code>config.systemd.packages</code></li>
+<li><code>config.systemd.globalEnvironment</code></li>
+<li><code>config.systemd.enableStrictShellChecks</code></li>
 </ul>
 <p>New options specific to nix-caliga:</p>
 <ul>
-<li><code>systemd.maskedUnits</code>
+<li><code>config.systemd.maskedUnits</code>
 <ul>
 <li>a list of systemd units to mask</li>
 </ul>
 </li>
-<li><code>systemd.defaultUnit</code>
+<li><code>config.systemd.defaultUnit</code>
 <ul>
 <li>Same as nixos, but it can be left empty leaving the base image’s default target.</li>
 </ul>
@@ -275,38 +276,38 @@ The <code>selinux.labelServiceExecs</code> option accepts a list of systemd serv
 <h3 id="tmpfiles"><a class="header" href="#tmpfiles">Tmpfiles</a></h3>
 <p>Enabled with <code>config.caliga.core.tmpfiles.enable</code>.</p>
 <ul>
-<li><code>systemd.tmpfiles</code></li>
+<li><code>config.systemd.tmpfiles</code></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="etc--usr"><a class="header" href="#etc--usr">Etc &amp; Usr</a></h1>
 <p>NixOS makes heavy use of /etc, placing most of the system configuration there.
 By default on Bootc, /etc and /var are the only two mutable locations where the running system’s edits will persist. /etc specifically is handled with a three way merge. (See <a href="https://bootc.dev/bootc/filesystem.html#etc">bootc docs</a>)<br>Bootc upstream recommends configuring your system with /usr instead of /etc where possible. (See <a href="https://bootc.dev/bootc/filesystem.html">bootc docs</a>) And if possible even enabling a transient etc that is reset on reboot. (More details on this below)</p>
-<p>For Nix-caliga this means shifting as much configuration to /usr as we can.<br>While <code>environment.etc</code> will work functionally identically to how it does on NixOS, we have also added <code>environment.usr</code> with identical options to etc that can handle /usr files.<br><code>systemd.*</code> options are also configured to use /usr and not /etc.</p>
-<p>Both <code>environment.etc</code> and <code>environment.usr</code> by default symlink files into place through streamLayeredImage.contents, pointing into the nix store.
-If a <code>mode</code> is set (<code>"0600"</code> etc), the file is instead copied as a real file using fakeRootCommands with the specified permissions. This is necessary for files read early in boot (SELinux configs, ostree-prepare-root, etc.) where symlinks into the nix store won’t work.</p>
-<p>Symlinked files resolve into /nix/store paths. If SELinux is enforcing on the base image, enable <code>caliga.core.selinux.enable</code> to ensure proper labelling. See <a href="#selinux">selinux</a>.</p>
+<p>For Nix-caliga this means shifting as much configuration to /usr as we can.<br>While <code>config.environment.etc</code> will work functionally identically to how it does on NixOS, we have also added <code>config.environment.usr</code> with identical options to etc that can handle /usr files.<br><code>config.systemd.*</code> options are also configured to use /usr and not /etc.</p>
+<p>Both <code>config.environment.etc</code> and <code>config.environment.usr</code> by default symlink files into place through <code>streamLayeredImage.contents</code>, pointing into the nix store.
+If a <code>mode</code> is set (<code>"0600"</code> etc), the file is instead copied as a real file using <code>streamLayeredImage.fakeRootCommands</code> with the specified permissions. This is necessary for files read early in boot (SELinux configs, ostree-prepare-root, etc.) where symlinks into the nix store won’t work.</p>
+<p>Symlinked files resolve into /nix/store paths. If SELinux is enforcing on the base image, enable <code>config.caliga.core.selinux.enable</code> to ensure proper labelling. See <a href="#selinux">selinux</a>.</p>
 <h2 id="transient-etc"><a class="header" href="#transient-etc">Transient etc</a></h2>
-<p>Transient etc is made available through <code>bootc.ostree-prepare-root.transientEtc</code> which will configure the /usr/lib/ostree/prepare-root.conf file for transient etc. I recommend looking over <code>bootc.ostree-prepare-root.additionalConf</code> and verifying the prepare-root.conf file has the full set of configuration that you need. (See <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">bootc docs</a> and <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>)
-In order for prepare-root.conf changes to take effect, you <strong>must</strong> regenerate the initramfs.<br><code>pkgs.dockerTools.streamLayeredImage</code> is unable to regenerate the image’s initramfs, and this must be done with podman. <code>bootc.ostree-prepare-root.transientEtc</code> will configure a containerfile with a simple regenerate command.
-If <code>caliga.core.containerfile.enable</code> is true, then after the streamLayeredImage completes, podman will run using the containerfile on the image before streaming the image itself. (See <a href="#build-image">buildImage</a>)</p>
-<p>As a side note, currently the transientEtc option only works for Fedora, and not for uBlue images which handle initramfs differently.</p>
+<p>Transient etc is made available through <code>config.bootc.ostree-prepare-root.transientEtc</code> which will configure the /usr/lib/ostree/prepare-root.conf file for transient etc. I recommend looking over <code>config.bootc.ostree-prepare-root.additionalConf</code> and verifying the prepare-root.conf file has the full set of configuration that you need. (See <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">bootc docs</a> and <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>)
+In order for prepare-root.conf changes to take effect, you <strong>must</strong> regenerate the initramfs.<br><code>pkgs.dockerTools.streamLayeredImage</code> is unable to regenerate the image’s initramfs, and this must be done with podman. <code>config.bootc.ostree-prepare-root.transientEtc</code> will configure a containerfile with a simple regenerate command.
+If <code>config.caliga.core.containerfile.enable</code> is true, then after the <code>streamLayeredImage</code> completes, podman will run using the containerfile on the image before streaming the image itself. (See <a href="#build-image">buildImage</a>)</p>
+<p>As a side note, currently the <code>config.bootc.ostree-prepare-root.transientEtc</code> option only works for Fedora, and not for uBlue images which handle initramfs differently.</p>
 <h2 id="system-packages"><a class="header" href="#system-packages">System Packages</a></h2>
-<p>Packages in <code>environment.systemPackages</code> have their binaries symlinked into <code>/usr/local/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
+<p>Packages in <code>config.environment.systemPackages</code> have their binaries symlinked into <code>/usr/local/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
 <h2 id="options-1"><a class="header" href="#options-1">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.etc-usr.enable</code>.</p>
 <p>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
 <ul>
-<li><code>environment.etc</code>
+<li><code>config.environment.etc</code>
 <ul>
 <li>Files to be placed in /etc</li>
 </ul>
 </li>
-<li><code>environment.usr</code>
+<li><code>config.environment.usr</code>
 <ul>
 <li>Files to be placed in /usr</li>
 </ul>
 </li>
-<li><code>environment.systemPackages</code>
+<li><code>config.environment.systemPackages</code>
 <ul>
 <li>Packages made available to all users at <code>/usr/local/bin</code></li>
 </ul>
@@ -322,96 +323,96 @@ If <code>caliga.core.containerfile.enable</code> is true, then after the streamL
 <li>Fedora <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
 <li>Bluefin-dakota <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
 </ul>
-<h2 id="enabling-all-core-options"><a class="header" href="#enabling-all-core-options">Enabling all core options</a></h2>
-<p><code>caliga.core.enable</code> enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>caliga.core.selinux.enable</code> and is set automatically based on <code>caliga.os</code>.</p>
+<h2 id="enabling-all-core-options"><a class="header" href="#enabling-all-core-options">Enabling All Core Options</a></h2>
+<p><code>config.caliga.core.enable</code> enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>config.caliga.core.selinux.enable</code> and is set automatically based on <code>config.caliga.os</code>.</p>
 <h2 id="individual-core-modules"><a class="header" href="#individual-core-modules">Individual Core Modules</a></h2>
 <p>Each module can be enabled independently:</p>
 <ul>
-<li><code>caliga.core.etc-usr.enable</code> Enables <code>/etc</code> and <code>/usr</code> file generation. Required by most other modules. See <a href="#etc--usr">etc-usr</a>.</li>
-<li><code>caliga.core.systemd.enable</code> Enables systemd unit generation. See <a href="#systemd">systemd</a>.</li>
-<li><code>caliga.core.tmpfiles.enable</code> Enables <code>systemd.tmpfiles</code> rule management.</li>
-<li><code>caliga.core.users.enable</code> Enables user and group management through userborn. See <a href="#users--groups">users-groups</a>.</li>
-<li><code>caliga.core.selinux.enable</code> Enables SELinux file context labeling. See <a href="#selinux">selinux</a>.</li>
+<li><code>config.caliga.core.etc-usr.enable</code> Enables <code>/etc</code> and <code>/usr</code> file generation. Required by most other modules. See <a href="#etc--usr">etc-usr</a>.</li>
+<li><code>config.caliga.core.systemd.enable</code> Enables systemd unit generation. See <a href="#systemd">systemd</a>.</li>
+<li><code>config.caliga.core.tmpfiles.enable</code> Enables <code>config.systemd.tmpfiles</code> rule management.</li>
+<li><code>config.caliga.core.users.enable</code> Enables user and group management through userborn. See <a href="#users--groups">users-groups</a>.</li>
+<li><code>config.caliga.core.selinux.enable</code> Enables SELinux file context labeling. See <a href="#selinux">selinux</a>.</li>
 </ul>
 <h2 id="containerfile"><a class="header" href="#containerfile">Containerfile</a></h2>
-<p><code>caliga.core.containerfile</code> configures an optional <code>podman build</code> step that runs after <code>streamLayeredImage</code>. Some operations (such as initramfs regeneration) cannot be done inside <code>streamLayeredImage</code> and require a Containerfile instead. See <a href="#build-image">buildImage</a>.</p>
+<p><code>config.caliga.core.containerfile</code> configures an optional <code>podman build</code> step that runs after <code>streamLayeredImage</code>. Some operations (such as initramfs regeneration) cannot be done inside <code>streamLayeredImage</code> and require a Containerfile instead. See <a href="#build-image">buildImage</a>.</p>
 <ul>
-<li><code>caliga.core.containerfile.enable</code> Apply a Containerfile on top of the <code>streamLayeredImage</code> output. Defaults to <code>false</code>.</li>
-<li><code>caliga.core.containerfile.file</code> Path to a custom Containerfile. If set, takes full precedence any commands from <code>extraCommands</code> or generated commands (e.g. from <code>bootc.initramfs.regenerate</code>) are not used.</li>
-<li><code>caliga.core.containerfile.extraCommands</code> Additional Containerfile commands appended to generated commands. Ignored if <code>file</code> is set.</li>
+<li><code>config.caliga.core.containerfile.enable</code> Apply a Containerfile on top of the <code>streamLayeredImage</code> output. Defaults to <code>false</code>.</li>
+<li><code>config.caliga.core.containerfile.file</code> Path to a custom Containerfile. If set, takes full precedence — any commands from <code>config.caliga.core.containerfile.extraCommands</code> or generated commands (e.g. from <code>config.bootc.initramfs.regenerate</code>) are not used.</li>
+<li><code>config.caliga.core.containerfile.extraCommands</code> Additional Containerfile commands appended to generated commands. Ignored if <code>config.caliga.core.containerfile.file</code> is set.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="users--groups"><a class="header" href="#users--groups">Users &amp; Groups</a></h1>
 <p>User and group management in nix-caliga, like <a href="https://github.com/numtide/system-manager">system-manager</a>, uses <a href="https://github.com/nikstur/userborn">userborn</a> to configure users and groups during boot. The <code>config.users.*</code> options from NixOS are almost all supported.</p>
-<p>Enabling <code>caliga.core.users.enable</code> requires <code>caliga.core.etc-usr.enable</code>, <code>caliga.core.systemd.enable</code>, and <code>caliga.os</code> to be set.</p>
+<p>Enabling <code>config.caliga.core.users.enable</code> requires <code>config.caliga.core.etc-usr.enable</code>, <code>config.caliga.core.systemd.enable</code>, and <code>config.caliga.os</code> to be set.</p>
 <h2 id="userborn"><a class="header" href="#userborn">Userborn</a></h2>
-<p>Userborn runs as a systemd service early durring boot to create and update users and groups. The base image’s <code>systemd-sysusers.service</code> is masked when <code>caliga.core.users</code> is enabled.</p>
+<p>Userborn runs as a systemd service early durring boot to create and update users and groups. The base image’s <code>systemd-sysusers.service</code> is masked when <code>config.caliga.core.users</code> is enabled.</p>
 <h2 id="home-directories"><a class="header" href="#home-directories">Home Directories</a></h2>
-<p>On bootc, <code>/home</code> is typically a symlink to <code>/var/home</code> so that home directories persist across image updates. If the user has <code>createHome</code> as true, this is handled by building the <code>/home/*</code> symlink to <code>/var/home*</code> into the image.<br>Currently NixOS’ <code>users.defaultUserHome</code> does not exist, but per-user <code>users.users.&lt;name&gt;.home</code> is still configurable.</p>
+<p>On bootc, <code>/home</code> is typically a symlink to <code>/var/home</code> so that home directories persist across image updates. If the user has <code>createHome</code> as true, this is handled by building the <code>/home/*</code> symlink to <code>/var/home*</code> into the image.<br>Currently NixOS’ <code>config.users.defaultUserHome</code> does not exist, but per-user <code>config.users.users.&lt;name&gt;.home</code> is still configurable.</p>
 <h2 id="os-specific-base-users-and-groups"><a class="header" href="#os-specific-base-users-and-groups">OS-Specific Base Users and Groups</a></h2>
 <p>To add a user to a base image group with <code>config.users.users.*.extraGroups</code>, the group must have a GID in the config.<br>Additionally, a few system users like <code>root</code> need their id’s set as well.<br>These ids differ between OS, so we set these as part of <code>config.caliga.os</code>.</p>
 <h2 id="options-2"><a class="header" href="#options-2">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.users.enable</code>.</p>
 <ul>
-<li><code>users.users</code></li>
-<li><code>users.groups</code></li>
-<li><code>users.mutableUsers</code></li>
-<li><code>users.defaultUserShell</code></li>
-<li><code>users.enforceIdUniqueness</code></li>
-<li><code>users.allowNoPasswordLogin</code></li>
+<li><code>config.users.users</code></li>
+<li><code>config.users.groups</code></li>
+<li><code>config.users.mutableUsers</code></li>
+<li><code>config.users.defaultUserShell</code></li>
+<li><code>config.users.enforceIdUniqueness</code></li>
+<li><code>config.users.allowNoPasswordLogin</code></li>
 </ul>
 <h2 id="differences-from-nixos"><a class="header" href="#differences-from-nixos">Differences from NixOS</a></h2>
 <h3 id="removed-options"><a class="header" href="#removed-options">Removed Options</a></h3>
 <ul>
-<li><code>users.defaultUserHome</code></li>
-<li><code>users.manageLingering</code></li>
+<li><code>config.users.defaultUserHome</code></li>
+<li><code>config.users.manageLingering</code></li>
 </ul>
 <h3 id="changed-options"><a class="header" href="#changed-options">Changed Options</a></h3>
 <ul>
-<li><code>users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
+<li><code>config.users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="nix"><a class="header" href="#nix">Nix</a></h1>
 <p>Nix-caliga does not require the nix package itself, or a nix-daemon to be on the bootc images it creates.<br>However you may still want nix and the nix-daemon to be available on your system. <code>config.nix.enable</code> sets the nix-daemon up.<br>This module is functional, but it is not yet fully featured, some aspects of the nix configuration are not easily accessible.</p>
-<p>Enabling <code>nix.enable</code> requires <code>caliga.core.etc-usr.enable</code>, <code>caliga.core.systemd.enable</code>, <code>caliga.core.tmpfiles.enable</code>, and <code>caliga.core.users.enable</code> to all be true.</p>
-<h2 id="writable-nix-overlay"><a class="header" href="#writable-nix-overlay">Writable /nix overlay</a></h2>
+<p>Enabling <code>config.nix.enable</code> requires <code>config.caliga.core.etc-usr.enable</code>, <code>config.caliga.core.systemd.enable</code>, <code>config.caliga.core.tmpfiles.enable</code>, and <code>config.caliga.core.users.enable</code> to all be true.</p>
+<h2 id="writable-nix-overlay"><a class="header" href="#writable-nix-overlay">Writable /nix Overlay</a></h2>
 <p>On a bootc system <code>/nix</code> is part of the read only image. To allow the Nix daemon to install packages and manage the nix store, we create an overlay mount over <code>/nix</code> with its upper directory at <code>/var/nix/upper</code> and work directory at <code>/var/nix/work</code> (/var being mutable and persistant). The overlay mount only occurs on systems where /nix is actually read only. In a container the overlay mount won’t actually be created.</p>
-<h2 id="nix-daemon"><a class="header" href="#nix-daemon">Nix daemon</a></h2>
-<p>The nix-daemon service and socket units are pulled in through <code>systemd.packages</code> from the Nix package itself. It’s not tested, but other “nix” packages should work in place.</p>
-<h2 id="images-nix-database"><a class="header" href="#images-nix-database">Image’s Nix database</a></h2>
-<p>If the nix-daemon is enabled, <code>layeredImage.includeNixDB</code> (see <a href="#build-image">buildImage</a>) is set to true so that the Nix database from the image build is included. This allows the daemon to be aware of store paths that were baked into the image.</p>
-<h2 id="nix-configuration"><a class="header" href="#nix-configuration">Nix configuration</a></h2>
-<p>A <code>nix.conf</code> is placed at <code>/etc/nix/nix.conf</code> with flakes and the nix-command experimental features enabled along with the nixpkgs path set from the flake input. Additional settings can be configured through <code>nix.settings</code>.<br>Eventually the nix-caliga nix-daemon will be more configurable. Hopefully pulling in more of the configuration directly from NixOS.</p>
+<h2 id="nix-daemon"><a class="header" href="#nix-daemon">Nix Daemon</a></h2>
+<p>The nix-daemon service and socket units are pulled in through <code>config.systemd.packages</code> from the Nix package itself. It’s not tested, but other “nix” packages should work in place.</p>
+<h2 id="image-nix-database"><a class="header" href="#image-nix-database">Image Nix Database</a></h2>
+<p>If the nix-daemon is enabled, <code>config.layeredImage.includeNixDB</code> (see <a href="#build-image">buildImage</a>) is set to <code>true</code> so that the Nix database from the image build is included. This allows the daemon to be aware of store paths that were baked into the image.</p>
+<h2 id="nix-configuration"><a class="header" href="#nix-configuration">Nix Configuration</a></h2>
+<p>A <code>nix.conf</code> is placed at <code>/etc/nix/nix.conf</code> with flakes and the nix-command experimental features enabled along with the nixpkgs path set from the flake input. Additional settings can be configured through <code>config.nix.settings</code>.<br>Eventually the nix-caliga nix-daemon will be more configurable. Hopefully pulling in more of the configuration directly from NixOS.</p>
 <h2 id="options-3"><a class="header" href="#options-3">Options</a></h2>
 <ul>
-<li><code>nix.enable</code>
+<li><code>config.nix.enable</code>
 <ul>
 <li>Enable the Nix package and daemon.</li>
 </ul>
 </li>
-<li><code>nix.package</code>
+<li><code>config.nix.package</code>
 <ul>
 <li>The Nix package to use. Defaults to <code>pkgs.nix</code>.</li>
 </ul>
 </li>
-<li><code>nix.nrBuildUsers</code>
+<li><code>config.nix.nrBuildUsers</code>
 <ul>
-<li>Number of Nix build users to create. Defaults to 32.</li>
+<li>Number of Nix build users to create. Defaults to <code>32</code>.</li>
 </ul>
 </li>
-<li><code>nix.settings</code>
+<li><code>config.nix.settings</code>
 <ul>
-<li>Additional settings for nix.conf as an attrset. Merged with the (currently) fixed defaults (build-users-group, experimental-features, nix-path).</li>
+<li>Additional settings for <code>nix.conf</code> as an attrset. Merged with the (currently) fixed defaults (<code>build-users-group</code>, <code>experimental-features</code>, <code>nix-path</code>).</li>
 </ul>
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="selinux"><a class="header" href="#selinux">SELinux</a></h1>
 <p>Fedora bootc images ship with SELinux enforcing by default. Nix store paths do not get SELinux context in the base image.</p>
-<p>When <code>caliga.core.selinux.enable</code> is true, nix-caliga creates a file at <code>/etc/selinux/targeted/contexts/files/file_contexts.local</code> with rules that label common nix store subdirectories.
-This file is placed using <code>environment.etc</code> as a real file, as SELinux needs it before the nix store is available.</p>
-<h2 id="nix-store-labels"><a class="header" href="#nix-store-labels">Nix store labels</a></h2>
-<p>The default nix store context rules (enabled by <code>selinux.nixStoreContexts.enable</code>) cover the standard layout used by nix-caliga:</p>
+<p>When <code>config.caliga.core.selinux.enable</code> is true, nix-caliga creates a file at <code>/etc/selinux/targeted/contexts/files/file_contexts.local</code> with rules that label common nix store subdirectories.
+This file is placed using <code>config.environment.etc</code> as a real file, as SELinux needs it before the nix store is available.</p>
+<h2 id="nix-store-labels"><a class="header" href="#nix-store-labels">Nix Store Labels</a></h2>
+<p>The default nix store context rules (enabled by <code>config.selinux.nixStoreContexts.enable</code>) cover the standard layout used by nix-caliga:</p>
 <ul>
 <li><code>/nix/store/&lt;hash&gt;/bin/</code>, <code>/nix/store/&lt;hash&gt;/sbin/</code> &gt; <code>bin_t</code></li>
 <li><code>/nix/store/&lt;hash&gt;/lib/</code> &gt; <code>lib_t</code></li>
@@ -423,11 +424,11 @@ This file is placed using <code>environment.etc</code> as a real file, as SELinu
 </ul>
 <p>This mostly follows the same SELinux types used by the nix-community/nix-installers SELinux policy, with a few additions for /usr and systemd.</p>
 <h2 id="service-exec-labels"><a class="header" href="#service-exec-labels">Service Exec Labels</a></h2>
-<p>Some NixOS modules produce scripts with <code>pkgs.writeShellScript</code> or <code>pkgs.writeTextFile</code> that end up at store paths that dont have a /bin or /sbin. This means the scripts do not get labels by default.<br>The <code>selinux.labelServiceExecs</code> option accepts a list of systemd service names and it will extract all <code>Exec*</code> paths (ExecStart, ExecStartPre, etc.) from those services, and add <code>bin_t</code> rules for all nix store paths.</p>
+<p>Some NixOS modules produce scripts with <code>pkgs.writeShellScript</code> or <code>pkgs.writeTextFile</code> that end up at store paths that dont have a <code>/bin</code> or <code>/sbin</code>. This means the scripts do not get labels by default.<br>The <code>config.selinux.labelServiceExecs</code> option accepts a list of systemd service names and it will extract all <code>Exec*</code> paths (<code>ExecStart</code>, <code>ExecStartPre</code>, etc.) from those services, and add <code>bin_t</code> rules for all nix store paths.</p>
 <h2 id="enforcement-mode"><a class="header" href="#enforcement-mode">Enforcement Mode</a></h2>
-<p>By default, the base image’s SELinux enforcement mode is left unchanged. The <code>selinux.enforcementMode</code> option can override it by writing <code>/etc/selinux/config</code> with the specified mode.</p>
+<p>By default, the base image’s SELinux enforcement mode is left unchanged. The <code>config.selinux.enforcementMode</code> option can override it by writing <code>/etc/selinux/config</code> with the specified mode.</p>
 <h2 id="custom-file-contexts"><a class="header" href="#custom-file-contexts">Custom File Contexts</a></h2>
-<p>Additional file context rules can be added with <code>selinux.fileContexts</code>:</p>
+<p>Additional file context rules can be added with <code>config.selinux.fileContexts</code>:</p>
 <pre><code class="language-nix">selinux.fileContexts = {
   "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
 };
@@ -435,27 +436,27 @@ This file is placed using <code>environment.etc</code> as a real file, as SELinu
 <h2 id="options-4"><a class="header" href="#options-4">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.selinux.enable</code>.</p>
 <ul>
-<li><code>selinux.nixStoreContexts.enable</code>
+<li><code>config.selinux.nixStoreContexts.enable</code>
 <ul>
-<li>Default SELinux rules for /nix/store paths. Defaults to <code>true</code>.</li>
+<li>Default SELinux rules for <code>/nix/store</code> paths. Defaults to <code>true</code>.</li>
 </ul>
 </li>
-<li><code>selinux.labelServiceExecs</code>
+<li><code>config.selinux.labelServiceExecs</code>
 <ul>
-<li>List of systemd service names whose Exec store paths need to be labeled bin_t.</li>
+<li>List of systemd service names whose Exec store paths need to be labeled <code>bin_t</code>.</li>
 </ul>
 </li>
-<li><code>selinux.fileContexts</code>
+<li><code>config.selinux.fileContexts</code>
 <ul>
 <li>Extra SELinux file context rules.</li>
 </ul>
 </li>
-<li><code>selinux.enforcementMode</code>
+<li><code>config.selinux.enforcementMode</code>
 <ul>
 <li>SELinux enforcement mode. Defers to the base image by default.</li>
 </ul>
 </li>
-<li><code>selinux.ignoreWarnings</code>
+<li><code>config.selinux.ignoreWarnings</code>
 <ul>
 <li>Suppress SELinux-related warnings from other modules.</li>
 </ul>
@@ -468,95 +469,95 @@ This file is placed using <code>environment.etc</code> as a real file, as SELinu
 <h2 id="streamlayeredimage"><a class="header" href="#streamlayeredimage">StreamLayeredImage</a></h2>
 <p><code>pkgs.dockerTools.streamLayeredImage.*</code> options are made directly available at <code>config.layeredImage.*</code>. See the <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">NixOS Manual</a>.</p>
 <p>The image is labeled with <code>containers.bootc = "1"</code> and <code>ostree.bootable = "true"</code> by default.</p>
-<h3 id="streamlayeredimage-limitations"><a class="header" href="#streamlayeredimage-limitations">StreamLayeredImage limitations</a></h3>
-<p><code>streamLayeredImage</code> only has access to the files built by streamLayeredImage.<br>This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in fakeRootCommands. Use the containerfile option instead.</p>
+<h3 id="limitations"><a class="header" href="#limitations">Limitations</a></h3>
+<p><code>streamLayeredImage</code> only has access to the files built by <code>streamLayeredImage</code>.<br>This means steps that need base image contents (initramfs regeneration, rpm operations, etc.) cannot run in <code>streamLayeredImage.fakeRootCommands</code>. Use the containerfile option instead.</p>
 <h2 id="containerfile-1"><a class="header" href="#containerfile-1">Containerfile</a></h2>
-<p>When <code>caliga.core.containerfile.enable</code> is true, the build gains a second stage. After <code>streamLayeredImage</code> streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc’s <code>prepare-root.conf</code> changes to take effect.</p>
-<p>You can either provide a complete Containerfile with <code>caliga.core.containerfile.file</code>, or list commands with <code>caliga.core.containerfile.extraCommands</code>.<br>Other modules may add to <code>caliga.core.containerfile.extraCommands</code> automatically. For example, <code>bootc.ostree-prepare-root.transientEtc</code> (see <a href="#bootc">bootc</a>) adds an initramfs regeneration command since <code>streamLayeredImage</code> alone cannot do this.
-<code>caliga.core.containerfile.file</code> takes precedence over extraCommands if set.</p>
+<p>When <code>config.caliga.core.containerfile.enable</code> is true, the build gains a second stage. After <code>streamLayeredImage</code> streams the base tar, podman runs a containerfile on top of it. This allows steps such as regenerating the initramfs for bootc’s <code>prepare-root.conf</code> changes to take effect.</p>
+<p>You can either provide a complete Containerfile with <code>config.caliga.core.containerfile.file</code>, or list commands with <code>config.caliga.core.containerfile.extraCommands</code>.<br>Other modules may add to <code>config.caliga.core.containerfile.extraCommands</code> automatically. For example, <code>config.bootc.ostree-prepare-root.transientEtc</code> (see <a href="#bootc">bootc</a>) adds an initramfs regeneration command since <code>streamLayeredImage</code> alone cannot do this.
+<code>config.caliga.core.containerfile.file</code> takes precedence over <code>config.caliga.core.containerfile.extraCommands</code> if set.</p>
 <h2 id="options-5"><a class="header" href="#options-5">Options</a></h2>
-<h3 id="buildimage"><a class="header" href="#buildimage"><code>build.image</code></a></h3>
+<h3 id="configbuildimage"><a class="header" href="#configbuildimage"><code>config.build.image</code></a></h3>
 <ul>
-<li>The final image script. Read-only. Result is either the streamLayeredImage script, or a script with the streamLayeredImage script wrapped by a podman build with the containerfile.</li>
+<li>The final image script. Read-only. Result is either the <code>streamLayeredImage</code> script, or a script with the <code>streamLayeredImage</code> script wrapped by a podman build with the containerfile.</li>
 </ul>
-<h3 id="layeredimage"><a class="header" href="#layeredimage"><code>layeredImage.*</code></a></h3>
+<h3 id="configlayeredimage"><a class="header" href="#configlayeredimage"><code>config.layeredImage.*</code></a></h3>
 <ul>
-<li><code>layeredImage.name</code>
+<li><code>config.layeredImage.name</code>
 <ul>
 <li>The full image name (e.g. ghcr.io/org/image).</li>
 </ul>
 </li>
-<li><code>layeredImage.tag</code>
+<li><code>config.layeredImage.tag</code>
 <ul>
 <li>Image tag. Defaults to “latest”.</li>
 </ul>
 </li>
-<li><code>layeredImage.maxLayers</code>
+<li><code>config.layeredImage.maxLayers</code>
 <ul>
-<li>Maximum number of layers in the image. Defaults to 80.</li>
+<li>Maximum number of layers in the image. Defaults to <code>80</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.fromImage</code>
+<li><code>config.layeredImage.fromImage</code>
 <ul>
 <li>Base image to layer on top of, typically from <code>pkgs.dockerTools.pullImage</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.contents</code>
+<li><code>config.layeredImage.contents</code>
 <ul>
 <li>Derivations to include in the image contents.</li>
 </ul>
 </li>
-<li><code>layeredImage.created</code>
+<li><code>config.layeredImage.created</code>
 <ul>
 <li>Timestamp for the image creation date.</li>
 </ul>
 </li>
-<li><code>layeredImage.extraCommands</code>
+<li><code>config.layeredImage.extraCommands</code>
 <ul>
 <li>Shell commands to run after creating the layer directory.</li>
 </ul>
 </li>
-<li><code>layeredImage.fakeRootCommands</code>
+<li><code>config.layeredImage.fakeRootCommands</code>
 <ul>
 <li>Shell commands to run inside a fakeroot environment.</li>
 </ul>
 </li>
-<li><code>layeredImage.enableFakechroot</code>
+<li><code>config.layeredImage.enableFakechroot</code>
 <ul>
-<li>Whether to run fakeRootCommands in a fakechroot environment.</li>
+<li>Whether to run <code>config.layeredImage.fakeRootCommands</code> in a fakechroot environment.</li>
 </ul>
 </li>
-<li><code>layeredImage.includeStorePaths</code>
+<li><code>config.layeredImage.includeStorePaths</code>
 <ul>
-<li>Whether to include Nix store paths in the image. Defaults to true.</li>
+<li>Whether to include Nix store paths in the image. Defaults to <code>true</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.includeNixDB</code>
+<li><code>config.layeredImage.includeNixDB</code>
 <ul>
-<li>Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to false.</li>
+<li>Whether to include the Nix database in the image. Useful if running the nix daemon on the target system. Defaults to <code>false</code>.</li>
 </ul>
 </li>
-<li><code>layeredImage.config</code>
+<li><code>config.layeredImage.config</code>
 <ul>
 <li>OCI container config (Cmd, Env, Labels, Entrypoint, etc.).</li>
 </ul>
 </li>
 </ul>
-<h3 id="caligacorecontainerfile"><a class="header" href="#caligacorecontainerfile"><code>caliga.core.containerfile.*</code></a></h3>
+<h3 id="configcaligacorecontainerfile"><a class="header" href="#configcaligacorecontainerfile"><code>config.caliga.core.containerfile.*</code></a></h3>
 <ul>
-<li><code>caliga.core.containerfile.enable</code>
+<li><code>config.caliga.core.containerfile.enable</code>
 <ul>
-<li>Apply a Containerfile on top of the streamLayeredImage output.</li>
+<li>Apply a Containerfile on top of the <code>streamLayeredImage</code> output.</li>
 </ul>
 </li>
-<li><code>caliga.core.containerfile.file</code>
+<li><code>config.caliga.core.containerfile.file</code>
 <ul>
-<li>Path to a Containerfile. Takes precedence over extraCommands if set.</li>
+<li>Path to a Containerfile. Takes precedence over <code>config.caliga.core.containerfile.extraCommands</code> if set.</li>
 </ul>
 </li>
-<li><code>caliga.core.containerfile.extraCommands</code>
+<li><code>config.caliga.core.containerfile.extraCommands</code>
 <ul>
-<li>Containerfile commands included alongside generated commands. Applied after streamLayeredImage.</li>
+<li>Containerfile commands included alongside generated commands. Applied after <code>streamLayeredImage</code>.</li>
 </ul>
 </li>
 </ul>
@@ -567,49 +568,49 @@ This file is placed using <code>environment.etc</code> as a real file, as SELinu
 <p><code>config.bootc.ostree-prepare-root</code> configures <code>/usr/lib/ostree/prepare-root.conf</code>.
 This file is read during initramfs to configure how the root filesystem is set up at boot. See <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>.<br>Because this file is read from the initramfs, any changes require regenerating the initramfs to take effect.</p>
 <h3 id="transient-etc-1"><a class="header" href="#transient-etc-1">Transient /etc</a></h3>
-<p><code>bootc.ostree-prepare-root.transientEtc</code> mounts <code>/etc</code> as a transient overlay at boot. Changes to <code>/etc</code> are not persisted across reboots. This is <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">encouraged by upstream bootc</a> when possible.</p>
-<p>Enabling <code>transientEtc</code> automatically:</p>
+<p><code>config.bootc.ostree-prepare-root.transientEtc</code> mounts <code>/etc</code> as a transient overlay at boot. Changes to <code>/etc</code> are not persisted across reboots. This is <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">encouraged by upstream bootc</a> when possible.</p>
+<p>Enabling <code>config.bootc.ostree-prepare-root.transientEtc</code> automatically:</p>
 <ul>
-<li>Enables <code>bootc.ostree-prepare-root.createConf</code></li>
-<li>Enables <code>bootc.initramfs.regenerate</code> (so the initramfs picks up the new config)</li>
+<li>Enables <code>config.bootc.ostree-prepare-root.createConf</code></li>
+<li>Enables <code>config.bootc.initramfs.regenerate</code> (so the initramfs picks up the new config)</li>
 </ul>
-<p>When <code>transientEtc</code> is enabled, <code>boot.automount</code> is masked and replaced with mount units for <code>/boot</code> (ext4, by-label <code>boot</code>) and <code>/boot/efi</code> (vfat, by-label <code>EFI-SYSTEM</code>).<br>This works around issues seemingly with <code>/etc/fstab</code> handling under transient etc.</p>
-<p>Requires <code>caliga.core.systemd.enable = true</code>.</p>
+<p>When <code>config.bootc.ostree-prepare-root.transientEtc</code> is enabled, <code>boot.automount</code> is masked and replaced with mount units for <code>/boot</code> (ext4, by-label <code>boot</code>) and <code>/boot/efi</code> (vfat, by-label <code>EFI-SYSTEM</code>).<br>This works around issues seemingly with <code>/etc/fstab</code> handling under transient etc.</p>
+<p>Requires <code>config.caliga.core.systemd.enable = true</code>.</p>
 <h2 id="initramfs-regeneration"><a class="header" href="#initramfs-regeneration">Initramfs Regeneration</a></h2>
 <p>Because <code>streamLayeredImage</code> cannot run commands against the base image’s kernel or modules, initramfs regeneration must happen in a separate <code>podman build</code> step using a <a href="#build-image">Containerfile</a>.
-Setting <code>bootc.initramfs.regenerate = true</code> appends a <code>dracut</code> command to the generated Containerfile.</p>
-<p>Requires <code>caliga.core.containerfile.enable = true</code>.</p>
-<p>If <code>caliga.core.containerfile.file</code> is set the built-in dracut command is ignored in favor of your containerfile.</p>
+Setting <code>config.bootc.initramfs.regenerate = true</code> appends a <code>dracut</code> command to the generated Containerfile.</p>
+<p>Requires <code>config.caliga.core.containerfile.enable = true</code>.</p>
+<p>If <code>config.caliga.core.containerfile.file</code> is set the built-in dracut command is ignored in favor of your containerfile.</p>
 <h2 id="automatic-updates"><a class="header" href="#automatic-updates">Automatic Updates</a></h2>
-<p>The <code>services.bootc-update</code> module sets up a systemd timer that runs <code>bootc upgrade</code> on a schedule.<br>It masks the upstream <code>bootc-fetch-apply-updates</code> units to avoid conflicts.</p>
-<p>Requires <code>caliga.core.systemd.enable = true</code>.</p>
+<p>The <code>config.services.bootc-update</code> module sets up a systemd timer that runs <code>bootc upgrade</code> on a schedule.<br>It masks the upstream <code>bootc-fetch-apply-updates</code> units to avoid conflicts.</p>
+<p>Requires <code>config.caliga.core.systemd.enable = true</code>.</p>
 <h3 id="registry-authentication"><a class="header" href="#registry-authentication">Registry Authentication</a></h3>
 <p>Two options are provided for authenticating with private registries:</p>
 <ul>
-<li><code>auth</code> builds <code>auth.json</code> into the image at <code>/etc/ostree/auth.json</code>. Credentials are baked in at image build time. Requires <code>caliga.core.etc-usr.enable</code> (see <a href="#etc--usr">etc-usr</a>) = true.</li>
-<li><code>authFile</code> symlinks an existing file on the host to <code>/etc/ostree/auth.json</code> at runtime through tmpfiles. Requires <code>caliga.core.tmpfiles.enable = true</code>. Takes priority over <code>auth</code> if both are set.</li>
+<li><code>config.services.bootc-update.auth</code> builds <code>auth.json</code> into the image at <code>/etc/ostree/auth.json</code>. Credentials are baked in at image build time. Requires <code>config.caliga.core.etc-usr.enable</code> (see <a href="#etc--usr">etc-usr</a>) = true.</li>
+<li><code>config.services.bootc-update.authFile</code> symlinks an existing file on the host to <code>/etc/ostree/auth.json</code> at runtime through tmpfiles. Requires <code>config.caliga.core.tmpfiles.enable = true</code>. Takes priority over <code>config.services.bootc-update.auth</code> if both are set.</li>
 </ul>
 <p>Auth values are base64-encoded <code>user:pass</code> strings, generate with <code>echo -n 'user:pass' | base64</code>.</p>
 <h2 id="options-6"><a class="header" href="#options-6">Options</a></h2>
-<h3 id="bootcostree-prepare-root"><a class="header" href="#bootcostree-prepare-root"><code>bootc.ostree-prepare-root</code></a></h3>
+<h3 id="configbootcostree-prepare-root"><a class="header" href="#configbootcostree-prepare-root"><code>config.bootc.ostree-prepare-root</code></a></h3>
 <ul>
-<li><code>createConf</code> Write <code>/usr/lib/ostree/prepare-root.conf</code> into the image. Defaults to <code>false</code>.</li>
-<li><code>transientEtc</code> Mount <code>/etc</code> as a transient overlay at boot. Defaults to <code>false</code>.</li>
-<li><code>additionalConf</code> Additional lines appended to <code>prepare-root.conf</code>. Defaults to enabling composefs and readonly sysroot.</li>
+<li><code>config.bootc.ostree-prepare-root.createConf</code> Write <code>/usr/lib/ostree/prepare-root.conf</code> into the image. Defaults to <code>false</code>.</li>
+<li><code>config.bootc.ostree-prepare-root.transientEtc</code> Mount <code>/etc</code> as a transient overlay at boot. Defaults to <code>false</code>.</li>
+<li><code>config.bootc.ostree-prepare-root.additionalConf</code> Additional lines appended to <code>prepare-root.conf</code>. Defaults to enabling composefs and readonly sysroot.</li>
 </ul>
-<h3 id="bootcinitramfs"><a class="header" href="#bootcinitramfs"><code>bootc.initramfs</code></a></h3>
+<h3 id="configbootcinitramfs"><a class="header" href="#configbootcinitramfs"><code>config.bootc.initramfs</code></a></h3>
 <ul>
-<li><code>regenerate</code> Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
+<li><code>config.bootc.initramfs.regenerate</code> Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
 </ul>
-<h3 id="servicesbootc-update"><a class="header" href="#servicesbootc-update"><code>services.bootc-update</code></a></h3>
+<h3 id="configservicesbootc-update"><a class="header" href="#configservicesbootc-update"><code>config.services.bootc-update</code></a></h3>
 <ul>
-<li><code>enable</code> Enable the automatic update timer.</li>
-<li><code>autoReboot</code> Reboot after applying an update (<code>bootc upgrade --apply</code>). Defaults to <code>true</code>.</li>
-<li><code>schedule.onBootSec</code> Delay after boot before the first update check. Defaults to <code>30s</code>.</li>
-<li><code>schedule.onUnitActiveSec</code> Interval between update checks. Defaults to <code>1h</code>.</li>
-<li><code>schedule.onCalendar</code> If set, overrides <code>onBootSec</code> and <code>onUnitActiveSec</code> with a calendar expression (e.g. <code>"daily"</code>). Defaults to <code>null</code>.</li>
-<li><code>auth</code> Registry credentials baked into the image.</li>
-<li><code>authFile</code> Path to a <code>containers-auth.json</code> file on the host, symlinked at runtime.</li>
+<li><code>config.services.bootc-update.enable</code> Enable the automatic update timer.</li>
+<li><code>config.services.bootc-update.autoReboot</code> Reboot after applying an update (<code>bootc upgrade --apply</code>). Defaults to <code>true</code>.</li>
+<li><code>config.services.bootc-update.schedule.onBootSec</code> Delay after boot before the first update check. Defaults to <code>30s</code>.</li>
+<li><code>config.services.bootc-update.schedule.onUnitActiveSec</code> Interval between update checks. Defaults to <code>1h</code>.</li>
+<li><code>config.services.bootc-update.schedule.onCalendar</code> If set, overrides <code>config.services.bootc-update.schedule.onBootSec</code> and <code>config.services.bootc-update.schedule.onUnitActiveSec</code> with a calendar expression (e.g. “daily”). Defaults to <code>null</code>.</li>
+<li><code>config.services.bootc-update.auth</code> Registry credentials baked into the image.</li>
+<li><code>config.services.bootc-update.authFile</code> Path to a <code>containers-auth.json</code> file on the host, symlinked at runtime.</li>
 </ul>
 
                     </main>

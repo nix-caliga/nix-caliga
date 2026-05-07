@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -175,35 +175,36 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="systemd"><a class="header" href="#systemd">Systemd</a></h1>
-<p>Systemd configuration is delivered through streamLayeredImage.contents, symlinking the nix store paths to their locations.<br>Tmpfiles work slightly differently than systemd services, tmpfile configurations are added using environment.usr (a duplicate of environment.etc from NixOS).</p>
-<p>Both <code>systemd</code>, and <code>systemd.tmpfiles</code> through <code>environment.usr</code> are placed in the /usr directory and not the /etc directoy like on NixOS. See <a href="etc-usr.html">etc-usr</a> for more information.</p>
-<p>Optionally, selinux labels can be assigned with <code>config.caliga.core.selinux.enable</code>. See <a href="selinux.html">selinux</a>.<br>Some upstream NixOS services will call scripts that do not end up in nix store paths that are labeled by default (such as with pkgs.writeShellScript).
-The <code>selinux.labelServiceExecs</code> option accepts a list of systemd service names, and will ensure all of the service’s exec paths (that are in the nix store) get bin_t selinux labels.</p>
+<p>Systemd configuration is delivered through <code>streamLayeredImage.contents</code>, symlinking the nix store paths to their locations.<br>Tmpfiles work slightly differently than systemd services, tmpfile configurations are added using <code>config.environment.usr</code> (a duplicate of <code>config.environment.etc</code> from NixOS).</p>
+<p>Both <code>config.systemd.*</code>, and <code>config.systemd.tmpfiles</code> through <code>config.environment.usr</code> are placed in the /usr directory and not the /etc directory like on NixOS. See <a href="etc-usr.html">etc-usr</a> for more information.</p>
+<p>Optionally, selinux labels can be assigned with <code>config.caliga.core.selinux.enable</code>. See <a href="selinux.html">selinux</a>.<br>Some upstream NixOS services will call scripts that do not end up in nix store paths that are labeled by default (such as with <code>pkgs.writeShellScript</code>).
+The <code>config.selinux.labelServiceExecs</code> option accepts a list of systemd service names, and will ensure all of the service’s exec paths (that are in the nix store) get <code>bin_t</code> selinux labels.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <h3 id="core-systemd"><a class="header" href="#core-systemd">Core Systemd</a></h3>
-<p>Enabled with <code>config.caliga.core.systemd.enable</code>.<br>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
+<p>Enabled with <code>config.caliga.core.systemd.enable</code>.</p>
+<p>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
 <ul>
-<li><code>systemd.services</code></li>
-<li><code>systemd.targets</code></li>
-<li><code>systemd.timers</code></li>
-<li><code>systemd.sockets</code></li>
-<li><code>systemd.paths</code></li>
-<li><code>systemd.mounts</code></li>
-<li><code>systemd.automounts</code></li>
-<li><code>systemd.slices</code></li>
-<li><code>systemd.units</code></li>
-<li><code>systemd.packages</code></li>
-<li><code>systemd.globalEnvironment</code></li>
-<li><code>systemd.enableStrictShellChecks</code></li>
+<li><code>config.systemd.services</code></li>
+<li><code>config.systemd.targets</code></li>
+<li><code>config.systemd.timers</code></li>
+<li><code>config.systemd.sockets</code></li>
+<li><code>config.systemd.paths</code></li>
+<li><code>config.systemd.mounts</code></li>
+<li><code>config.systemd.automounts</code></li>
+<li><code>config.systemd.slices</code></li>
+<li><code>config.systemd.units</code></li>
+<li><code>config.systemd.packages</code></li>
+<li><code>config.systemd.globalEnvironment</code></li>
+<li><code>config.systemd.enableStrictShellChecks</code></li>
 </ul>
 <p>New options specific to nix-caliga:</p>
 <ul>
-<li><code>systemd.maskedUnits</code>
+<li><code>config.systemd.maskedUnits</code>
 <ul>
 <li>a list of systemd units to mask</li>
 </ul>
 </li>
-<li><code>systemd.defaultUnit</code>
+<li><code>config.systemd.defaultUnit</code>
 <ul>
 <li>Same as nixos, but it can be left empty leaving the base image’s default target.</li>
 </ul>
@@ -212,7 +213,7 @@ The <code>selinux.labelServiceExecs</code> option accepts a list of systemd serv
 <h3 id="tmpfiles"><a class="header" href="#tmpfiles">Tmpfiles</a></h3>
 <p>Enabled with <code>config.caliga.core.tmpfiles.enable</code>.</p>
 <ul>
-<li><code>systemd.tmpfiles</code></li>
+<li><code>config.systemd.tmpfiles</code></li>
 </ul>
 
                     </main>

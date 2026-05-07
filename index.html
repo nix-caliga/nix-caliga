@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -232,9 +232,9 @@
 <h3 id="cross-configuration"><a class="header" href="#cross-configuration">Cross Configuration</a></h3>
 <p>Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
-<p>This project is built on <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">nixpkgs.dockerTools’ streamLayeredImage</a> which “builds a script which, when run, will stream to stdout a Docker-compatible repository tarball containing a single image, using multiple layers to improve sharing between images.”<br>Using streamLayeredImage, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.<br>Base images in testing right now are Fedora and a handful of uBlue images including the new projectbluefin/dakota image based off of GnomeOS.<br>The result is a configured image that does not require a nix-package, or a nix-daemon. Both are available to be included if desired, but are not required and disabled by default.</p>
-<p>Where possible we use streamLayeredImage.contents to deliver the configuration as simlinks to the image’s nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.<br>At times, symlinks don’t cut it and we use streamLayeredImage.fakeRootCommands to copy files into place with required permissions.</p>
-<p>Optionially there is a nix configured containerfile that podman will run after streamLayeredImage. Allowing for some workflows such as rebuilding the initramfs, that aren’t available with streamLayeredImage alone. This is disabled by default, and can be handled by external workflows if desired.</p>
+<p>This project is built on <a href="https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage">nixpkgs.dockerTools’ streamLayeredImage</a> which “builds a script which, when run, will stream to stdout a Docker-compatible repository tarball containing a single image, using multiple layers to improve sharing between images.”<br>Using <code>streamLayeredImage</code>, with a handful of modules, allows us to configure oci images, specifically bootc images, similarly to how we would configure nixos.<br>Base images in testing right now are Fedora and a handful of uBlue images including the new projectbluefin/dakota image based off of GnomeOS.<br>The result is a configured image that does not require a nix-package, or a nix-daemon. Both are available to be included if desired, but are not required and disabled by default.</p>
+<p>Where possible we use <code>streamLayeredImage.contents</code> to deliver the configuration as symlinks to the image’s nix store. If the nix-daemon is enabled, the nix db for the image contents is included for the nix-daemon.<br>At times, symlinks don’t cut it and we use <code>streamLayeredImage.fakeRootCommands</code> to copy files into place with required permissions.</p>
+<p>Optionally there is a nix configured containerfile that podman will run after <code>streamLayeredImage</code>. Allowing for some workflows such as rebuilding the initramfs, that aren’t available with <code>streamLayeredImage</code> alone. This is disabled by default, and can be handled by external workflows if desired.</p>
 
                     </main>
 

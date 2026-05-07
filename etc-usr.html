@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -177,32 +177,32 @@
                         <h1 id="etc--usr"><a class="header" href="#etc--usr">Etc &amp; Usr</a></h1>
 <p>NixOS makes heavy use of /etc, placing most of the system configuration there.
 By default on Bootc, /etc and /var are the only two mutable locations where the running system’s edits will persist. /etc specifically is handled with a three way merge. (See <a href="https://bootc.dev/bootc/filesystem.html#etc">bootc docs</a>)<br>Bootc upstream recommends configuring your system with /usr instead of /etc where possible. (See <a href="https://bootc.dev/bootc/filesystem.html">bootc docs</a>) And if possible even enabling a transient etc that is reset on reboot. (More details on this below)</p>
-<p>For Nix-caliga this means shifting as much configuration to /usr as we can.<br>While <code>environment.etc</code> will work functionally identically to how it does on NixOS, we have also added <code>environment.usr</code> with identical options to etc that can handle /usr files.<br><code>systemd.*</code> options are also configured to use /usr and not /etc.</p>
-<p>Both <code>environment.etc</code> and <code>environment.usr</code> by default symlink files into place through streamLayeredImage.contents, pointing into the nix store.
-If a <code>mode</code> is set (<code>"0600"</code> etc), the file is instead copied as a real file using fakeRootCommands with the specified permissions. This is necessary for files read early in boot (SELinux configs, ostree-prepare-root, etc.) where symlinks into the nix store won’t work.</p>
-<p>Symlinked files resolve into /nix/store paths. If SELinux is enforcing on the base image, enable <code>caliga.core.selinux.enable</code> to ensure proper labelling. See <a href="selinux.html">selinux</a>.</p>
+<p>For Nix-caliga this means shifting as much configuration to /usr as we can.<br>While <code>config.environment.etc</code> will work functionally identically to how it does on NixOS, we have also added <code>config.environment.usr</code> with identical options to etc that can handle /usr files.<br><code>config.systemd.*</code> options are also configured to use /usr and not /etc.</p>
+<p>Both <code>config.environment.etc</code> and <code>config.environment.usr</code> by default symlink files into place through <code>streamLayeredImage.contents</code>, pointing into the nix store.
+If a <code>mode</code> is set (<code>"0600"</code> etc), the file is instead copied as a real file using <code>streamLayeredImage.fakeRootCommands</code> with the specified permissions. This is necessary for files read early in boot (SELinux configs, ostree-prepare-root, etc.) where symlinks into the nix store won’t work.</p>
+<p>Symlinked files resolve into /nix/store paths. If SELinux is enforcing on the base image, enable <code>config.caliga.core.selinux.enable</code> to ensure proper labelling. See <a href="selinux.html">selinux</a>.</p>
 <h2 id="transient-etc"><a class="header" href="#transient-etc">Transient etc</a></h2>
-<p>Transient etc is made available through <code>bootc.ostree-prepare-root.transientEtc</code> which will configure the /usr/lib/ostree/prepare-root.conf file for transient etc. I recommend looking over <code>bootc.ostree-prepare-root.additionalConf</code> and verifying the prepare-root.conf file has the full set of configuration that you need. (See <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">bootc docs</a> and <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>)
-In order for prepare-root.conf changes to take effect, you <strong>must</strong> regenerate the initramfs.<br><code>pkgs.dockerTools.streamLayeredImage</code> is unable to regenerate the image’s initramfs, and this must be done with podman. <code>bootc.ostree-prepare-root.transientEtc</code> will configure a containerfile with a simple regenerate command.
-If <code>caliga.core.containerfile.enable</code> is true, then after the streamLayeredImage completes, podman will run using the containerfile on the image before streaming the image itself. (See <a href="buildImage.html">buildImage</a>)</p>
-<p>As a side note, currently the transientEtc option only works for Fedora, and not for uBlue images which handle initramfs differently.</p>
+<p>Transient etc is made available through <code>config.bootc.ostree-prepare-root.transientEtc</code> which will configure the /usr/lib/ostree/prepare-root.conf file for transient etc. I recommend looking over <code>config.bootc.ostree-prepare-root.additionalConf</code> and verifying the prepare-root.conf file has the full set of configuration that you need. (See <a href="https://bootc.dev/bootc/filesystem.html#enabling-transient-etc">bootc docs</a> and <a href="https://ostreedev.github.io/ostree/man/ostree-prepare-root.html">ostree-prepare-root</a>)
+In order for prepare-root.conf changes to take effect, you <strong>must</strong> regenerate the initramfs.<br><code>pkgs.dockerTools.streamLayeredImage</code> is unable to regenerate the image’s initramfs, and this must be done with podman. <code>config.bootc.ostree-prepare-root.transientEtc</code> will configure a containerfile with a simple regenerate command.
+If <code>config.caliga.core.containerfile.enable</code> is true, then after the <code>streamLayeredImage</code> completes, podman will run using the containerfile on the image before streaming the image itself. (See <a href="buildImage.html">buildImage</a>)</p>
+<p>As a side note, currently the <code>config.bootc.ostree-prepare-root.transientEtc</code> option only works for Fedora, and not for uBlue images which handle initramfs differently.</p>
 <h2 id="system-packages"><a class="header" href="#system-packages">System Packages</a></h2>
-<p>Packages in <code>environment.systemPackages</code> have their binaries symlinked into <code>/usr/local/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
+<p>Packages in <code>config.environment.systemPackages</code> have their binaries symlinked into <code>/usr/local/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.etc-usr.enable</code>.</p>
 <p>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
 <ul>
-<li><code>environment.etc</code>
+<li><code>config.environment.etc</code>
 <ul>
 <li>Files to be placed in /etc</li>
 </ul>
 </li>
-<li><code>environment.usr</code>
+<li><code>config.environment.usr</code>
 <ul>
 <li>Files to be placed in /usr</li>
 </ul>
 </li>
-<li><code>environment.systemPackages</code>
+<li><code>config.environment.systemPackages</code>
 <ul>
 <li>Packages made available to all users at <code>/usr/local/bin</code></li>
 </ul>

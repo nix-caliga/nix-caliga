@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-514d18f0.js";
+            window.path_to_searchindex_js = "searchindex-039d766e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1845dff0.js"></script>
@@ -176,32 +176,32 @@
                     <main>
                         <h1 id="users--groups"><a class="header" href="#users--groups">Users &amp; Groups</a></h1>
 <p>User and group management in nix-caliga, like <a href="https://github.com/numtide/system-manager">system-manager</a>, uses <a href="https://github.com/nikstur/userborn">userborn</a> to configure users and groups during boot. The <code>config.users.*</code> options from NixOS are almost all supported.</p>
-<p>Enabling <code>caliga.core.users.enable</code> requires <code>caliga.core.etc-usr.enable</code>, <code>caliga.core.systemd.enable</code>, and <code>caliga.os</code> to be set.</p>
+<p>Enabling <code>config.caliga.core.users.enable</code> requires <code>config.caliga.core.etc-usr.enable</code>, <code>config.caliga.core.systemd.enable</code>, and <code>config.caliga.os</code> to be set.</p>
 <h2 id="userborn"><a class="header" href="#userborn">Userborn</a></h2>
-<p>Userborn runs as a systemd service early durring boot to create and update users and groups. The base image’s <code>systemd-sysusers.service</code> is masked when <code>caliga.core.users</code> is enabled.</p>
+<p>Userborn runs as a systemd service early durring boot to create and update users and groups. The base image’s <code>systemd-sysusers.service</code> is masked when <code>config.caliga.core.users</code> is enabled.</p>
 <h2 id="home-directories"><a class="header" href="#home-directories">Home Directories</a></h2>
-<p>On bootc, <code>/home</code> is typically a symlink to <code>/var/home</code> so that home directories persist across image updates. If the user has <code>createHome</code> as true, this is handled by building the <code>/home/*</code> symlink to <code>/var/home*</code> into the image.<br>Currently NixOS’ <code>users.defaultUserHome</code> does not exist, but per-user <code>users.users.&lt;name&gt;.home</code> is still configurable.</p>
+<p>On bootc, <code>/home</code> is typically a symlink to <code>/var/home</code> so that home directories persist across image updates. If the user has <code>createHome</code> as true, this is handled by building the <code>/home/*</code> symlink to <code>/var/home*</code> into the image.<br>Currently NixOS’ <code>config.users.defaultUserHome</code> does not exist, but per-user <code>config.users.users.&lt;name&gt;.home</code> is still configurable.</p>
 <h2 id="os-specific-base-users-and-groups"><a class="header" href="#os-specific-base-users-and-groups">OS-Specific Base Users and Groups</a></h2>
 <p>To add a user to a base image group with <code>config.users.users.*.extraGroups</code>, the group must have a GID in the config.<br>Additionally, a few system users like <code>root</code> need their id’s set as well.<br>These ids differ between OS, so we set these as part of <code>config.caliga.os</code>.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.users.enable</code>.</p>
 <ul>
-<li><code>users.users</code></li>
-<li><code>users.groups</code></li>
-<li><code>users.mutableUsers</code></li>
-<li><code>users.defaultUserShell</code></li>
-<li><code>users.enforceIdUniqueness</code></li>
-<li><code>users.allowNoPasswordLogin</code></li>
+<li><code>config.users.users</code></li>
+<li><code>config.users.groups</code></li>
+<li><code>config.users.mutableUsers</code></li>
+<li><code>config.users.defaultUserShell</code></li>
+<li><code>config.users.enforceIdUniqueness</code></li>
+<li><code>config.users.allowNoPasswordLogin</code></li>
 </ul>
 <h2 id="differences-from-nixos"><a class="header" href="#differences-from-nixos">Differences from NixOS</a></h2>
 <h3 id="removed-options"><a class="header" href="#removed-options">Removed Options</a></h3>
 <ul>
-<li><code>users.defaultUserHome</code></li>
-<li><code>users.manageLingering</code></li>
+<li><code>config.users.defaultUserHome</code></li>
+<li><code>config.users.manageLingering</code></li>
 </ul>
 <h3 id="changed-options"><a class="header" href="#changed-options">Changed Options</a></h3>
 <ul>
-<li><code>users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
+<li><code>config.users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
 </ul>
 
                     </main>
