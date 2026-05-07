@@ -18,14 +18,24 @@ let
 
 in
 {
-  options.bootc.initramfs.regenerate = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-    description = lib.mdDoc ''
-      Regenerate the initramfs during the container build.
+  options.bootc.initramfs.regenerate = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Regenerate the initramfs during the container build using caliga.core.containerfile.
+        Requires `caliga.core.containerfile.enable = true`.
+      '';
+    };
 
-      Requires `caliga.core.containerfile.enable = true`.
-    '';
+    command = lib.mkOption {
+      type = lib.types.str;
+      # based off the current fedora 43's regenerate command
+      default = "kver=$(cd /usr/lib/modules && echo *) && mkdir -p /tmp/dracut && dracut --reproducible -v --add ostree --tmpdir /tmp/dracut -f --no-hostonly /usr/lib/modules/$kver/initramfs.img --kver $kver";
+      description = ''
+        The command to run to regenerate the initramfs in the containerfile from caliga.core.containerfile
+      '';
+    };
   };
 
   # I believe the configuration in this file will be moving eslewhere soon
@@ -83,9 +93,9 @@ in
       };
     })
 
-    (lib.mkIf config.bootc.initramfs.regenerate {
+    (lib.mkIf config.bootc.initramfs.regenerate.enable {
       caliga.core.containerfile.extraCommands = lib.mkAfter ''
-        RUN kver=$(cd /usr/lib/modules && echo *) && dracut --no-hostonly -vf /usr/lib/modules/$kver/initramfs.img $kver
+        RUN ${config.bootc.initramfs.regenerate.command}
       '';
 
       warnings =
@@ -112,10 +122,10 @@ in
       ];
 
       bootc.ostree-prepare-root.createConf = true;
-      bootc.initramfs.regenerate = lib.mkDefault true;
-      warnings = lib.optional (!config.bootc.initramfs.regenerate) ''
-        bootc.ostree-prepare-root.transientEtc is enabled but bootc.initramfs.regenerate is false.
-        Either enable bootc.initramfs.regenerate or handle the regeneration yourself.
+      bootc.initramfs.regenerate.enable = lib.mkDefault true;
+      warnings = lib.optional (!config.bootc.initramfs.regenerate.enable) ''
+        bootc.ostree-prepare-root.transientEtc is enabled but bootc.initramfs.regenerate.enable is false.
+        Either enable bootc.initramfs.regenerate.enable or handle the regeneration yourself.
       '';
 
       # TODO, issues with /etc/fstab https://github.com/bootc-dev/bootc/issues/364

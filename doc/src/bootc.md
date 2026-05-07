@@ -15,7 +15,7 @@ Because this file is read from the initramfs, any changes require regenerating t
 
 Enabling `config.bootc.ostree-prepare-root.transientEtc` automatically:
 - Enables `config.bootc.ostree-prepare-root.createConf`
-- Enables `config.bootc.initramfs.regenerate` (so the initramfs picks up the new config)
+- Enables `config.bootc.initramfs.regenerate.enable` (so the initramfs picks up the new config)
 
 When `config.bootc.ostree-prepare-root.transientEtc` is enabled, `boot.automount` is masked and replaced with mount units for `/boot` (ext4, by-label `boot`) and `/boot/efi` (vfat, by-label `EFI-SYSTEM`).  
 This works around issues seemingly with `/etc/fstab` handling under transient etc.
@@ -25,7 +25,7 @@ Requires `config.caliga.core.systemd.enable = true`.
 ## Initramfs Regeneration
 
 Because `streamLayeredImage` cannot run commands against the base image's kernel or modules, initramfs regeneration must happen in a separate `podman build` step using a [Containerfile](buildImage.md). 
-Setting `config.bootc.initramfs.regenerate = true` appends a `dracut` command to the generated Containerfile.
+Setting `config.bootc.initramfs.regenerate.enable = true` adds `config.bootc.initramfs.regenerate.command` to the end of the generated containerfile. The command defaults to running `dracut`.
 
 Requires `config.caliga.core.containerfile.enable = true`.
 
@@ -62,8 +62,10 @@ Auth values are base64-encoded `user:pass` strings, generate with `echo -n 'user
 
 ### `config.bootc.initramfs`
 
-- `config.bootc.initramfs.regenerate`
-  - Append a dracut initramfs regeneration step to the Containerfile. Defaults to `false`.
+- `config.bootc.initramfs.regenerate.enable`
+  - Add an initramfs regeneration step to `caliga.core.containerfile`. Defaults to `false`.
+- `config.bootc.initramfs.regenerate.command`
+  - The command to run to regenerate the initramfs. Defaults to a `dracut` command.
 
 ### `config.services.bootc-update`
 

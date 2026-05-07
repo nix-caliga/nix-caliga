@@ -39,6 +39,6 @@ Each module can be enabled independently:
 - `config.caliga.core.containerfile.enable`
   - Apply a Containerfile on top of the `streamLayeredImage` output. Defaults to `false`.
 - `config.caliga.core.containerfile.file`
-  - Path to a custom Containerfile. If set, takes full precedence — any commands from `config.caliga.core.containerfile.extraCommands` or generated commands (e.g. from `config.bootc.initramfs.regenerate`) are not used.
+  - Path to a custom Containerfile. If set, takes full precedence — any commands from `config.caliga.core.containerfile.extraCommands` or generated commands (e.g. from `config.bootc.initramfs.regenerate.enable`) are not used.
 - `config.caliga.core.containerfile.extraCommands`
   - Additional Containerfile commands appended to generated commands. Ignored if `config.caliga.core.containerfile.file` is set.

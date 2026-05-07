@@ -17,7 +17,7 @@
 
     assertions = [
       {
-        assertion = !config.bootc.initramfs.regenerate;
+        assertion = !config.bootc.initramfs.regenerate.enable;
         message = "bootc.initramfs.regenerate is not supported on bluefin-dakota";
       }
       {
