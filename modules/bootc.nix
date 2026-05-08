@@ -45,7 +45,7 @@ in
     createConf = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = lib.mdDoc ''
+      description = ''
         Enable to over-write the default prepare-root.conf file with bootc.ostree-prepare-root.transientEtc and bootc.ostree-prepare-root.additionalConf
         Enabled if transientEtc is enabled.
       '';
@@ -54,14 +54,14 @@ in
     transientEtc = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = lib.mdDoc ''
+      description = ''
         Enable ostree transient `/etc` mode.
 
-        If this is set to true, then the /etc mount point is mounted transiently i.e. a non-persistent location.
+        If this is set to true, then the /etc mount point is mounted transiently on a non-persistent location.
         Encouraged by bootc to enable when possible.
 
         Sets `etc.transient = true` in `/usr/lib/ostree/prepare-root.conf`.
-        See [ostree-prepare-root(1)](https://ostreedev.github.io/ostree/man/ostree-prepare-root.html).
+        See [ostree-prepare-root](https://ostreedev.github.io/ostree/man/ostree-prepare-root.html).
 
         If enabled, sets bootc.ostree-prepare-root.createConf to true
       '';
@@ -75,10 +75,10 @@ in
         [sysroot]
         readonly = true
       '';
-      description = lib.mdDoc ''
+      description = ''
         Additional configuration for `/usr/lib/ostree/prepare-root.conf`.
 
-        See [ostree-prepare-root(1)](https://ostreedev.github.io/ostree/man/ostree-prepare-root.html).
+        See [ostree-prepare-root](https://ostreedev.github.io/ostree/man/ostree-prepare-root.html).
       '';
     };
   };

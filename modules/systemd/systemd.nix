@@ -46,7 +46,7 @@ in
       example = {
         TZ = "CET";
       };
-      description = lib.mdDoc ''
+      description = ''
         Environment variables passed to *all* systemd units.
       '';
     };
@@ -54,7 +54,7 @@ in
     enableStrictShellChecks = lib.mkEnableOption "running shellcheck on the generated scripts for systemd units.";
 
     units = lib.mkOption {
-      description = lib.mdDoc "Definition of systemd units.";
+      description = "Definition of systemd units.";
       default = { };
       type = systemdUtils.types.units;
     };
@@ -63,43 +63,43 @@ in
       default = [ ];
       type = lib.types.listOf lib.types.package;
       example = lib.literalExpression "[ pkgs.systemd-cryptsetup-generator ]";
-      description = lib.mdDoc "Packages providing systemd units and hooks.";
+      description = "Packages providing systemd units and hooks.";
     };
 
     targets = lib.mkOption {
       default = { };
       type = systemdUtils.types.targets;
-      description = lib.mdDoc "Definition of systemd target units.";
+      description = "Definition of systemd target units.";
     };
 
     services = lib.mkOption {
       default = { };
       type = systemdUtils.types.services;
-      description = lib.mdDoc "Definition of systemd service units.";
+      description = "Definition of systemd service units.";
     };
 
     sockets = lib.mkOption {
       default = { };
       type = systemdUtils.types.sockets;
-      description = lib.mdDoc "Definition of systemd socket units.";
+      description = "Definition of systemd socket units.";
     };
 
     timers = lib.mkOption {
       default = { };
       type = systemdUtils.types.timers;
-      description = lib.mdDoc "Definition of systemd timer units.";
+      description = "Definition of systemd timer units.";
     };
 
     paths = lib.mkOption {
       default = { };
       type = systemdUtils.types.paths;
-      description = lib.mdDoc "Definition of systemd path units.";
+      description = "Definition of systemd path units.";
     };
 
     mounts = lib.mkOption {
       default = [ ];
       type = systemdUtils.types.mounts;
-      description = lib.mdDoc ''
+      description = ''
         Definition of systemd mount units.
         This is a list instead of an attrSet, because systemd mandates the names to be derived from
         the 'where' attribute.
@@ -109,7 +109,7 @@ in
     automounts = lib.mkOption {
       default = [ ];
       type = systemdUtils.types.automounts;
-      description = lib.mdDoc ''
+      description = ''
         Definition of systemd automount units.
         This is a list instead of an attrSet, because systemd mandates the names to be derived from
         the 'where' attribute.
@@ -119,7 +119,7 @@ in
     slices = lib.mkOption {
       default = { };
       type = systemdUtils.types.slices;
-      description = lib.mdDoc "Definition of slice configurations.";
+      description = "Definition of slice configurations.";
     };
 
     generators = lib.mkOption {
@@ -128,7 +128,7 @@ in
       example = {
         systemd-gpt-auto-generator = "/dev/null";
       };
-      description = lib.mdDoc ''
+      description = ''
         Definition of systemd generators.
         For each `NAME = VALUE` pair of the attrSet, a link is generated from
         `/etc/systemd/system-generators/NAME` to `VALUE`.
@@ -138,7 +138,7 @@ in
     shutdown = lib.mkOption {
       type = lib.types.attrsOf lib.types.path;
       default = { };
-      description = lib.mdDoc ''
+      description = ''
         Definition of systemd shutdown executables.
         For each `NAME = VALUE` pair of the attrSet, a link is generated from
         `/etc/systemd/system-shutdown/NAME` to `VALUE`.
@@ -152,7 +152,7 @@ in
         "ssh.service"
         "ModemManager.service"
       ];
-      description = lib.mdDoc ''
+      description = ''
         Units to mask by symlinking to `/dev/null`. Use this for
         distro-shipped units; for units you define, use `enable = false`
       '';

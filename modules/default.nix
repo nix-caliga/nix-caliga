@@ -25,6 +25,7 @@
     environment.systemPackages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
+      description = "Packages to be installed in the system profile, available to all users at /usr/local/bin/.";
     };
 
     assertions = lib.mkOption {

@@ -48,7 +48,7 @@
         default = false;
         description = ''
           Apply a Containerfile on top of the streamLayeredImage output.
-          Using for tasks like regenerating the initramfs as streamLayeredImage cannot do this.
+          Used for tasks like regenerating the initramfs as streamLayeredImage cannot do this.
         '';
       };
       file = lib.mkOption {

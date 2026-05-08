@@ -73,7 +73,7 @@ in
     ignoreWarnings = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Suppress SELinux-related warnings from other modules.";
+      description = "Suppress SELinux-related warnings from Nix.";
     };
 
     enforcementMode = lib.mkOption {

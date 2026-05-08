@@ -35,14 +35,23 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = pkgs.nix;
+      description = "The Nix package to use.";
     };
     nrBuildUsers = lib.mkOption {
       type = lib.types.int;
       default = 32;
+      description = "Number of Nix build users to create.";
     };
     settings = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
       default = { };
+      description = ''
+        Additional settings to include in nix.conf.
+        These settings are currently set and are unconfigurable:
+        `build-users-group = nixbld`
+        `experimental-features = nix-command flakes`
+        `nix-path = nixpkgs=<nixpkgs>`
+      '';
     };
   };
 

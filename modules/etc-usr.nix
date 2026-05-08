@@ -22,7 +22,7 @@ let
           "default/useradd".text = "GROUP=100 ...";
         }
       '';
-      description = lib.mdDoc ''
+      description = ''
         Set of files to be placed in {file}`/${prefix}`.
       '';
 
@@ -40,14 +40,14 @@ let
               enable = lib.mkOption {
                 type = lib.types.bool;
                 default = true;
-                description = lib.mdDoc ''
+                description = ''
                   Whether this /${prefix} file should be created.
                 '';
               };
 
               target = lib.mkOption {
                 type = lib.types.str;
-                description = lib.mdDoc ''
+                description = ''
                   Path relative to {file}`/${prefix}`.
                   Defaults to the attribute name.
                 '';
@@ -56,19 +56,19 @@ let
               text = lib.mkOption {
                 default = null;
                 type = lib.types.nullOr lib.types.lines;
-                description = lib.mdDoc "Text of the file.";
+                description = "Text of the file.";
               };
 
               source = lib.mkOption {
                 type = lib.types.path;
-                description = lib.mdDoc "Path of the source file.";
+                description = "Path of the source file.";
               };
 
               mode = lib.mkOption {
                 type = lib.types.str;
                 default = "symlink";
                 example = "0600";
-                description = lib.mdDoc ''
+                description = ''
                   If `symlink`, the file is symlinked via layeredImage.contents.
                   Otherwise, the file is copied as a real file with the given mode via fakeRootCommands and uid/gid/user/group take effect.
                   Set an explicit mode for files read at install-time or early boot (selinux, ostree-prepare-root, etc).
@@ -78,7 +78,7 @@ let
               uid = lib.mkOption {
                 default = 0;
                 type = lib.types.int;
-                description = lib.mdDoc ''
+                description = ''
                   UID of created file.
                 '';
               };
@@ -86,7 +86,7 @@ let
               gid = lib.mkOption {
                 default = 0;
                 type = lib.types.int;
-                description = lib.mdDoc ''
+                description = ''
                   GID of created file.
                 '';
               };
@@ -94,7 +94,7 @@ let
               user = lib.mkOption {
                 default = "+${toString config.uid}";
                 type = lib.types.str;
-                description = lib.mdDoc ''
+                description = ''
                   User name of created file. Takes precedence over `uid`.
                 '';
               };
@@ -102,7 +102,7 @@ let
               group = lib.mkOption {
                 default = "+${toString config.gid}";
                 type = lib.types.str;
-                description = lib.mdDoc ''
+                description = ''
                   Group name of created file. Takes precedence over `gid`.
                 '';
               };

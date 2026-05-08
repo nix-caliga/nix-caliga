@@ -13,11 +13,13 @@
     system.activationScripts.users = lib.mkOption {
       type = lib.types.str;
       default = "";
+      description = "Stub. NixOS specific option required by upstream userborn module.";
     };
 
     system.etc.overlay.mutable = lib.mkOption {
       type = lib.types.bool;
       default = false;
+      description = "Stub. NixOS specific option required by upstream userborn module.";
     };
   };
 

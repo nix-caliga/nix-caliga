@@ -19,10 +19,12 @@
     environment.pathsToLink = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
+      description = "Stub. NixOS specific option required by upstream modules.";
     };
 
     system.stateVersion = lib.mkOption {
       type = lib.types.str;
+      description = "Stub. NixOS specific option required by upstream modules.";
     };
   };
 }

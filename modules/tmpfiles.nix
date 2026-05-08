@@ -143,7 +143,7 @@ in
       type = types.listOf types.str;
       default = [ ];
       example = [ "d /tmp 1777 root root 10d" ];
-      description = lib.mdDoc ''
+      description = ''
         Rules for creation, deletion and cleaning of volatile and temporary files
         automatically. See
         {manpage}`tmpfiles.d(5)`
