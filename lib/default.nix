@@ -5,11 +5,10 @@
   mkCaligaCli =
     { pkgs, caligaConfigurations }:
     import ../dev/caliga-cli.nix {
-      inherit pkgs;
-      caligaConfigs = caligaConfigurations;
+      inherit pkgs caligaConfigurations;
     };
 
-  makeCaligaConfig =
+  makeCaligaConfigurations =
     {
       modules,
       pkgs,

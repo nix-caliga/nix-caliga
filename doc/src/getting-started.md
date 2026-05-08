@@ -17,7 +17,7 @@ To get started you'll need a flake.nix file that looks something like this:
   outputs = { nixpkgs, nix-caliga, ... }:
     {
       caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfig {
+        myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [ ./images/myimage ];
         };

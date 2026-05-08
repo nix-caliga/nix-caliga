@@ -42,7 +42,7 @@
         in
         builtins.mapAttrs (
           _: configPath:
-          self.lib.makeCaligaConfig {
+          self.lib.makeCaligaConfigurations {
             inherit pkgs;
             modules = [ configPath ];
           }

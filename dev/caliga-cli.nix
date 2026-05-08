@@ -3,15 +3,15 @@
 # so far it is effective for conveniently building and running images for testing
 {
   pkgs,
-  caligaConfigs,
+  caligaConfigurations,
 }:
 let
   caligaImages = builtins.mapAttrs (_: eval: {
     name = eval.config.layeredImage.name;
     tag = eval.config.layeredImage.tag;
-  }) caligaConfigs;
+  }) caligaConfigurations;
 
-  imageNames = builtins.attrNames caligaConfigs;
+  imageNames = builtins.attrNames caligaConfigurations;
   imageNamesStr = builtins.concatStringsSep " " imageNames;
 
   imageMapEntries = builtins.concatStringsSep "\n" (

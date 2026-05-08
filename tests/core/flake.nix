@@ -57,7 +57,7 @@
       mkTest =
         name: image:
         let
-          testConfig = nix-caliga.lib.makeCaligaConfig {
+          testConfig = nix-caliga.lib.makeCaligaConfigurations {
             inherit pkgs;
             modules = [
               (
