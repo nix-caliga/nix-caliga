@@ -122,27 +122,27 @@ in
   config = {
     build.image =
       let
-        baseImage = pkgs.dockerTools.streamLayeredImage imageArgs;
         pbCfg = config.caliga.core.containerfile;
-      in
-      if pbCfg.enable then
-        let
-          containerfile =
-            if pbCfg.file != null then
-              pbCfg.file
-            else
-              pkgs.writeText "Containerfile" "FROM base\n${pbCfg.extraCommands}";
-        in
-        pkgs.writeShellScript "stream-rebuilt-image" ''
+        baseImage = pkgs.dockerTools.streamLayeredImage imageArgs;
+        containerfile =
+          if pbCfg.file != null then
+            pbCfg.file
+          else
+            pkgs.writeText "Containerfile" ''
+              FROM base
+              ${pbCfg.extraCommands}
+              RUN bootc container lint
+            '';
+        rebuiltImage = pkgs.writeShellScript "stream-rebuilt-image" ''
           set -euo pipefail
           tmp=$(${pkgs.coreutils}/bin/mktemp -d)
           trap '${pkgs.coreutils}/bin/rm -rf "$tmp"' EXIT
           ${baseImage} > "$tmp/base.tar"
           sudo ${pkgs.podman}/bin/podman build --from "docker-archive:$tmp/base.tar" -f ${containerfile} -t "${imgCfg.name}:${imgCfg.tag}" "$tmp" >&2
           sudo ${pkgs.podman}/bin/podman save "${imgCfg.name}:${imgCfg.tag}"
-        ''
-      else
-        baseImage;
+        '';
+      in
+      if pbCfg.enable then rebuiltImage else baseImage;
 
     layeredImage.config = {
       Labels = {

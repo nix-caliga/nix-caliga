@@ -186,6 +186,8 @@ in
             value = {
               target = "lib/tmpfiles.d";
               source = "${p}/lib/tmpfiles.d";
+              # real files for bootc container lint
+              mode = "0644";
             };
           }) config.systemd.tmpfiles.packages
         )

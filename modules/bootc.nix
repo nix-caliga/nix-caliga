@@ -31,7 +31,7 @@ in
     command = lib.mkOption {
       type = lib.types.str;
       # based off the current fedora 43's regenerate command
-      default = "kver=$(cd /usr/lib/modules && echo *) && mkdir -p /tmp/dracut && dracut --reproducible -v --add ostree --tmpdir /tmp/dracut -f --no-hostonly /usr/lib/modules/$kver/initramfs.img --kver $kver";
+      default = "kver=$(cd /usr/lib/modules && echo *) && mkdir -p /tmp/dracut && dracut --reproducible -v --add ostree --tmpdir /tmp/dracut -f --no-hostonly /usr/lib/modules/$kver/initramfs.img --kver $kver && rm -rf /tmp/dracut";
       description = ''
         The command to run to regenerate the initramfs in the containerfile from caliga.core.containerfile
       '';
