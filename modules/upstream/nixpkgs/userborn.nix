@@ -54,27 +54,20 @@
           Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
         '';
 
-    # Upstream userborn generates tmpfiles rules for home directories
-    # Bootc needs these to be symlinks to /var/home and we handle that ourselves
-    systemd.tmpfiles.settings.home-directories = lib.mkIf config.caliga.core.users.enable (lib.mkForce { });
-
-    # Mask the base image's systemd-sysusers since userborn handles users/groups.
-    systemd.maskedUnits = lib.mkIf config.caliga.core.users.enable [
-      "systemd-sysusers.service"
-    ];
-
     systemd.services.userborn = lib.mkIf config.caliga.core.users.enable {
       # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
       aliases = lib.mkForce [ ];
 
-      # TODO possibly setup targets specifically for nix-caliga services can use
+      # for transient etc
       after = [ "ostree-remount.service" ];
-      # Remove systemd-tmpfiles-setup-dev.service
+      # Drop systemd-tmpfiles-setup-dev.service from upstream's `before` but add
+      # systemd-tmpfiles-setup.service so that home directories still get created
       before = (
         lib.mkForce [
           "sysinit.target"
           "shutdown.target"
           "sysinit-reactivation.target"
+          "systemd-tmpfiles-setup.service"
         ]
       );
     };

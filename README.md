@@ -54,7 +54,7 @@ Are all working. So far I have not tested on bare metal, or with an updating sys
 | [ublue-kinoite-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-silverblue-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-ucore](https://github.com/ublue-os/ucore) | `fedora` | |
-| [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Anything requiring initramfs regen doesnt work. Users not working outside of Podman. |
+| [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Configures initramfs differently, Initramfs regen doesnt work. |
 
 ## Getting started
 

@@ -808,9 +808,6 @@ in
   config =
     let
       cryptSchemeIdPatternGroup = "(${lib.concatStringsSep "|" pkgs.libxcrypt.enabledCryptSchemeIds})";
-
-      # Userborn cannot create home dirs at boot because /home is read-only.
-      normalUsersWithHome = lib.filter (u: u.createHome) (lib.attrValues cfg.users);
     in
     lib.mkIf config.caliga.core.users.enable {
 
@@ -847,26 +844,6 @@ in
       # Warn about user accounts with deprecated password hashing schemes
       # This does not work when the users and groups are created by
       # systemd-sysusers because the users are created too late then.
-
-      # Pre-create user home dirs under /var/home and symlink them under /home
-      layeredImage.enableFakechroot = lib.mkIf (normalUsersWithHome != [ ]) true;
-      layeredImage.fakeRootCommands = lib.mkIf (normalUsersWithHome != [ ]) (
-        lib.concatMapStringsSep "\n" (
-          user:
-          let
-            gid = cfg.groups.${user.group}.gid;
-            varHome = "var/home/${user.name}";
-            homeLink = lib.removePrefix "/" user.home;
-          in
-          ''
-            mkdir -p "${varHome}"
-            chmod ${user.homeMode} "${varHome}"
-            chown ${toString user.uid}:${toString gid} "${varHome}"
-            mkdir -p "$(dirname "${homeLink}")"
-            ln -sfn "/var/home/${user.name}" "${homeLink}"
-          ''
-        ) normalUsersWithHome
-      );
 
       # Install all the user shells
       environment.systemPackages = systemShells;
