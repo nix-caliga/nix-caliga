@@ -11,18 +11,18 @@
     ./users-groups.nix
   ];
 
-  config = lib.mkIf (config.caliga.os == "bluefin-dakota") {
+  config = lib.mkIf (config.caliga.os == "gnomeOS") {
     caliga.core.selinux.enable = lib.mkDefault false;
     selinux.ignoreWarnings = lib.mkDefault true;
 
     assertions = [
       {
         assertion = !config.bootc.initramfs.regenerate.enable;
-        message = "bootc.initramfs.regenerate is not supported on bluefin-dakota";
+        message = "bootc.initramfs.regenerate is not supported on gnomeOS";
       }
       {
         assertion = !config.bootc.ostree-prepare-root.createConf;
-        message = "config.bootc.ostree-prepare-root.createConf is not supported on bluefin-dakota";
+        message = "config.bootc.ostree-prepare-root.createConf is not supported on gnomeOS";
       }
     ];
   };

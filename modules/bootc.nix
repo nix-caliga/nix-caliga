@@ -138,7 +138,6 @@ in
         {
           what = "/dev/disk/by-label/boot";
           where = "/boot";
-          type = "ext4";
           wantedBy = [ "local-fs.target" ];
           unitConfig = {
             DefaultDependencies = false;

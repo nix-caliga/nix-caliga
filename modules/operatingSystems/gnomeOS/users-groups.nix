@@ -7,7 +7,7 @@
   ...
 }:
 {
-  config = lib.mkIf (config.caliga.os == "bluefin-dakota" && config.caliga.core.users.enable) {
+  config = lib.mkIf (config.caliga.os == "gnomeOS" && config.caliga.core.users.enable) {
     users.users = {
       root = {
         uid = 0;

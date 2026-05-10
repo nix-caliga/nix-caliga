@@ -3,14 +3,18 @@
 {
   layeredImage = {
     name = "ghcr.io/nix-caliga/nix-caliga";
-    tag = "test";
+    tag = "ublue-ucore";
+    maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
-      imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-      hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-      finalImageTag = "43";
+      imageName = "ghcr.io/ublue-os/ucore";
+      imageDigest = "sha256:7e4878e3286b140850b7072afeeeaeb8b8c82cac30d4efd15aca4fabb6373832";
+      hash = "sha256-jEbaMU1pJsW12XsxqrCHlVha1zrjBeI1vynYiMjyQiE=";
+      finalImageTag = "stable";
     };
   };
+
+  caliga.os = "fedora";
+  caliga.core.enable = true;
 
   users.users.test = {
     isNormalUser = true;
@@ -32,15 +36,6 @@
   environment.systemPackages = [ pkgs.cowsay ];
 
   system.stateVersion = "25.11";
-
-  systemd.defaultUnit = "multi-user.target";
-
-  systemd.maskedUnits = [
-    "sleep.target"
-  ];
-
-  caliga.os = "fedora";
-  caliga.core.enable = true;
 
   nix.enable = true;
 

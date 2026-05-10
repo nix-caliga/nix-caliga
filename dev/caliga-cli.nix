@@ -30,7 +30,7 @@ let
 
         usage() {
           cat <<EOF
-      caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename>
+      caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename> [--size <GiB>]
                                            Build and load an image from the flake
       caliga run [--vm] <imagename>        Run an image (podman or qcow2 VM)
       caliga exec <imagename>              Exec into a running container by image
@@ -65,6 +65,7 @@ let
             vm=false
             installer_iso=false
             regen_initramfs=false
+            vm_size=40
             while [[ "''${1:-}" == -* ]]; do
               case "$1" in
                 --vm) vm=true; shift ;;
@@ -73,8 +74,15 @@ let
                 *) echo "Unknown option: $1"; exit 1 ;;
               esac
             done
-            [ $# -eq 1 ] || { echo "Usage: caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename>"; echo "Available images: ${imageNamesStr}"; exit 1; }
+            [ $# -ge 1 ] || { echo "Usage: caliga build [--vm] [--installer-iso] [--regen-initramfs] <imagename> [--size <GiB>]"; echo "Available images: ${imageNamesStr}"; exit 1; }
             imagename="$1"
+            shift
+            while [[ "''${1:-}" == -* ]]; do
+              case "$1" in
+                --size) vm_size="$2"; shift 2 ;;
+                *) echo "Unknown option: $1"; exit 1 ;;
+              esac
+            done
             image=$(resolve "$imagename")
             echo "Building image '$imagename'..."
             path=$(nix build ".#caligaConfigurations.${pkgs.stdenv.hostPlatform.system}.$imagename.config.build.image" --no-link --print-out-paths)
@@ -99,10 +107,10 @@ let
               mkdir -p "$outdir"
               configfile=$(mktemp /tmp/bib-config-XXXXXX.toml)
               trap 'rm -f "$configfile" "''${containerfile:-}"' EXIT
-              cat > "$configfile" <<'TOML'
+              cat > "$configfile" <<TOML
     [[customizations.filesystem]]
     mountpoint = "/"
-    minsize = "20 GiB"
+    minsize = "$vm_size GiB"
     TOML
               echo "Building raw disk image for '$imagename'..."
               sudo podman run --rm -it --privileged \
@@ -112,7 +120,7 @@ let
                 -v "$configfile":/config.toml:ro \
                 quay.io/centos-bootc/bootc-image-builder:latest \
                 --type raw \
-                --rootfs ext4 \
+                --rootfs xfs \
                 "$image"
               echo "raw disk image written to $REPO_ROOT/tmp/$imagename/image/disk.raw"
             fi
@@ -129,7 +137,7 @@ let
                 -v ${./installer-iso.toml}:/config.toml:ro \
                 quay.io/centos-bootc/bootc-image-builder:latest \
                 --type anaconda-iso \
-                --rootfs ext4 \
+                --rootfs xfs \
                 "$image"
               echo "Installer ISO written to $outdir/bootiso/install.iso"
             fi

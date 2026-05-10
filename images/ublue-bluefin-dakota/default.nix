@@ -1,3 +1,5 @@
+# bootc-image-builder does not work for dakota which doesnt use lsinitrd
+
 { pkgs, ... }:
 
 {
@@ -13,6 +15,9 @@
     };
   };
 
+  caliga.os = "gnomeOS";
+  caliga.core.enable = true;
+
   users.users.dakota = {
     isNormalUser = true;
     uid = 1001;
@@ -21,7 +26,4 @@
   };
 
   system.stateVersion = "25.11";
-
-  caliga.os = "bluefin-dakota";
-  caliga.core.enable = true;
 }

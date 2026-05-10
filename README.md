@@ -29,6 +29,33 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 
 All modules are disabled by default, and you opt in to the parts of nix-caliga you need.
 
+## Tested images
+
+Fedora-bootc is the primary image that I am working with and is the focus. Thankfully most common bootc images are also based on Fedora.  
+I have done minimal testing with these other bootc images. Testing on a fresh VM I have confirmed:
+- SELinux
+- User creation
+- Systemd services
+- Etc/usr and tmpfile creation
+- Regen'ing initramfs to setup a tranisent etc via caliga.core.containerfile  
+
+Are all working. So far I have not tested on bare metal, or with an updating system.
+
+| Image | `caliga.os` | Notes |
+| --- | --- | --- |
+| [fedora-bootc](https://quay.io/repository/fedora/fedora-bootc) | `fedora` | Target focus for this project |
+| [fedora-base-atomic](https://quay.io/repository/fedora-ostree-desktops/base-atomic) | `fedora` | |
+| [fedora-kinoite](https://quay.io/repository/fedora-ostree-desktops/kinoite) | `fedora` | |
+| [fedora-silverblue](https://quay.io/repository/fedora-ostree-desktops/silverblue) | `fedora` | |
+| [ublue-aurora](https://github.com/ublue-os/aurora) | `fedora` | |
+| [ublue-base-main](https://github.com/ublue-os/main) | `fedora` | |
+| [ublue-bazzite](https://github.com/ublue-os/bazzite) | `fedora` | |
+| [ublue-bluefin](https://github.com/ublue-os/bluefin) | `fedora` | |
+| [ublue-kinoite-main](https://github.com/ublue-os/main) | `fedora` | |
+| [ublue-silverblue-main](https://github.com/ublue-os/main) | `fedora` | |
+| [ublue-ucore](https://github.com/ublue-os/ucore) | `fedora` | |
+| [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Anything requiring initramfs regen doesnt work. Users not working outside of Podman. |
+
 ## Getting started
 
 Here is an example flake.nix

@@ -24,8 +24,18 @@
         };
 
       imageConfigs = {
-        test = ./images/test;
-        bluefin-dakota = ./images/bluefin-dakota;
+        fedora-bootc = ./images/fedora-bootc;
+        fedora-base-atomic = ./images/fedora-base-atomic;
+        fedora-silverblue = ./images/fedora-silverblue;
+        fedora-kinoite = ./images/fedora-kinoite;
+        ublue-base-main = ./images/ublue-base-main;
+        ublue-silverblue-main = ./images/ublue-silverblue-main;
+        ublue-kinoite-main = ./images/ublue-kinoite-main;
+        ublue-aurora = ./images/ublue-aurora;
+        ublue-bazzite = ./images/ublue-bazzite;
+        ublue-bluefin = ./images/ublue-bluefin;
+        ublue-ucore = ./images/ublue-ucore;
+        ublue-bluefin-dakota = ./images/ublue-bluefin-dakota;
       };
     in
     {

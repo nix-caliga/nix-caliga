@@ -17,7 +17,7 @@
         group = "root";
       };
       nobody = {
-        uid = lib.mkDefault 65534;
+        uid = lib.mkDefault 99;
         isSystemUser = true;
         description = "Kernel Overflow User";
         group = "nobody";
@@ -30,14 +30,13 @@
       disk.gid = lib.mkDefault 6;
       kmem.gid = lib.mkDefault 9;
       tty.gid = lib.mkDefault 5;
-      uucp.gid = lib.mkDefault 14;
       lp.gid = lib.mkDefault 7;
       cdrom.gid = lib.mkDefault 11;
       tape.gid = lib.mkDefault 33;
       audio.gid = lib.mkDefault 63;
       video.gid = lib.mkDefault 39;
       dialout.gid = lib.mkDefault 18;
-      nobody.gid = lib.mkDefault 65534;
+      nobody.gid = lib.mkDefault 99;
       users.gid = lib.mkDefault 100;
       utmp.gid = lib.mkDefault 22;
       adm.gid = lib.mkDefault 4;
@@ -45,7 +44,9 @@
       kvm.gid = lib.mkDefault 36;
       render.gid = lib.mkDefault 105;
       sgx.gid = lib.mkDefault 106;
-      shadow.gid = lib.mkDefault 15;
+      man.gid = lib.mkDefault 15;
+      floppy.gid = lib.mkDefault 19;
+      tss.gid = lib.mkDefault 59;
     };
   };
 }

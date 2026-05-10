@@ -1,0 +1,44 @@
+{ pkgs, ... }:
+
+{
+  layeredImage = {
+    name = "ghcr.io/nix-caliga/nix-caliga";
+    tag = "ublue-base-main";
+    maxLayers = 125;
+    fromImage = pkgs.dockerTools.pullImage {
+      imageName = "ghcr.io/ublue-os/base-main";
+      imageDigest = "sha256:72daf3e11415470d28e5416c14698502e5c728442c25987b26d136eb87932d19";
+      hash = "sha256-+d47tAguOfz+/ZhxE4g3OTSOsuHQGzxDsNMACKO0GIw=";
+      finalImageTag = "44";
+    };
+  };
+
+  caliga.os = "fedora";
+  caliga.core.enable = true;
+
+  users.users.test = {
+    isNormalUser = true;
+    uid = 1001;
+    description = "Test User";
+    initialPassword = "test";
+  };
+
+  users.users.root.hashedPassword = "";
+
+  services.bootc-update = {
+    enable = true;
+    schedule = {
+      onBootSec = "20s";
+      onUnitActiveSec = "20s";
+    };
+  };
+
+  environment.systemPackages = [ pkgs.cowsay ];
+
+  system.stateVersion = "25.11";
+
+  nix.enable = true;
+
+  bootc.ostree-prepare-root.transientEtc = true;
+  caliga.core.containerfile.enable = true;
+}

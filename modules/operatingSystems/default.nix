@@ -6,14 +6,14 @@
 {
   imports = [
     ./fedora
-    ./bluefinDakota
+    ./gnomeOS
   ];
 
   options.caliga.os = lib.mkOption {
     type = lib.types.nullOr (
       lib.types.enum [
         "fedora"
-        "bluefin-dakota"
+        "gnomeOS"
       ]
     );
     default = null;
@@ -22,7 +22,7 @@
 
       Available options:
         fedora: https://gitlab.com/fedora/bootc/base-images
-        bluefin-dakota: https://github.com/projectbluefin/dakota
+        gnomeOS: https://github.com/projectbluefin/dakota
     '';
   };
 
