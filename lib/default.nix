@@ -1,5 +1,6 @@
 {
   nixpkgs,
+  userborn,
 }:
 {
   mkCaligaCli =
@@ -21,6 +22,7 @@
         {
           _module.args = {
             inherit nixpkgs;
+            userborn = userborn.packages.${pkgs.stdenv.hostPlatform.system}.default;
             utils =
               let
                 nixosUtils = import "${pkgs.path}/nixos/lib/utils.nix" {

@@ -4,8 +4,8 @@
 
 {
   layeredImage = {
-    name = "ghcr.io/projectbluefin/dakota";
-    tag = "latest";
+    name = "ghcr.io/yomaq/nix-config";
+    tag = "cyan";
     maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "ghcr.io/projectbluefin/dakota";
@@ -14,6 +14,12 @@
       finalImageTag = "latest";
     };
   };
+
+  environment.systemPackages = [
+    pkgs.cowsay
+    pkgs._1password-gui
+    pkgs._1password-cli
+  ];
 
   caliga.os = "gnomeOS";
   caliga.core.enable = true;
