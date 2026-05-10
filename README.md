@@ -26,8 +26,7 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 - Bootc's ostree-prepare-root configuration at `bootc.ostree-prepare-root`
 - Optional nix configured containerfile to handle tasks streamLayeredImage can't (rebuild initramfs etc)
 - Testing against Fedora's bootc images, and expanding to ublue and projectbluefin/dakota images.
-
-All modules are disabled by default, and you opt in to the parts of nix-caliga you need.
+All modules are disabled by default, and you opt in to the parts of nix-caliga you need.  
 
 ## Tested images
 
@@ -55,6 +54,17 @@ Are all working. So far I have not tested on bare metal, or with an updating sys
 | [ublue-silverblue-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-ucore](https://github.com/ublue-os/ucore) | `fedora` | |
 | [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Configures initramfs differently, Initramfs regen doesnt work. |
+
+
+### OSTree limitations
+OSTree and the Nix Store both have similar functions as a "store" for independant roots, but they go about it differently.  
+Putting a nix store into ostree seems to run into issues as both grow in size, eventually running into the cap for hard links.  
+This appears to be due to how OSTree handles xattrs objects, and `file-xattrs-link`s.  
+
+If you run into this issue when updating to a new image, or when building a vm etc, I recommend switching to a filesystem that supports larger numbers of links like xfs.
+
+**Composefs**(An alternative to OSTree for bootc) does **not** appear to have this limitation, and base images using composefs should work smoothly. Projectbluefin/dakota is an example of a composefs bootc image.  
+I believe the bootc project is slowly moving to Composefs from OSTree, so eventually this should become a non-issue.
 
 ## Getting started
 
