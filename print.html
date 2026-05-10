@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-45a5e08d.js";
+            window.path_to_searchindex_js = "searchindex-bd5f64e2.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3fbc038d.js"></script>
@@ -190,7 +190,7 @@
   outputs = { nixpkgs, nix-caliga, ... }:
     {
       caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfig {
+        myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [ ./images/myimage ];
         };
@@ -321,8 +321,8 @@
 <pre><code class="language-sh">nix build .#caligaConfigurations.x86_64-linux.myimage.config.build.image &amp;&amp; ./result | podman load
 </code></pre>
 <h2 id="using-the-image"><a class="header" href="#using-the-image">Using the Image</a></h2>
-<p>You can test the image directly with podman:</p>
-<pre><code class="language-sh">podman run -it ghcr.io/nix-caliga/nix-caliga:tag
+<p>You can test the image as a container with podman, replace the image name with your newly created image.</p>
+<pre><code class="language-sh">podman run -it --rm ghcr.io/nix-caliga/nix-caliga:tag
 </code></pre>
 <p>To install the image to a disk or VM, use <a href="https://github.com/osbuild/bootc-image-builder">bootc-image-builder</a> which can make a bunch of different disk image formats from your bootc image.<br>For more information on working with bootc images, see the <a href="https://bootc.dev/">bootc documentation</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -517,7 +517,7 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 </li>
 <li><code>config.caliga.core.containerfile.file</code>
 <ul>
-<li>Path to a custom Containerfile. If set, takes full precedence — any commands from <code>config.caliga.core.containerfile.extraCommands</code> or generated commands (e.g. from <code>config.bootc.initramfs.regenerate</code>) are not used.</li>
+<li>Path to a custom Containerfile. If set, takes full precedence — any commands from <code>config.caliga.core.containerfile.extraCommands</code> or generated commands (e.g. from <code>config.bootc.initramfs.regenerate.enable</code>) are not used.</li>
 </ul>
 </li>
 <li><code>config.caliga.core.containerfile.extraCommands</code>
@@ -761,13 +761,13 @@ This file is read during initramfs to configure how the root filesystem is set u
 <p>Enabling <code>config.bootc.ostree-prepare-root.transientEtc</code> automatically:</p>
 <ul>
 <li>Enables <code>config.bootc.ostree-prepare-root.createConf</code></li>
-<li>Enables <code>config.bootc.initramfs.regenerate</code> (so the initramfs picks up the new config)</li>
+<li>Enables <code>config.bootc.initramfs.regenerate.enable</code> (so the initramfs picks up the new config)</li>
 </ul>
 <p>When <code>config.bootc.ostree-prepare-root.transientEtc</code> is enabled, <code>boot.automount</code> is masked and replaced with mount units for <code>/boot</code> (ext4, by-label <code>boot</code>) and <code>/boot/efi</code> (vfat, by-label <code>EFI-SYSTEM</code>).<br>This works around issues seemingly with <code>/etc/fstab</code> handling under transient etc.</p>
 <p>Requires <code>config.caliga.core.systemd.enable = true</code>.</p>
 <h2 id="initramfs-regeneration"><a class="header" href="#initramfs-regeneration">Initramfs Regeneration</a></h2>
 <p>Because <code>streamLayeredImage</code> cannot run commands against the base image’s kernel or modules, initramfs regeneration must happen in a separate <code>podman build</code> step using a <a href="#build-image">Containerfile</a>.
-Setting <code>config.bootc.initramfs.regenerate = true</code> appends a <code>dracut</code> command to the generated Containerfile.</p>
+Setting <code>config.bootc.initramfs.regenerate.enable = true</code> adds <code>config.bootc.initramfs.regenerate.command</code> to the end of the generated containerfile. The command defaults to running <code>dracut</code>.</p>
 <p>Requires <code>config.caliga.core.containerfile.enable = true</code>.</p>
 <p>If <code>config.caliga.core.containerfile.file</code> is set the built-in dracut command is ignored in favor of your containerfile.</p>
 <h2 id="automatic-updates"><a class="header" href="#automatic-updates">Automatic Updates</a></h2>
@@ -809,9 +809,14 @@ Setting <code>config.bootc.initramfs.regenerate = true</code> appends a <code>dr
 </ul>
 <h3 id="configbootcinitramfs"><a class="header" href="#configbootcinitramfs"><code>config.bootc.initramfs</code></a></h3>
 <ul>
-<li><code>config.bootc.initramfs.regenerate</code>
+<li><code>config.bootc.initramfs.regenerate.enable</code>
 <ul>
-<li>Append a dracut initramfs regeneration step to the Containerfile. Defaults to <code>false</code>.</li>
+<li>Add an initramfs regeneration step to <code>caliga.core.containerfile</code>. Defaults to <code>false</code>.</li>
+</ul>
+</li>
+<li><code>config.bootc.initramfs.regenerate.command</code>
+<ul>
+<li>The command to run to regenerate the initramfs. Defaults to a <code>dracut</code> command.</li>
 </ul>
 </li>
 </ul>

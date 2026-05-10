@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-45a5e08d.js";
+            window.path_to_searchindex_js = "searchindex-bd5f64e2.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3fbc038d.js"></script>
@@ -189,7 +189,7 @@
   outputs = { nixpkgs, nix-caliga, ... }:
     {
       caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfig {
+        myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [ ./images/myimage ];
         };
@@ -320,8 +320,8 @@
 <pre><code class="language-sh">nix build .#caligaConfigurations.x86_64-linux.myimage.config.build.image &amp;&amp; ./result | podman load
 </code></pre>
 <h2 id="using-the-image"><a class="header" href="#using-the-image">Using the Image</a></h2>
-<p>You can test the image directly with podman:</p>
-<pre><code class="language-sh">podman run -it ghcr.io/nix-caliga/nix-caliga:tag
+<p>You can test the image as a container with podman, replace the image name with your newly created image.</p>
+<pre><code class="language-sh">podman run -it --rm ghcr.io/nix-caliga/nix-caliga:tag
 </code></pre>
 <p>To install the image to a disk or VM, use <a href="https://github.com/osbuild/bootc-image-builder">bootc-image-builder</a> which can make a bunch of different disk image formats from your bootc image.<br>For more information on working with bootc images, see the <a href="https://bootc.dev/">bootc documentation</a>.</p>
 
