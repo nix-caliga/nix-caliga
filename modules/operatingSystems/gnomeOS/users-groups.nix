@@ -45,7 +45,7 @@
       kvm.gid = lib.mkDefault 987;
       render.gid = lib.mkDefault 985;
       sgx.gid = lib.mkDefault 984;
-      shadow.gid = lib.mkDefault 15;
+      shadow.gid = lib.mkDefault 15; # required by userborn in mutable mode
     };
   };
 }

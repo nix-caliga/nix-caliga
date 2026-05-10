@@ -47,6 +47,7 @@
       man.gid = lib.mkDefault 15;
       floppy.gid = lib.mkDefault 19;
       tss.gid = lib.mkDefault 59;
+      shadow.gid = lib.mkDefault 65533; # required by userborn in mutable mode, TODO make sure the id isn't a bad pick
     };
   };
 }
