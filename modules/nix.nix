@@ -18,16 +18,6 @@ let
       lib.concatMapStringsSep " " toString v
     else
       toString v;
-
-  allSettings = {
-    build-users-group = "nixbld";
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    nix-path = "nixpkgs=${nixpkgs}";
-  }
-  // cfg.settings;
 in
 {
   options.nix = {
@@ -44,13 +34,18 @@ in
     };
     settings = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
-      default = { };
+      default = {
+        experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
+        # considering adding this with a systemd service so nixpkgs source doesnt get built into the image, thinking it might heavily contribute to ostree xattrs hard link limits?
+        nix-path = "nixpkgs=${nixpkgs}";
+      };
       description = ''
-        Additional settings to include in nix.conf.
-        These settings are currently set and are unconfigurable:
-        `build-users-group = nixbld`
-        `experimental-features = nix-command flakes`
-        `nix-path = nixpkgs=<nixpkgs>`
+        Settings written to /etc/nix/nix.conf. Defaults to enabling
+        nix-command, flakes, and pointing nix-path at the nixpkgs
+        source baked into the image from the flake input.
       '';
     };
   };
@@ -143,6 +138,6 @@ in
     );
 
     environment.etc."nix/nix.conf".text =
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = ${formatValue v}") allSettings) + "\n";
+      lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = ${formatValue v}") cfg.settings) + "\n";
   };
 }
