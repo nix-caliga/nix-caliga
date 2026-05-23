@@ -1,4 +1,3 @@
-# stubs and glue for upstream modules. based off of system-manager's nix/modules/upstream/nixpkgs/default.nix
 {
   config,
   lib,
@@ -14,17 +13,36 @@
   ];
 
   options = {
-    # system-manager handles these in their environment.nix
-
-    environment.pathsToLink = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Stub. NixOS specific option required by upstream modules.";
-    };
-
     system.stateVersion = lib.mkOption {
       type = lib.types.str;
       description = "Stub. NixOS specific option required by upstream modules.";
+    };
+
+    # stubs required for home-manager
+    system.userActivationScripts = lib.mkOption {
+      type = lib.types.attrsOf lib.types.unspecified;
+      default = { };
+      description = "Stub";
+    };
+
+    fonts.fontconfig.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Stub";
+    };
+
+    i18n.glibcLocales = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.glibcLocales;
+      defaultText = lib.literalExpression "pkgs.glibcLocales";
+      description = "Stub.";
+    };
+
+    systemd.user.services = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+      internal = true;
+      description = "Stub.";
     };
   };
 }
