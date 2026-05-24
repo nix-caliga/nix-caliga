@@ -663,6 +663,8 @@ in
       '';
       example = lib.literalExpression "pkgs.zsh";
       type = lib.types.either lib.types.path lib.types.shellPackage;
+      # previously if a user is managed by nix-caliga and then un-managed the get stuck with a bad shell after the nixpkgs bash updates
+      default = "/bin/bash";
     };
 
     users.mutableUsers = mkOption {
@@ -810,8 +812,6 @@ in
       cryptSchemeIdPatternGroup = "(${lib.concatStringsSep "|" pkgs.libxcrypt.enabledCryptSchemeIds})";
     in
     lib.mkIf config.caliga.core.users.enable {
-
-      users.defaultUserShell = lib.mkDefault pkgs.bashInteractive;
 
       systemd.services.linger-users = lib.mkIf ((length lingeringUsers) > 0) {
         wantedBy = [ "multi-user.target" ];
