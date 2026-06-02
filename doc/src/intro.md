@@ -64,7 +64,8 @@ There are a number of discussions online comparing nix to yaml/containerfile/tom
 Different tools will be better suited to different usecases. Nix-caliga expands the tools available for the job.
 
 ### Nix Ecosystem
-While not implemented yet, nix-caliga should be able to fully bring in support for other Nix based projects, such as Agenix, Sops-nix and Vars for secrets. Home-manager for user environments and desktop configuration. Comma for instant access to packages. Microvm.nix for NixOS based microvms. And others.
+Nix-caliga can also support other Nix based projects like Agenix for secrets, Home-manager for user environments and desktop configuration, and Microvm.nix for NixOS based microvms. All are working/testing in progress.  
+Sops-nix, Vars, Comma and others will hopefully be setup soon too.
 
 ### Cross Configuration
 Bootc images can share configuration, including identical package updates, alongside NixOS based systems. Allowing for more flexibility and less duplicated configuration across systems.

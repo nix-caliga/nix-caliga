@@ -86,9 +86,11 @@
       description = "Stub.";
     };
 
-    system.activationScripts.microvm-update-check = lib.mkOption {
-      type = lib.types.str;
-      default = "";
+    system.activationScripts = lib.mkOption {
+      type = lib.types.submodule {
+        freeformType = lib.types.attrsOf lib.types.unspecified;
+      };
+      default = { };
       description = "Stub.";
     };
   };

@@ -5,8 +5,8 @@
       url = "path:../..";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    microvm = {
-      url = "github:microvm-nix/microvm.nix";
+    agenix = {
+      url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -15,7 +15,7 @@
     {
       nixpkgs,
       nix-caliga,
-      microvm,
+      agenix,
       ...
     }:
     {
@@ -23,7 +23,7 @@
         myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           modules = [
-            microvm.nixosModules.host
+            agenix.nixosModules.default
             ./images/myimage
           ];
         };
