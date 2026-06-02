@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-caliga = {
-      url = "path:../..";
+      url = "github:nix-caliga/nix-caliga";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     microvm = {
