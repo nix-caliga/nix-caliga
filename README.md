@@ -13,32 +13,17 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 
 ## Current features
 
-> Currently in the very early stages.  
+> Currently in the early stages.  
 > Heavily based on numtide's [system-manager](https://github.com/numtide/system-manager), with a number of modules copied directly from it and adjusted to work with bootc image layering.
 
-- Systemd configuration through familiar NixOS-based `systemd` options.
-- File creation/placement through NixOS-based `environment.etc`, `environment.usr` and `systemd.tmpfiles` options.
-- User/group creation and management with NixOS-based `users.users` options, powered by userborn (as [system-manager](https://github.com/numtide/system-manager) does).
-- Automatic bootc update management with optional authentication.
-- SELinux configuration and default labels for Nix store paths.
-- Nix-daemon, not required for nix-caliga images, but is an optional service you can enable
-- Nix packages to $PATH with `environment.systemPackages`
-- Bootc's ostree-prepare-root configuration at `bootc.ostree-prepare-root`
-- Optional nix configured containerfile to handle tasks streamLayeredImage can't (rebuild initramfs etc)
-- Testing against Fedora's bootc images, and expanding to ublue and projectbluefin/dakota images.
-All modules are disabled by default, and you opt in to the parts of nix-caliga you need.  
+Core functionality such as `environment.etc`, `users.users`, `systemd.services` are all in place, as well as SELinux support, optional nix-daemon installation and others.  
+For full details check [the documentation](nix-caliga.github.io/nix-caliga/) or review the code itself at [/modules](https://github.com/nix-caliga/nix-caliga/tree/main/modules).  
+Support for Agenix, Home-manager and Microvm.nix is available out of the box for testing as well. See the [/examples](https://github.com/nix-caliga/nix-caliga/tree/main/examples).  
 
 ## Tested images
 
 Fedora-bootc is the primary image that I am working with and is the focus. Thankfully most common bootc images are also based on Fedora.  
-I have done minimal testing with these other bootc images. Testing on a fresh VM I have confirmed:
-- SELinux
-- User creation
-- Systemd services
-- Etc/usr and tmpfile creation
-- Regen'ing initramfs to setup a tranisent etc via caliga.core.containerfile  
-
-Are all working. So far I have not tested on bare metal, or with an updating system.
+I have done minimal testing with these other bootc images. But everything appears to be working.
 
 | Image | `caliga.os` | Notes |
 | --- | --- | --- |
@@ -53,7 +38,7 @@ Are all working. So far I have not tested on bare metal, or with an updating sys
 | [ublue-kinoite-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-silverblue-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-ucore](https://github.com/ublue-os/ucore) | `fedora` | |
-| [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Configures initramfs differently, Initramfs regen doesnt work. |
+| [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Doesn't use OSTree or Dracut |
 
 
 ### OSTree limitations
