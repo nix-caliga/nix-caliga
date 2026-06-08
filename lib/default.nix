@@ -1,6 +1,5 @@
 {
   nixpkgs,
-  userborn,
 }:
 {
   mkCaligaCli =
@@ -22,25 +21,9 @@
         {
           _module.args = {
             inherit nixpkgs;
-            userborn = userborn.packages.${pkgs.stdenv.hostPlatform.system}.default;
-            utils =
-              let
-                nixosUtils = import "${pkgs.path}/nixos/lib/utils.nix" {
-                  inherit lib config pkgs;
-                };
-              in
-              nixosUtils
-              // {
-                # required for userborn
-                toShellPath =
-                  shell:
-                  if lib.types.shellPackage.check shell then
-                    "${shell}${shell.shellPath}"
-                  else if lib.types.package.check shell then
-                    throw "${shell} is not a shell package"
-                  else
-                    shell;
-              };
+            utils = import "${pkgs.path}/nixos/lib/utils.nix" {
+              inherit lib config pkgs;
+            };
           };
         };
 

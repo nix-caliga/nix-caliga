@@ -3,17 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    userborn = {
-      url = "github:jfroche/userborn/system-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      userborn,
     }:
     let
       supportedSystems = [
@@ -44,7 +39,7 @@
       };
     in
     {
-      lib = import ./lib { inherit nixpkgs userborn; };
+      lib = import ./lib { inherit nixpkgs; };
 
       inherit imageConfigs;
 
