@@ -32,6 +32,11 @@ Each module can be enabled independently:
 - `config.caliga.core.selinux.enable`
   - Enables SELinux file context labeling. See [selinux](selinux.md).
 
+## Environment
+
+- `config.caliga.core.environment.linkCurrentSystem`
+  - Create a `/run/current-system/sw` symlink to `config.system.path` so NixOS and home-manager modules referencing `/run/current-system/sw/bin` resolve. Defaults to `true`. See [etc-usr](etc-usr.md).
+
 ## Containerfile
 
 `config.caliga.core.containerfile` configures an optional `podman build` step that runs after `streamLayeredImage`. Some operations (such as initramfs regeneration) cannot be done inside `streamLayeredImage` and require a Containerfile instead. See [buildImage](buildImage.md).

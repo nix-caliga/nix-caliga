@@ -23,7 +23,9 @@ As a side note, currently the `config.bootc.ostree-prepare-root.transientEtc` op
 
 ## System Packages
 
-Packages in `config.environment.systemPackages` have their binaries symlinked into `/usr/local/bin` so they can be used by sudo without configuring `secure_path`.
+Packages in `config.environment.systemPackages` have their binaries included in `/usr/local/bin` by a symlink to `config.system.path`'s `/bin` so they can be used by sudo without configuring `secure_path`.
+
+`config.caliga.core.environment.linkCurrentSystem` creates a `/run/current-system/sw` symlink also pointing at `config.system.path`, so NixOS and home-manager modules that reference paths like `/run/current-system/sw/bin` work. Only `/bin` is currently linked. See `config.environment.pathsToLink`.
 
 ## Options
 
@@ -37,3 +39,5 @@ These options should all be fully available and compatible with their upstream N
   - Files to be placed in /usr
 - `config.environment.systemPackages`
   - Packages made available to all users at `/usr/local/bin`
+- `config.caliga.core.environment.linkCurrentSystem`
+  - Create a symlink to `config.system.path` at `/run/current-system/sw` so modules referencing `/run/current-system/sw/bin` resolve. Defaults to `true`.

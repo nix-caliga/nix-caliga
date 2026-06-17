@@ -38,6 +38,17 @@
       default = false;
       description = "Enable user/group management via userborn.";
     };
+    environment.linkCurrentSystem = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether to create a `/run/current-system/sw` symlink pointing at
+        `config.system.path`, so that NixOS modules referencing paths
+        like `/run/current-system/sw/bin` resolve correctly.
+
+        Currently only /bin is included, see `pathsToLink` in environment.nix
+      '';
+    };
 
     # Not sure this should be handled by nix-caliga, but it is opt in.
     # If enabled, it takes the image built by nix, and runs it over with a containerfile in podman.

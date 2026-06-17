@@ -152,6 +152,11 @@
       postBuild = config.environment.extraSetup;
     };
 
+    systemd.tmpfiles.rules = lib.mkIf config.caliga.core.environment.linkCurrentSystem [
+      "d /run/current-system     0755 root root -"
+      "L /run/current-system/sw  -    -    -    - ${config.system.path}"
+    ];
+
     # symlink each binary under $out/usr/local/bin so streamLayeredImage places it at /usr/local/bin
     # TODO
     # not sure if this is the best option
