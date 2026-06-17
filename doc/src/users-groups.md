@@ -34,7 +34,13 @@ Enabled with `config.caliga.core.users.enable`.
 
 - `config.users.defaultUserHome`
 - `config.users.manageLingering`
+- `config.users.users.<name>.openssh`
+- `config.users.users.<name>.cryptHomeLuks`
+- `config.users.users.<name>.pamMount`
+- `config.users.users.<name>.subUidRanges/subGidRanges/autoSubUidGidRange`
+- `config.users.users.<name>.expires`
 
 ### Changed Options
 
 - `config.users.users.<name>.linger` Currently there is no `null` option, the user is either lingering, or not. `true` or `false` only.
+- `config.users.users.<name>.shell` — needs to use the base image's shell such as `/usr/bin/zsh`, not a package like `pkgs.zsh` as `programs.${shell}.enable` does not exist.
