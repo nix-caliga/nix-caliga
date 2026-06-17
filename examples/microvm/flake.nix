@@ -15,17 +15,14 @@
     {
       nixpkgs,
       nix-caliga,
-      microvm,
       ...
-    }:
+    } @ inputs:
     {
       caligaConfigurations.x86_64-linux = {
         myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [
-            microvm.nixosModules.host
-            ./images/myimage
-          ];
+          specialArgs = { inherit inputs; };
+          modules = [ ./images/myimage ];
         };
       };
     };

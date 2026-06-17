@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
+  imports = [ inputs.home-manager.nixosModules.home-manager ];
+
   layeredImage = {
     name = "ghcr.io/yomaq/nix-config";
     tag = "cyan";

@@ -12,9 +12,10 @@
     {
       modules,
       pkgs,
+      lib ? pkgs.lib,
+      specialArgs ? { },
     }:
     let
-      lib = pkgs.lib;
 
       extraArgsModule =
         { config, ... }:
@@ -33,17 +34,10 @@
           ../modules
         ]
         ++ modules;
-        specialArgs = {
-          inherit pkgs;
-        };
+        specialArgs = { inherit pkgs; } // specialArgs;
       };
 
       cfg = evaluated.config;
-
-      failedAssertions = map (x: x.message) (lib.filter (x: !x.assertion) cfg.assertions);
     in
-    if failedAssertions != [ ] then
-      throw "\nFailed assertions:\n${lib.concatStringsSep "\n" (map (x: "- ${x}") failedAssertions)}"
-    else
-      lib.showWarnings cfg.warnings evaluated;
+    lib.asserts.checkAssertWarn cfg.assertions cfg.warnings evaluated;
 }

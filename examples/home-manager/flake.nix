@@ -15,17 +15,14 @@
     {
       nixpkgs,
       nix-caliga,
-      home-manager,
       ...
-    }:
+    } @ inputs:
     {
       caligaConfigurations.x86_64-linux = {
         myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [
-            home-manager.nixosModules.home-manager
-            ./images/myimage
-          ];
+          specialArgs = { inherit inputs; };
+          modules = [ ./images/myimage ];
         };
       };
     };

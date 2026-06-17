@@ -15,17 +15,14 @@
     {
       nixpkgs,
       nix-caliga,
-      agenix,
       ...
-    }:
+    } @ inputs:
     {
       caligaConfigurations.x86_64-linux = {
         myimage = nix-caliga.lib.makeCaligaConfigurations {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [
-            agenix.nixosModules.default
-            ./images/myimage
-          ];
+          specialArgs = { inherit inputs; };
+          modules = [ ./images/myimage ];
         };
       };
     };

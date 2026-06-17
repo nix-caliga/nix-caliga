@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
+  imports = [ inputs.microvm.nixosModules.host ];
+
   layeredImage = {
     name = "ghcr.io/example/microvm-host";
     tag = "latest";

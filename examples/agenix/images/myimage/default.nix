@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
+  imports = [ inputs.agenix.nixosModules.default ];
+
   layeredImage = {
     name = "ghcr.io/example/agenix";
     tag = "latest";
