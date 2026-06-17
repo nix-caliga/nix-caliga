@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-abd18c32.js";
+            window.path_to_searchindex_js = "searchindex-825a07f5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-bad571d2.js"></script>
@@ -187,7 +187,8 @@ In order for prepare-root.conf changes to take effect, you <strong>must</strong>
 If <code>config.caliga.core.containerfile.enable</code> is true, then after the <code>streamLayeredImage</code> completes, podman will run using the containerfile on the image before streaming the image itself. (See <a href="buildImage.html">buildImage</a>)</p>
 <p>As a side note, currently the <code>config.bootc.ostree-prepare-root.transientEtc</code> option only works for Fedora, and not for uBlue images which handle initramfs differently.</p>
 <h2 id="system-packages"><a class="header" href="#system-packages">System Packages</a></h2>
-<p>Packages in <code>config.environment.systemPackages</code> have their binaries symlinked into <code>/usr/local/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
+<p>Packages in <code>config.environment.systemPackages</code> have their binaries included in <code>/usr/local/bin</code> by a symlink to <code>config.system.path</code>’s <code>/bin</code> so they can be used by sudo without configuring <code>secure_path</code>.</p>
+<p><code>config.caliga.core.environment.linkCurrentSystem</code> creates a <code>/run/current-system/sw</code> symlink also pointing at <code>config.system.path</code>, so NixOS and home-manager modules that reference paths like <code>/run/current-system/sw/bin</code> work. Only <code>/bin</code> is currently linked. See <code>config.environment.pathsToLink</code>.</p>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.etc-usr.enable</code>.</p>
 <p>These options should all be fully available and compatible with their upstream NixOS counterparts.</p>
@@ -205,6 +206,11 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 <li><code>config.environment.systemPackages</code>
 <ul>
 <li>Packages made available to all users at <code>/usr/local/bin</code></li>
+</ul>
+</li>
+<li><code>config.caliga.core.environment.linkCurrentSystem</code>
+<ul>
+<li>Create a symlink to <code>config.system.path</code> at <code>/run/current-system/sw</code> so modules referencing <code>/run/current-system/sw/bin</code> resolve. Defaults to <code>true</code>.</li>
 </ul>
 </li>
 </ul>
