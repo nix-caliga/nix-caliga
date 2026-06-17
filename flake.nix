@@ -11,17 +11,10 @@
       nixpkgs,
     }:
     let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems f;
-      pkgsFor =
-        system:
-        import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
 
       imageConfigs = {
         fedora-bootc = ./images/fedora-bootc;
@@ -45,45 +38,23 @@
 
       modules.default = ./modules;
 
-      caligaConfigurations = forAllSystems (
-        system:
-        let
-          pkgs = pkgsFor system;
-        in
-        builtins.mapAttrs (
-          _: configPath:
-          self.lib.makeCaligaConfigurations {
-            inherit pkgs;
-            modules = [ configPath ];
-          }
-        ) imageConfigs
-      );
-
-      devShells = forAllSystems (
-        system:
-        let
-          pkgs = pkgsFor system;
-          caliga = self.lib.mkCaligaCli {
-            inherit pkgs;
-            caligaConfigurations = self.caligaConfigurations.${system};
-          };
-        in
-        {
-          default = pkgs.mkShell {
-            packages = [
-              pkgs.podman
-              pkgs.gh
-              pkgs.jq
-              pkgs.nixfmt
-              pkgs.nixfmt-tree
-              pkgs.nix-prefetch-docker
-              caliga
-            ];
-            shellHook = ''
-              source ${caliga}/share/bash-completion/completions/caliga
-            '';
-          };
+      caligaConfigurations.x86_64-linux = builtins.mapAttrs (
+        _: configPath:
+        self.lib.makeCaligaConfigurations {
+          inherit pkgs;
+          modules = [ configPath ];
         }
-      );
+      ) imageConfigs;
+
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = [
+          pkgs.podman
+          pkgs.gh
+          pkgs.jq
+          pkgs.nixfmt
+          pkgs.nixfmt-tree
+          pkgs.nix-prefetch-docker
+        ];
+      };
     };
 }

@@ -2,12 +2,6 @@
   nixpkgs,
 }:
 {
-  mkCaligaCli =
-    { pkgs, caligaConfigurations }:
-    import ../dev/caliga-cli.nix {
-      inherit pkgs caligaConfigurations;
-    };
-
   makeCaligaConfigurations =
     {
       modules,
