@@ -124,23 +124,15 @@ And to build/load the resulting image:
 
 ## Going forwards
 
-- Proper tests
+- Tests
 - Keep an eye on system-manager and bring over useful features.
-- Secret management, with Agenix, Sops-nix and hopefully [Vars](https://clan.lol/blog/vars/).
-- Home-manager 
+- Sops-nix and hopefully [Vars](https://clan.lol/blog/vars/).
 - Importing more nixos services
 - Networking (watching to see how system-manager will handle this)
-- Fully design a caliga-cli tool
+- Maybe a caliga-cli tool
 - Create a separate nix-caliga based kiosk configuration and set of images. (The original reason I went down this rabbit hole.)
 
 
 ## LLM/AI usage note
 Language models are being used as a tool in the development of Nix-caliga.  
-The nix modules are being writen/designed by human hands using the assistance of language models to speed up work.
-
-Documentation is writen by a human as well.
-
-Currently the caliga-cli and tests are pretty much raw vibes. I am not sure what I want these to look like long term, and are currently just tools to help me in testing/developing Nix-caliga while I work out what I need them to be.  
-I would not recommend using/relying on the caliga-cli or tests under /tests unless you review the code for them yourself.
-
-The rest of the code (The nix modules themselves) are in a state where the code matches my own human ability.
+Everything is writen/designed by human hands using the assistance of language models to speed up work.
