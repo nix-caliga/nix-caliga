@@ -30,7 +30,7 @@ Enabled with `config.caliga.core.users.enable`.
 
 ## Differences from NixOS
 
-### Removed Options
+### Removed or Stubbed Options
 
 - `config.users.defaultUserHome`
 - `config.users.manageLingering`

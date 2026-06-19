@@ -7,13 +7,12 @@
     };
   };
 
-  outputs = { nixpkgs, nix-caliga, ... }:
-    {
-      caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfigurations {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./images/myimage ];
-        };
+  outputs = inputs: {
+    caligaConfigurations.x86_64-linux = {
+      myimage = inputs.nix-caliga.lib.makeCaligaConfigurations {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./images/myimage ];
       };
     };
+  };
 }

@@ -17,8 +17,8 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 > Heavily based on numtide's [system-manager](https://github.com/numtide/system-manager), with a number of modules copied directly from it and adjusted to work with bootc image layering.
 
 Core functionality such as `environment.etc`, `users.users`, `systemd.services` are all in place, as well as SELinux support, optional nix-daemon installation and others.  
-For full details check [the documentation](nix-caliga.github.io/nix-caliga/) or review the code itself at [/modules](https://github.com/nix-caliga/nix-caliga/tree/main/modules).  
-Support for Agenix, Home-manager and Microvm.nix is available out of the box for testing as well. See the [/examples](https://github.com/nix-caliga/nix-caliga/tree/main/examples).  
+For full details check [the documentation](https://nix-caliga.github.io/nix-caliga/) or review the code itself at [/modules](https://github.com/nix-caliga/nix-caliga/tree/main/modules).  
+Support for Agenix, Home-manager and Microvm.nix and likely others is working as well, the the documentation and the /examples for more info.  
 
 ## Tested images
 
@@ -65,15 +65,14 @@ Here is an example flake.nix
     };
   };
 
-  outputs = { nixpkgs, nix-caliga, ... }:
-    {
-      caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfigurations {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./images/myimage ];
-        };
+  outputs = inputs: {
+    caligaConfigurations.x86_64-linux = {
+      myimage = inputs.nix-caliga.lib.makeCaligaConfigurations {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./images/myimage ];
       };
     };
+  };
 }
 ```
 

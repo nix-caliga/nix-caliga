@@ -1,6 +1,7 @@
 let
-  testHost = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBTNxrDXYOGDA42xLonqKrgF/EmqNgq38ZSpqISmzstc";
+  # the public key that exists on your host, path defined in the myimage/default.nix file with `age.identityPaths`
+  myHost = "ssh-ed25519 ...";
 in
 {
-  "example.age".publicKeys = [ testHost ];
+  "example.age".publicKeys = [ myHost ];
 }

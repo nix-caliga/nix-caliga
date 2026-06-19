@@ -14,15 +14,14 @@ To get started you'll need a flake.nix file that looks something like this:
     };
   };
 
-  outputs = { nixpkgs, nix-caliga, ... }:
-    {
-      caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfigurations {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./images/myimage ];
-        };
+  outputs = inputs: {
+    caligaConfigurations.x86_64-linux = {
+      myimage = inputs.nix-caliga.lib.makeCaligaConfigurations {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./images/myimage ];
       };
     };
+  };
 }
 ```
 Edit the name `myimage` as you like, and the path `./images/myimage` to match the path the image configuration you make below.  

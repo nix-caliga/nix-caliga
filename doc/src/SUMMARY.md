@@ -14,3 +14,9 @@
 - [SELinux](./selinux.md)
 - [The Image Build Itself](./buildImage.md)
 - [Bootc Configuration](./bootc.md)
+---
+
+# External flakes
+- [Agenix](./agenix.md)
+- [Home-manager](./home-manager.md)
+- [Microvm.nix](./microvm.md)

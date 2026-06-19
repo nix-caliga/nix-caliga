@@ -32,8 +32,6 @@
         vcpu = 1;
         mem = 512;
 
-        # Share the host's Nix store read-only into the VM.
-        # The host must bind-mount /nix/store into the VM's virtiofs socket path.
         shares = [
           {
             proto = "virtiofs";

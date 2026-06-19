@@ -9,8 +9,8 @@ You can pick and choose which parts of nix-caliga you want to make use of.
 Selects the base operating system of the bootc image. This sets OS-specific defaults such as SELinux, and system group GIDs to match those already present in the base image.
 
 Currently Available:
-- Fedora [Fedora bootc base images](https://gitlab.com/fedora/bootc/base-images)
-- Bluefin-dakota [projectbluefin/dakota](https://github.com/projectbluefin/dakota)
+- Fedora(`fedora`) [Fedora bootc base images](https://gitlab.com/fedora/bootc/base-images)
+- Bluefin-dakota(`gnomeOS`) [projectbluefin/dakota](https://github.com/projectbluefin/dakota)
 
 ## Enabling All Core Options
 

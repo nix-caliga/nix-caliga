@@ -21,12 +21,10 @@
 
   users.users.root.hashedPassword = "";
 
-  # obviously you use a real device specific key
-  environment.etc."ssh/ssh_host_ed25519_key" = {
-    source = ./test_host_key;
-    mode = "0600";
-  };
 
   age.secrets.example.file = ../../secrets/example.age;
   age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
+  # reference the secret:
+  # config.age.secrets.example.path
 }
