@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-825a07f5.js";
+            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bad571d2.js"></script>
+        <script src="toc-1abbb801.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,15 +187,14 @@
     };
   };
 
-  outputs = { nixpkgs, nix-caliga, ... }:
-    {
-      caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfigurations {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./images/myimage ];
-        };
+  outputs = inputs: {
+    caligaConfigurations.x86_64-linux = {
+      myimage = inputs.nix-caliga.lib.makeCaligaConfigurations {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./images/myimage ];
       };
     };
+  };
 }
 </code></pre>
 <p>Edit the name <code>myimage</code> as you like, and the path <code>./images/myimage</code> to match the path the image configuration you make below.</p>
@@ -479,8 +478,8 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 <p><code>config.caliga.os</code> is optional, can be left empty.<br>Selects the base operating system of the bootc image. This sets OS-specific defaults such as SELinux, and system group GIDs to match those already present in the base image.</p>
 <p>Currently Available:</p>
 <ul>
-<li>Fedora <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
-<li>Bluefin-dakota <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
+<li>Fedora(<code>fedora</code>) <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
+<li>Bluefin-dakota(<code>gnomeOS</code>) <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
 </ul>
 <h2 id="enabling-all-core-options"><a class="header" href="#enabling-all-core-options">Enabling All Core Options</a></h2>
 <p><code>config.caliga.core.enable</code> enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>config.caliga.core.selinux.enable</code> and is set automatically based on <code>config.caliga.os</code>.</p>
@@ -565,14 +564,20 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 <li><code>config.users.allowNoPasswordLogin</code></li>
 </ul>
 <h2 id="differences-from-nixos"><a class="header" href="#differences-from-nixos">Differences from NixOS</a></h2>
-<h3 id="removed-options"><a class="header" href="#removed-options">Removed Options</a></h3>
+<h3 id="removed-or-stubbed-options"><a class="header" href="#removed-or-stubbed-options">Removed or Stubbed Options</a></h3>
 <ul>
 <li><code>config.users.defaultUserHome</code></li>
 <li><code>config.users.manageLingering</code></li>
+<li><code>config.users.users.&lt;name&gt;.openssh</code></li>
+<li><code>config.users.users.&lt;name&gt;.cryptHomeLuks</code></li>
+<li><code>config.users.users.&lt;name&gt;.pamMount</code></li>
+<li><code>config.users.users.&lt;name&gt;.subUidRanges/subGidRanges/autoSubUidGidRange</code></li>
+<li><code>config.users.users.&lt;name&gt;.expires</code></li>
 </ul>
 <h3 id="changed-options"><a class="header" href="#changed-options">Changed Options</a></h3>
 <ul>
 <li><code>config.users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
+<li><code>config.users.users.&lt;name&gt;.shell</code> — needs to use the base image’s shell such as <code>/usr/bin/zsh</code>, not a package like <code>pkgs.zsh</code> as <code>programs.${shell}.enable</code> does not exist.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="nix"><a class="header" href="#nix">Nix</a></h1>
@@ -871,6 +876,35 @@ Setting <code>config.bootc.initramfs.regenerate.enable = true</code> adds <code>
 <li>Path to a <code>containers-auth.json</code> file on the host, symlinked at runtime.</li>
 </ul>
 </li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="agenix"><a class="header" href="#agenix">Agenix</a></h1>
+<p>Agenix is configured identically to how agenix is configured on NixOS. See the <a href="https://github.com/ryantm/agenix?tab=readme-ov-file#reference">agenix documentation</a>.</p>
+<p>Also see the examples in the project: <a href="https://github.com/nix-caliga/nix-caliga/tree/main/examples/agenix">examples/agenix/</a>.</p>
+<h2 id="known-limitations"><a class="header" href="#known-limitations">Known Limitations</a></h2>
+<p>No known limitations so far.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="home-manager"><a class="header" href="#home-manager">Home-manager</a></h1>
+<p>Home-manager on Nix-caliga is configured identically to how home-manager is configured on NixOS. See the <a href="https://nix-community.github.io/home-manager/">home-manager documentation</a>.</p>
+<p>Home-manager requires the nix daemon to be enabled. See <a href="#nix">Nix Package and Daemon</a>.<br>See the examples in the project: <a href="https://github.com/nix-caliga/nix-caliga/tree/main/examples/home-manager">examples/home-manager/</a>.</p>
+<h2 id="known-limitations-1"><a class="header" href="#known-limitations-1">Known Limitations</a></h2>
+<ul>
+<li><code>home-manager.startAsUserService</code> is set to false by default in hm. Hm will not work activate in Nix-caliga if set to true.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="microvmnix"><a class="header" href="#microvmnix">Microvm.nix</a></h1>
+<p>Microvm.nix is configured identically to how microvm.nix is configured on NixOS. See the <a href="https://microvm-nix.github.io/microvm.nix/">microvm.nix documentation</a>.</p>
+<p>Depending on how microvms are configured, the nix daemon may be required on the host image. See <a href="#nix">Nix Package and Daemon</a>.<br>Also see the examples in the project: <a href="https://github.com/nix-caliga/nix-caliga/tree/main/examples/microvm">examples/microvm/</a>.</p>
+<h2 id="known-limitations-2"><a class="header" href="#known-limitations-2">Known Limitations</a></h2>
+<p>The following options are currently just stubs and have no effect on your system:</p>
+<p>These are likely already handled in your base image</p>
+<ul>
+<li><code>boot.kernelModules</code></li>
+<li><code>hardware.ksm.enable</code></li>
+</ul>
+<p>May have a few limitations when running microvms manually with the microvm command because of a lack of PAM?:</p>
+<ul>
+<li><code>security.pam.loginLimits</code></li>
 </ul>
 
                     </main>

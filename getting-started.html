@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-825a07f5.js";
+            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bad571d2.js"></script>
+        <script src="toc-1abbb801.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -186,15 +186,14 @@
     };
   };
 
-  outputs = { nixpkgs, nix-caliga, ... }:
-    {
-      caligaConfigurations.x86_64-linux = {
-        myimage = nix-caliga.lib.makeCaligaConfigurations {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./images/myimage ];
-        };
+  outputs = inputs: {
+    caligaConfigurations.x86_64-linux = {
+      myimage = inputs.nix-caliga.lib.makeCaligaConfigurations {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./images/myimage ];
       };
     };
+  };
 }
 </code></pre>
 <p>Edit the name <code>myimage</code> as you like, and the path <code>./images/myimage</code> to match the path the image configuration you make below.</p>

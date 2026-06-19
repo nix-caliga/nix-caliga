@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-825a07f5.js";
+            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bad571d2.js"></script>
+        <script src="toc-1abbb801.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -198,14 +198,20 @@
 <li><code>config.users.allowNoPasswordLogin</code></li>
 </ul>
 <h2 id="differences-from-nixos"><a class="header" href="#differences-from-nixos">Differences from NixOS</a></h2>
-<h3 id="removed-options"><a class="header" href="#removed-options">Removed Options</a></h3>
+<h3 id="removed-or-stubbed-options"><a class="header" href="#removed-or-stubbed-options">Removed or Stubbed Options</a></h3>
 <ul>
 <li><code>config.users.defaultUserHome</code></li>
 <li><code>config.users.manageLingering</code></li>
+<li><code>config.users.users.&lt;name&gt;.openssh</code></li>
+<li><code>config.users.users.&lt;name&gt;.cryptHomeLuks</code></li>
+<li><code>config.users.users.&lt;name&gt;.pamMount</code></li>
+<li><code>config.users.users.&lt;name&gt;.subUidRanges/subGidRanges/autoSubUidGidRange</code></li>
+<li><code>config.users.users.&lt;name&gt;.expires</code></li>
 </ul>
 <h3 id="changed-options"><a class="header" href="#changed-options">Changed Options</a></h3>
 <ul>
 <li><code>config.users.users.&lt;name&gt;.linger</code> Currently there is no <code>null</code> option, the user is either lingering, or not. <code>true</code> or <code>false</code> only.</li>
+<li><code>config.users.users.&lt;name&gt;.shell</code> — needs to use the base image’s shell such as <code>/usr/bin/zsh</code>, not a package like <code>pkgs.zsh</code> as <code>programs.${shell}.enable</code> does not exist.</li>
 </ul>
 
                     </main>

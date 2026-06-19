@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-825a07f5.js";
+            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-bad571d2.js"></script>
+        <script src="toc-1abbb801.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -180,8 +180,8 @@
 <p><code>config.caliga.os</code> is optional, can be left empty.<br>Selects the base operating system of the bootc image. This sets OS-specific defaults such as SELinux, and system group GIDs to match those already present in the base image.</p>
 <p>Currently Available:</p>
 <ul>
-<li>Fedora <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
-<li>Bluefin-dakota <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
+<li>Fedora(<code>fedora</code>) <a href="https://gitlab.com/fedora/bootc/base-images">Fedora bootc base images</a></li>
+<li>Bluefin-dakota(<code>gnomeOS</code>) <a href="https://github.com/projectbluefin/dakota">projectbluefin/dakota</a></li>
 </ul>
 <h2 id="enabling-all-core-options"><a class="header" href="#enabling-all-core-options">Enabling All Core Options</a></h2>
 <p><code>config.caliga.core.enable</code> enables all core modules: <code>etc-usr</code>, <code>systemd</code>, <code>tmpfiles</code>, and <code>users</code>.<br>SELinux is controlled separately through <code>config.caliga.core.selinux.enable</code> and is set automatically based on <code>config.caliga.os</code>.</p>
