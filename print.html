@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
+            window.path_to_searchindex_js = "searchindex-a82b6f9e.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-1abbb801.js"></script>
+        <script src="toc-60407d5a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -200,15 +200,15 @@
 <p>Edit the name <code>myimage</code> as you like, and the path <code>./images/myimage</code> to match the path the image configuration you make below.</p>
 <h2 id="image-hash"><a class="header" href="#image-hash">Image hash</a></h2>
 <p>First, pickout which base image you want to use. See <a href="#nix-caliga-options">Setting Base Image OS</a> for a list of base images currently in testing.<br>Then you’ll want to prefetch the bootc image hash. You can use <code>nix-prefetch-docker</code> for this:</p>
-<pre><code class="language-sh">nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 43
+<pre><code class="language-sh">nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 44
 </code></pre>
 <p>Output will look something like:</p>
 <pre><code>{
   imageName = "quay.io/fedora/fedora-bootc";
-  imageDigest = "sha256:e71dcfa52627f5b3d6da939639b56add0b5787536372d1d2e7684ce282c5573b";
-  hash = "sha256-ZUBcjt3GV7GNU7K+shkfC5uxeHwKdHxemOBaiwe4CRI=";
+  imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+  hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
   finalImageName = "quay.io/fedora/fedora-bootc";
-  finalImageTag = "43";
+  finalImageTag = "44";
 }
 </code></pre>
 <h2 id="image-configuration"><a class="header" href="#image-configuration">Image Configuration</a></h2>
@@ -225,9 +225,9 @@
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
   };
@@ -285,9 +285,9 @@
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
 
@@ -337,9 +337,9 @@
       tag = "test";
       fromImage = pkgs.dockerTools.pullImage {
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
 
@@ -883,6 +883,23 @@ Setting <code>config.bootc.initramfs.regenerate.enable = true</code> adds <code>
 <p>Also see the examples in the project: <a href="https://github.com/nix-caliga/nix-caliga/tree/main/examples/agenix">examples/agenix/</a>.</p>
 <h2 id="known-limitations"><a class="header" href="#known-limitations">Known Limitations</a></h2>
 <p>No known limitations so far.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="bootc-image-prefetcher"><a class="header" href="#bootc-image-prefetcher">bootc-image-prefetcher</a></h1>
+<p>Updating the base image hashes manually gives a lot of control, but can be annoying.
+<a href="https://github.com/nix-caliga/bootc-image-prefetcher">bootc-image-prefetcher</a> checks for updates every night, and can update your project as you update your lockfile.</p>
+<p>Add it as a flake input alongside nix-caliga:</p>
+<pre><code class="language-nix">inputs.bootc-image-prefetcher.url = "github:nix-caliga/bootc-image-prefetcher";
+</code></pre>
+<p>Then in your image config, use a pin as <code>layeredImage.fromImage</code>.
+The image names are the name of the directories within /pin, and the tag is the name of the file.
+<code>bootc-image-prefetcher.pins.&lt;imageName&gt;."&lt;tag&gt;"</code></p>
+<pre><code class="language-nix">{ inputs, pkgs, ... }:
+{
+  layeredImage.fromImage = pkgs.dockerTools.pullImage inputs.bootc-image-prefetcher.pins.fedora-base-atomic."44";
+}
+</code></pre>
+<p>See the full example: <a href="https://github.com/nix-caliga/nix-caliga/tree/main/examples/bootc-image-prefetcher">examples/bootc-image-prefetcher/</a>.</p>
+<p>To adjust which images and tags are pinned, I recommend forking and configuring <a href="https://github.com/nix-caliga/bootc-image-prefetcher/blob/main/updater/images.nix"><code>updater/images.nix</code></a> with the images you want to have auto-update.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="home-manager"><a class="header" href="#home-manager">Home-manager</a></h1>
 <p>Home-manager on Nix-caliga is configured identically to how home-manager is configured on NixOS. See the <a href="https://nix-community.github.io/home-manager/">home-manager documentation</a>.</p>

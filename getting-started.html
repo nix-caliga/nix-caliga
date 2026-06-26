@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-5e3e795b.js";
+            window.path_to_searchindex_js = "searchindex-a82b6f9e.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-1abbb801.js"></script>
+        <script src="toc-60407d5a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -199,15 +199,15 @@
 <p>Edit the name <code>myimage</code> as you like, and the path <code>./images/myimage</code> to match the path the image configuration you make below.</p>
 <h2 id="image-hash"><a class="header" href="#image-hash">Image hash</a></h2>
 <p>First, pickout which base image you want to use. See <a href="caliga.html">Setting Base Image OS</a> for a list of base images currently in testing.<br>Then you’ll want to prefetch the bootc image hash. You can use <code>nix-prefetch-docker</code> for this:</p>
-<pre><code class="language-sh">nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 43
+<pre><code class="language-sh">nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 44
 </code></pre>
 <p>Output will look something like:</p>
 <pre><code>{
   imageName = "quay.io/fedora/fedora-bootc";
-  imageDigest = "sha256:e71dcfa52627f5b3d6da939639b56add0b5787536372d1d2e7684ce282c5573b";
-  hash = "sha256-ZUBcjt3GV7GNU7K+shkfC5uxeHwKdHxemOBaiwe4CRI=";
+  imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+  hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
   finalImageName = "quay.io/fedora/fedora-bootc";
-  finalImageTag = "43";
+  finalImageTag = "44";
 }
 </code></pre>
 <h2 id="image-configuration"><a class="header" href="#image-configuration">Image Configuration</a></h2>
@@ -224,9 +224,9 @@
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
   };
@@ -284,9 +284,9 @@
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
 
