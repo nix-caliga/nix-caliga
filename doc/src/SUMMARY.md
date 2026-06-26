@@ -18,5 +18,6 @@
 
 # External flakes
 - [Agenix](./agenix.md)
+- [bootc-image-prefetcher](./bootc-image-prefetcher.md)
 - [Home-manager](./home-manager.md)
 - [Microvm.nix](./microvm.md)

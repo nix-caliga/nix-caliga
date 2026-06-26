@@ -18,7 +18,7 @@ Using NixOS-like configuration, nix-caliga builds `pkgs.dockerTools.streamLayere
 
 Core functionality such as `environment.etc`, `users.users`, `systemd.services` are all in place, as well as SELinux support, optional nix-daemon installation and others.  
 For full details check [the documentation](https://nix-caliga.github.io/nix-caliga/) or review the code itself at [/modules](https://github.com/nix-caliga/nix-caliga/tree/main/modules).  
-Support for Agenix, Home-manager and Microvm.nix and likely others is working as well, the the documentation and the /examples for more info.  
+Support for Agenix, Home-manager and Microvm.nix and likely others is working as well, the documentation and the /examples for more info.  
 
 ## Tested images
 
@@ -40,9 +40,12 @@ I have done minimal testing with these other bootc images. But everything appear
 | [ublue-ucore](https://github.com/ublue-os/ucore) | `fedora` | |
 | [ublue-bluefin-dakota](https://github.com/projectbluefin/dakota) | `gnomeOS` | Doesn't use OSTree or Dracut |
 
+### Image pins
+`dockerTools.pullImage` requires pinning the derivation hash for the image.
+[bootc-image-prefetcher](https://github.com/nix-caliga/bootc-image-prefetcher) automatically grabs the latest build's hash if that is something you would want. See [the documentation](https://nix-caliga.github.io/nix-caliga/bootc-image-prefetcher.html).
 
 ### OSTree limitations
-OSTree and the Nix Store both have similar functions as a "store" for independant roots, but they go about it differently.  
+OSTree and the Nix Store both have similar functions as a "store" for independent roots, but they go about it differently.  
 Putting a nix store into ostree seems to run into issues as both grow in size, eventually running into the cap for hard links.  
 This appears to be due to how OSTree handles xattrs objects, and `file-xattrs-link`s.  
 
@@ -77,7 +80,7 @@ Here is an example flake.nix
 ```
 
 And an example caligaConfiguration (placed at ./images/myimage relative to the flake.nix)
-Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
+Check `pkgs.dockerTools.pullImage` documentation to set up the `fromImage`
 ```nix
 { pkgs, ... }:
 
@@ -97,7 +100,7 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
     caliga.os = "fedora";
     caliga.core.enable = true;
 
-    system.stateVersion = "25.11";
+    system.stateVersion = "26.04";
 
     users.users.example = {
       isNormalUser = true;
@@ -134,4 +137,4 @@ And to build/load the resulting image:
 
 ## LLM/AI usage note
 Language models are being used as a tool in the development of Nix-caliga.  
-Everything is writen/designed by human hands using the assistance of language models to speed up work.
+Everything is written/designed by human hands using the assistance of language models to speed up work.
