@@ -9,9 +9,9 @@
     maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:3a6b31238244f72a531a64f5fa0c102fcc1c64afcf0277f09fe85a8d6b0256d1";
-      hash = "sha256-jCBPY70czkZm3D9z4js+Cj0BVirRoIequOau/Ctv9zg=";
-      finalImageTag = "43";
+      imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+      hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+      finalImageTag = "44";
     };
   };
 

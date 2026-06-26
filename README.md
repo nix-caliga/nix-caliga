@@ -88,9 +88,9 @@ Check `pkgs.dockerTools.pullImage` documentation to setup the `fromImage`
       tag = "test";
       fromImage = pkgs.dockerTools.pullImage {
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
 

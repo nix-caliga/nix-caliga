@@ -7,9 +7,9 @@
     maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora-ostree-desktops/base-atomic";
-      imageDigest = "sha256:3827dffdfb18dc3642a496697e74c619e1ef608f0f16ebf843633428ca7551b7";
-      hash = "sha256-EHqU9f4gjW8LDhJkzSTCJWu5/2cZo6kmpwDgPzi7YnU=";
-      finalImageTag = "43";
+      imageDigest = "sha256:e2210ad379d8d914fd05bc4fb8e102147717142d1603a015bbf1322ad9e0c9fd";
+      hash = "sha256-HOeTty3Q6JvRcTpZXbZ+yQizcIhjvDCoPpU/J/VTrW0=";
+      finalImageTag = "44";
     };
   };
 

@@ -7,9 +7,9 @@
     maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora-ostree-desktops/silverblue";
-      imageDigest = "sha256:6ac0850888e30f4948203c2f41c8695b19454ccb8a803b76630de750342d5d57";
-      hash = "sha256-AleYr3LypHeRjT+qQu2eBH7kLUD/Erfugdm7aDQW6tY=";
-      finalImageTag = "43";
+      imageDigest = "sha256:5b5f80515ba17fb604a40cefcc636bca5b037a3bb21253dd92ae13fc6c8d61ae";
+      hash = "sha256-/HBNEcPaUUq/05DT6/1bht8tvtWUZrEVekLTuwqwW8E=";
+      finalImageTag = "44";
     };
   };
 

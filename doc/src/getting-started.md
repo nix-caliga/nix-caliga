@@ -31,16 +31,16 @@ Edit the name `myimage` as you like, and the path `./images/myimage` to match th
 First, pickout which base image you want to use. See [Setting Base Image OS](caliga.md) for a list of base images currently in testing.  
 Then you'll want to prefetch the bootc image hash. You can use `nix-prefetch-docker` for this:
 ```sh
-nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 43
+nix run nixpkgs#nix-prefetch-docker -- --image-name quay.io/fedora/fedora-bootc --image-tag 44
 ```
 Output will look something like:
 ```
 {
   imageName = "quay.io/fedora/fedora-bootc";
-  imageDigest = "sha256:e71dcfa52627f5b3d6da939639b56add0b5787536372d1d2e7684ce282c5573b";
-  hash = "sha256-ZUBcjt3GV7GNU7K+shkfC5uxeHwKdHxemOBaiwe4CRI=";
+  imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+  hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
   finalImageName = "quay.io/fedora/fedora-bootc";
-  finalImageTag = "43";
+  finalImageTag = "44";
 }
 ```
 
@@ -62,9 +62,9 @@ Start by filling in the image information from nix-prefetch-docker.
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
   };
@@ -134,9 +134,9 @@ To configure systemd service, take a look [here](systemd.md). They are configure
       fromImage = pkgs.dockerTools.pullImage {
         # These come from nix-prefetch-docker
         imageName = "quay.io/fedora/fedora-bootc";
-        imageDigest = "sha256:9d7a12d886dd2a50589d141b3d71d5dad520b3e131680356dccd484bc171e03e";
-        hash = "sha256-kcMauTmPURq4orl6k6pBb3FejZXBpHgNeK2lnNkQh5g=";
-        finalImageTag = "43";
+        imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
+        hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+        finalImageTag = "44";
       };
     };
 

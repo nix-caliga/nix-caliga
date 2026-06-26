@@ -7,9 +7,9 @@
     maxLayers = 125;
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora-ostree-desktops/kinoite";
-      imageDigest = "sha256:4df2d6f3674998117692fd79e96713870e8f95d2ad4252c0aaf1a09a4147797e";
-      hash = "sha256-yyslPe3glwoaiADP9o6p9fp8cjJj2tW/d1Ci8A+LQ58=";
-      finalImageTag = "43";
+      imageDigest = "sha256:8f5a379120358e463595cb0dfb46c3dcb50cc334b55704b73d3cedfe4eeab83d";
+      hash = "sha256-53KUPqt2szNIzHS9qGoLa4IxMkjoP5sZnGvas8U2JwY=";
+      finalImageTag = "44";
     };
   };
 
