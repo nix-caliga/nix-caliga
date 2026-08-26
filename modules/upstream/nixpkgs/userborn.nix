@@ -54,6 +54,12 @@
           Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
         '';
 
+    # the built in tmpfile rule to create /var/home ends up running after the userborn homedir tmpfile rules.
+    # meaning the symlink from /home to /var/home is broken when userborn needs it.
+    layeredImage.fakeRootCommands = lib.mkIf config.caliga.core.users.enable ''
+      mkdir -p var/home
+    '';
+
     systemd.services.userborn = lib.mkIf config.caliga.core.users.enable {
       # upstream aliases userborn to systemd-sysusers, which conflicts on bootc
       aliases = lib.mkForce [ ];

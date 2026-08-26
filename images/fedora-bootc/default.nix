@@ -6,8 +6,9 @@
     tag = "fedora-bootc";
     fromImage = pkgs.dockerTools.pullImage {
       imageName = "quay.io/fedora/fedora-bootc";
-      imageDigest = "sha256:a7f0ccdc982acf78351fc3f425729d1f45e2779b69201350ebff207730ab3a29";
-      hash = "sha256-cJO4HhJkY+6kUu757PUBdQabjGLxollJV2W1iyq2TBY=";
+      imageDigest = "sha256:b002637dc48abbb1f25f6ab0d8d0572c3b753a691d2917a3fb47a76a10d8b57d";
+      hash = "sha256-C01WDuFVrskA+LFoHeBRLMto7AcY88af/qUGXHzz1XA=";
+      finalImageName = "quay.io/fedora/fedora-bootc";
       finalImageTag = "44";
     };
   };
