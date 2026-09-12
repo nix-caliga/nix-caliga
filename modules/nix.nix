@@ -10,6 +10,16 @@
 let
   cfg = config.nix;
 
+  lowerRoot = "/nix";
+  lowerStoreReal = "${lowerRoot}/store";
+  lowerStoreState = "${lowerRoot}/var/nix";
+  lowerStoreUri =
+    "local://?real=${lowerStoreReal}&state=${lowerStoreState}&read-only=true";
+  upperRoot = "/var/nix";
+  upperLayer = "${upperRoot}/upper";
+  upperWorkDir = "${upperRoot}/work";
+  upperStoreState = "${upperRoot}/var/nix";
+
   formatValue =
     v:
     if builtins.isBool v then
@@ -35,9 +45,15 @@ in
     settings = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
       default = {
+        store =
+          "local-overlay://?lower-store=${lib.strings.escapeURL lowerStoreUri}"
+          + "&upper-layer=${lib.strings.escapeURL upperLayer}"
+          + "&state=${lib.strings.escapeURL upperStoreState}";
         experimental-features = [
           "nix-command"
           "flakes"
+          "local-overlay-store"
+          "read-only-local-store"
         ];
         # considering adding this with a systemd service so nixpkgs source doesnt get built into the image, thinking it might heavily contribute to ostree xattrs hard link limits?
         nix-path = "nixpkgs=${nixpkgs}";
@@ -85,30 +101,30 @@ in
     # Skipped in containers where /nix is already writable.
     systemd.mounts = [
       {
-        where = "/nix";
+        where = "${lowerStoreReal}";
         what = "overlay";
         type = "overlay";
-        options = "lowerdir=/nix,upperdir=/var/nix/upper,workdir=/var/nix/work";
+        options = "lowerdir=${lowerStoreReal},upperdir=${upperLayer},workdir=${upperWorkDir}";
         wantedBy = [ "local-fs.target" ];
         before = [ "local-fs.target" ];
         unitConfig = {
           DefaultDependencies = false;
           RequiresMountsFor = "/var";
-          ConditionPathIsReadWrite = "!/nix";
+          ConditionPathIsReadWrite = "!${lowerStoreReal}";
         };
       }
     ];
 
     systemd.tmpfiles.rules = [
-      "d /var/nix 0755 root root -"
-      "d /var/nix/upper 0755 root root -"
-      "d /var/nix/work 0755 root root -"
+      "d ${upperRoot} 0755 root root -"
+      "d ${upperLayer} 0755 root root -"
+      "d ${upperWorkDir} 0755 root root -"
     ];
 
     systemd.services.nix-directory-setup = {
       description = "Create Nix daemon directories";
       after = [
-        "nix.mount"
+        "nix-store.mount"
         "local-fs.target"
       ];
       before = [ "nix-daemon.socket" ];
@@ -119,7 +135,7 @@ in
         RemainAfterExit = true;
       };
       script = ''
-        mkdir -p /nix/var/nix/{db,daemon-socket,gcroots,profiles,temproots,userpool}
+        mkdir -p ${upperStoreState}/{db,daemon-socket,gcroots,profiles,temproots,userpool}
       '';
     };
 
