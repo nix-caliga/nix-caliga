@@ -95,7 +95,14 @@ in
     systemd.packages = [ cfg.package ];
     systemd.tmpfiles.packages = [ cfg.package ];
 
-    systemd.sockets.nix-daemon.wantedBy = [ "sockets.target" ];
+    systemd.sockets.nix-daemon = {
+        wantedBy = [ "sockets.target" ];
+        socketConfig = {
+            ListenStream = "${upperStoreState}/daemon-socket/socket";
+            SocketMode = "0666";
+        };
+    };
+    environment.variables.NIX_DAEMON_SOCKET_PATH = "${upperStoreState}/daemon-socket/socket";
 
     # writable /nix over read-only image /nix.
     # Skipped in containers where /nix is already writable.

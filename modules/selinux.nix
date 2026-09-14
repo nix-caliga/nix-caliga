@@ -18,7 +18,7 @@ let
     "/nix/store/[^/]+/man(/.*)?" = "man_t";
     "/nix/store/[^/]+/s?bin(/.*)?" = "bin_t";
     "/nix/store/[^/]+/share(/.*)?" = "usr_t";
-    "/nix/var/nix/daemon-socket(/.*)?" = "var_run_t";
+    "/var/nix/var/nix/daemon-socket(/.*)?" = "var_run_t";
     "/nix/var/nix/profiles(/per-user/[^/]+)?/[^/]+" = "usr_t";
   };
 
