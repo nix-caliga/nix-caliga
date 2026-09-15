@@ -19,6 +19,11 @@ let
   upperLayer = "${upperRoot}/upper";
   upperWorkDir = "${upperRoot}/work";
   upperStoreState = "${upperRoot}/var/nix";
+  nixEnv = {
+    NIX_DAEMON_SOCKET_PATH = "${upperStoreState}/daemon-socket/socket";
+    NIX_LOG_DIR = "${upperRoot}/var/log/nix";
+    NIX_STATE_DIR = upperStoreState;
+  }
 
   formatValue =
     v:
@@ -102,7 +107,8 @@ in
             SocketMode = "0666";
         };
     };
-    environment.variables.NIX_DAEMON_SOCKET_PATH = "${upperStoreState}/daemon-socket/socket";
+    environment.variables = nixEnv;
+    systemd.globalEnvironment = nixEnv;
 
     # writable /nix over read-only image /nix.
     # Skipped in containers where /nix is already writable.
