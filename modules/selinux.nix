@@ -20,6 +20,7 @@ let
     "/nix/store/[^/]+/share(/.*)?" = "usr_t";
     "/var/nix/var/nix/daemon-socket(/.*)?" = "var_run_t";
     "/nix/var/nix/profiles(/per-user/[^/]+)?/[^/]+" = "usr_t";
+    "/var/nix/var/nix/profiles(/per-user/[^/]+)?/[^/]+" = "usr_t";
   };
 
   # Extract Exec store paths from selected services and label as bin_t.
