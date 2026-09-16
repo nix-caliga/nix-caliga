@@ -148,7 +148,6 @@ in
 
     systemd.services.nix-directory-setup = {
       description = "Create Nix daemon directories";
-	  after = [ "local-fs.target" ];
       before = [
         "nix-store.mount"
         "nix-daemon.socket"
