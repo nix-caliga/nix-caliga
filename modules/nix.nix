@@ -23,7 +23,7 @@ let
     NIX_DAEMON_SOCKET_PATH = "${upperStoreState}/daemon-socket/socket";
     NIX_LOG_DIR = "${upperRoot}/var/log/nix";
     NIX_STATE_DIR = upperStoreState;
-  }
+  };
 
   formatValue =
     v:
@@ -102,11 +102,21 @@ in
 
     systemd.sockets.nix-daemon = {
         wantedBy = [ "sockets.target" ];
+        requires = ["nix-directory-setup.service"];
+        after = ["nix-directory-setup.service"];
+        unitConfig.ConditionPathIsReadWrite = [ "" upperStoreState ];
         socketConfig = {
-            ListenStream = "${upperStoreState}/daemon-socket/socket";
+            ListenStream = [ "" "${upperStoreState}/daemon-socket/socket" ];
             SocketMode = "0666";
         };
     };
+
+    systemd.services.nix-daemon = {
+        requires = ["nix-directory-setup.service"];
+        after = ["nix-directory-setup.service"];
+        unitConfig.ConditionPathIsReadWrite = [ "" upperStoreState ];
+    };
+
     environment.variables = nixEnv;
     systemd.globalEnvironment = nixEnv;
 
@@ -120,6 +130,8 @@ in
         options = "lowerdir=${lowerStoreReal},upperdir=${upperLayer},workdir=${upperWorkDir}";
         wantedBy = [ "local-fs.target" ];
         before = [ "local-fs.target" ];
+        requires = ["nix-directory-setup.service"];
+        after = ["nix-directory-setup.service"];
         unitConfig = {
           DefaultDependencies = false;
           RequiresMountsFor = "/var";
@@ -136,19 +148,25 @@ in
 
     systemd.services.nix-directory-setup = {
       description = "Create Nix daemon directories";
-      after = [
+	  after = [ "local-fs.target" ];
+      before = [
         "nix-store.mount"
-        "local-fs.target"
+        "nix-daemon.socket"
+        "nix-daemon.service"
       ];
-      before = [ "nix-daemon.socket" ];
       wantedBy = [ "sockets.target" ];
-      unitConfig.DefaultDependencies = false;
+      unitConfig = {
+          DefaultDependencies = false;
+          RequiresMountsFor = "/var";
+      };
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
       };
       script = ''
-        mkdir -p ${upperStoreState}/{db,daemon-socket,gcroots,profiles,temproots,userpool}
+        install -dm 0755 \
+          ${upperStoreState}/{db,daemon-socket,gcroots,profiles,temproots,userpool} \
+          ${upperRoot} ${upperLayer} ${upperWorkDir}
       '';
     };
 
