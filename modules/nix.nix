@@ -4,6 +4,7 @@
   lib,
   pkgs,
   nixpkgs,
+  utils,
   ...
 }:
 
@@ -18,10 +19,18 @@ let
       lib.concatMapStringsSep " " toString v
     else
       toString v;
+
+  lowerStoreUrl = "/run/nix-lower?read-only=true";
+  localOverlayStoreUrl = "local-overlay://?upper-layer=/var/nix/store/upper&state=/var/nix/overlay-state&lower-store=${lowerStoreUrl}";
+  nixEnv = {
+    NIX_DAEMON_SOCKET_PATH = "/nix/var/nix/daemon-socket/socket";
+    NIX_LOG_DIR = "/var/nix/var/log/nix";
+    NIX_STATE_DIR = "/var/nix/overlay-state";
+  };
 in
 {
   options.nix = {
-    enable = lib.mkEnableOption "Nix package manager and daemon";
+    enable = lib.mkEnableOption "Nix package manager and daemon using a local-overlay-store on top of the image's built in nix store.";
     package = lib.mkOption {
       type = lib.types.package;
       default = pkgs.nix;
@@ -38,14 +47,19 @@ in
         experimental-features = [
           "nix-command"
           "flakes"
+          "local-overlay-store"
+          "read-only-local-store"
         ];
-        # considering adding this with a systemd service so nixpkgs source doesnt get built into the image, thinking it might heavily contribute to ostree xattrs hard link limits?
         nix-path = "nixpkgs=${nixpkgs}";
+        store = "daemon";
       };
       description = ''
         Settings written to /etc/nix/nix.conf. Defaults to enabling
-        nix-command, flakes, and pointing nix-path at the nixpkgs
-        source baked into the image from the flake input.
+        nix-command, flakes, local-overlay-store, and
+        read-only-local-store, pointing nix-path at the nixpkgs source
+        baked into the image from the flake input, and configuring the
+        store as a local-overlay-store layered over the image-baked
+        /nix
       '';
     };
   };
@@ -79,48 +93,95 @@ in
     systemd.packages = [ cfg.package ];
     systemd.tmpfiles.packages = [ cfg.package ];
 
-    systemd.sockets.nix-daemon.wantedBy = [ "sockets.target" ];
+    environment.variables = nixEnv;
+    systemd.globalEnvironment = nixEnv;
 
-    # writable /nix over read-only image /nix.
-    # Skipped in containers where /nix is already writable.
     systemd.mounts = [
       {
-        where = "/nix";
+        where = "/run/nix-lower/nix";
+        what = "/nix";
+        options = "bind,ro";
+        after = [ "ostree-remount.service" ];
+        wants = [ "ostree-remount.service" ];
+        unitConfig.DefaultDependencies = false;
+      }
+      {
+        where = "/nix/store";
         what = "overlay";
         type = "overlay";
-        options = "lowerdir=/nix,upperdir=/var/nix/upper,workdir=/var/nix/work";
+        options = "lowerdir=/run/nix-lower/nix/store,upperdir=/var/nix/store/upper,workdir=/var/nix/store/work";
         wantedBy = [ "local-fs.target" ];
         before = [ "local-fs.target" ];
+        after = [ "${utils.escapeSystemdPath "/run/nix-lower/nix"}.mount" ];
+        requires = [ "${utils.escapeSystemdPath "/run/nix-lower/nix"}.mount" ];
         unitConfig = {
           DefaultDependencies = false;
           RequiresMountsFor = "/var";
-          ConditionPathIsReadWrite = "!/nix";
+          ConditionPathIsReadWrite = "!/nix/store";
+        };
+      }
+      # makes sure the image's gcroots are always fresh
+      {
+        where = "/var/nix/overlay-state/gcroots/docker";
+        what = "/run/nix-lower/nix/var/nix/gcroots/docker";
+        options = "bind,ro";
+        after = [ "${utils.escapeSystemdPath "/run/nix-lower/nix"}.mount" ];
+        requires = [ "${utils.escapeSystemdPath "/run/nix-lower/nix"}.mount" ];
+        unitConfig = {
+          DefaultDependencies = false;
+          RequiresMountsFor = "/var";
+        };
+      }
+      {
+        where = "/nix/var/nix";
+        what = "tmpfs";
+        type = "tmpfs";
+        options = "mode=0755";
+        unitConfig = {
+          DefaultDependencies = false;
+          ConditionPathIsReadWrite = "!/nix/var/nix";
         };
       }
     ];
 
     systemd.tmpfiles.rules = [
-      "d /var/nix 0755 root root -"
-      "d /var/nix/upper 0755 root root -"
-      "d /var/nix/work 0755 root root -"
+      "d /var/nix/store/upper 0755 root root -"
+      "d /var/nix/store/work 0755 root root -"
+      "d /var/nix/overlay-state/gcroots 0755 root root -"
+      "d /var/nix/overlay-state/db 0755 root root -"
+      "d /var/nix/overlay-state/profiles 0755 root root -"
+      "d /var/nix/overlay-state/temproots 0755 root root -"
+      "d /var/nix/overlay-state/userpool 0755 root root -"
     ];
 
-    systemd.services.nix-directory-setup = {
-      description = "Create Nix daemon directories";
+    systemd.services.nix-daemon-socket-setup = {
+      requires = [ "${utils.escapeSystemdPath "/nix/var/nix"}.mount" ];
       after = [
-        "nix.mount"
-        "local-fs.target"
+        "${utils.escapeSystemdPath "/nix/var/nix"}.mount"
       ];
-      before = [ "nix-daemon.socket" ];
-      wantedBy = [ "sockets.target" ];
       unitConfig.DefaultDependencies = false;
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
       };
       script = ''
-        mkdir -p /nix/var/nix/{db,daemon-socket,gcroots,profiles,temproots,userpool}
+        install -dm 0755 /nix/var/nix/daemon-socket
       '';
+    };
+
+    systemd.sockets.nix-daemon = {
+      wantedBy = [ "sockets.target" ];
+      requires = [ "nix-daemon-socket-setup.service" ];
+      after = [ "nix-daemon-socket-setup.service" ];
+    };
+
+    systemd.services.nix-daemon = {
+      serviceConfig.ExecStart = [
+        ""
+        "@${cfg.package}/bin/nix-daemon nix-daemon --daemon --option store ${localOverlayStoreUrl}"
+      ];
+      requires = [ "${utils.escapeSystemdPath "/var/nix/overlay-state/gcroots/docker"}.mount" ];
+      after = [ "${utils.escapeSystemdPath "/var/nix/overlay-state/gcroots/docker"}.mount" ];
     };
 
     users.groups.nixbld.gid = 30000;
@@ -138,6 +199,7 @@ in
     );
 
     environment.etc."nix/nix.conf".text =
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = ${formatValue v}") cfg.settings) + "\n";
+      lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = ${formatValue v}") cfg.settings)
+      + "\n";
   };
 }
