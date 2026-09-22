@@ -5,9 +5,6 @@ This module is functional, but it is not yet fully featured, some aspects of the
 
 Enabling `config.nix.enable` requires `config.caliga.core.etc-usr.enable`, `config.caliga.core.systemd.enable`, `config.caliga.core.tmpfiles.enable`, and `config.caliga.core.users.enable` to all be true.
 
-## Writable /nix Overlay
-On a bootc system `/nix` is part of the read only image. To allow the Nix daemon to install packages and manage the nix store, we create an overlay mount over `/nix` with its upper directory at `/var/nix/upper` and work directory at `/var/nix/work` (/var being mutable and persistant). The overlay mount only occurs on systems where /nix is actually read only. In a container the overlay mount won't actually be created.
-
 ## Nix Daemon
 The nix-daemon service and socket units are pulled in through `config.systemd.packages` from the Nix package itself. It's not tested, but other "nix" packages should work in place.
 
