@@ -32,6 +32,14 @@ selinux.fileContexts = {
 };
 ```
 
+## File Context Substitutions
+Paths can be labeled with the same context rules as another path with `config.selinux.fileContextSubs`. 
+```nix
+selinux.fileContextSubs = {
+  "/var/nix/store/upper" = "/nix/store";
+};
+```
+
 ## Options
 
 Enabled with `config.caliga.core.selinux.enable`.
@@ -41,7 +49,9 @@ Enabled with `config.caliga.core.selinux.enable`.
 - `config.selinux.labelServiceExecs`
   - List of systemd service names whose Exec store paths need to be labeled `bin_t`.
 - `config.selinux.fileContexts`
-  - Extra SELinux file context rules.
+  - Extra SELinux file context rules (`file_contexts.local`).
+- `config.selinux.fileContextSubs`
+  - SELinux context substitutions (`file_contexts.subs`).
 - `config.selinux.enforcementMode`
   - SELinux enforcement mode. Defers to the base image by default.
 - `config.selinux.ignoreWarnings`

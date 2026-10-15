@@ -10,6 +10,7 @@
     ./userborn.nix
     "${pkgs.path}/nixos/modules/misc/ids.nix"
     "${pkgs.path}/nixos/modules/misc/meta.nix"
+    "${pkgs.path}/nixos/modules/services/misc/nix-gc.nix"
 
     # security-wrappers
     ./security-wrappers.nix
