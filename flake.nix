@@ -16,6 +16,8 @@
         config.allowUnfree = true;
       };
 
+      tests = import ./tests { inherit pkgs self; };
+
       imageConfigs = {
         fedora-bootc = ./images/fedora-bootc;
         fedora-base-atomic = ./images/fedora-base-atomic;
@@ -45,6 +47,9 @@
           modules = [ configPath ];
         }
       ) imageConfigs;
+
+      packages.x86_64-linux = tests.packages;
+      apps.x86_64-linux = tests.apps;
 
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = [
