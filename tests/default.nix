@@ -1,18 +1,13 @@
 # runner: packages.x86_64-linux.<name>
 # tests: apps.x86_64-linux.<name> (nix run .#<name>)
-{
-  pkgs,
-  self,
-}:
+{ pkgs, self }:
 let
   lib = pkgs.lib;
   images = import ./lib/images.nix { inherit pkgs lib self; };
   runner = import ./lib/runner.nix { inherit pkgs lib; };
 
   configs = {
-    base = [
-      ./configs/base.nix
-    ];
+    base = [ ./configs/base.nix ];
   };
 
   runners = lib.mapAttrs (

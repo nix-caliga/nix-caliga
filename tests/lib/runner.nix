@@ -1,8 +1,5 @@
 # name + test image + test file
-{
-  pkgs,
-  lib,
-}:
+{ pkgs, lib }:
 {
   mkRunner =
     {
