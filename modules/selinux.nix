@@ -67,6 +67,13 @@ let
     + "\n"
   );
 
+  fileContextsSubs = pkgs.writeText "file_contexts.subs" (
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (alias: original: "${alias} ${original}") cfg.fileContextSubs
+    )
+    + "\n"
+  );
+
 in
 {
   options.selinux = {
@@ -115,7 +122,18 @@ in
         "/srv/app(/.*)?" = "httpd_sys_content_t";
       };
       description = ''
-        Extra SELinux file context rules.
+        Extra SELinux file context rules (file_contexts.local).
+      '';
+    };
+
+    fileContextSubs = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      example = {
+        "/var/nix/store/upper" = "/nix/store";
+      };
+      description = ''
+        SELinux context substitutions (file_contexts.subs).
       '';
     };
   };
@@ -126,6 +144,14 @@ in
         # needs mode set so that environment.usr doesn't use a symlink
         environment.etc."selinux/targeted/contexts/files/file_contexts.local" = {
           source = fileContextsLocal;
+          mode = "0644";
+        };
+      })
+
+      (lib.mkIf (cfg.fileContextSubs != { }) {
+        # needs mode set so that environment.usr doesn't use a symlink
+        environment.etc."selinux/targeted/contexts/files/file_contexts.subs" = {
+          source = fileContextsSubs;
           mode = "0644";
         };
       })

@@ -204,8 +204,6 @@ in
           Enable caliga.core.selinux.enable or set selinux.ignoreWarnings = true to silence this warning.
         '';
 
-      layeredImage.enableFakechroot = lib.mkIf (hasEtcFile || hasUsrFile) true;
-
       layeredImage.fakeRootCommands =
         lib.optionalString hasEtcFile (mkFakeRootCommands "etc" etcParts.file)
         + lib.optionalString (hasEtcFile && hasUsrFile) "\n"
