@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-695628cb.js";
+            window.path_to_searchindex_js = "searchindex-4deb62a4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-60407d5a.js"></script>
@@ -200,6 +200,12 @@ This file is placed using <code>config.environment.etc</code> as a real file, as
   "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
 };
 </code></pre>
+<h2 id="file-context-substitutions"><a class="header" href="#file-context-substitutions">File Context Substitutions</a></h2>
+<p>Paths can be labeled with the same context rules as another path with <code>config.selinux.fileContextSubs</code>.</p>
+<pre><code class="language-nix">selinux.fileContextSubs = {
+  "/var/nix/store/upper" = "/nix/store";
+};
+</code></pre>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.selinux.enable</code>.</p>
 <ul>
@@ -215,7 +221,12 @@ This file is placed using <code>config.environment.etc</code> as a real file, as
 </li>
 <li><code>config.selinux.fileContexts</code>
 <ul>
-<li>Extra SELinux file context rules.</li>
+<li>Extra SELinux file context rules (<code>file_contexts.local</code>).</li>
+</ul>
+</li>
+<li><code>config.selinux.fileContextSubs</code>
+<ul>
+<li>SELinux context substitutions (<code>file_contexts.subs</code>).</li>
 </ul>
 </li>
 <li><code>config.selinux.enforcementMode</code>

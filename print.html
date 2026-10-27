@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-695628cb.js";
+            window.path_to_searchindex_js = "searchindex-4deb62a4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-60407d5a.js"></script>
@@ -581,21 +581,87 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="nix"><a class="header" href="#nix">Nix</a></h1>
-<p>Nix-caliga does not require the nix package itself, or a nix-daemon to be on the bootc images it creates.<br>However you may still want nix and the nix-daemon to be available on your system. <code>config.nix.enable</code> sets the nix-daemon up.<br>This module is functional, but it is not yet fully featured, some aspects of the nix configuration are not easily accessible.</p>
-<p>Enabling <code>config.nix.enable</code> requires <code>config.caliga.core.etc-usr.enable</code>, <code>config.caliga.core.systemd.enable</code>, <code>config.caliga.core.tmpfiles.enable</code>, and <code>config.caliga.core.users.enable</code> to all be true.</p>
-<h2 id="writable-nix-overlay"><a class="header" href="#writable-nix-overlay">Writable /nix Overlay</a></h2>
-<p>On a bootc system <code>/nix</code> is part of the read only image. To allow the Nix daemon to install packages and manage the nix store, we create an overlay mount over <code>/nix</code> with its upper directory at <code>/var/nix/upper</code> and work directory at <code>/var/nix/work</code> (/var being mutable and persistant). The overlay mount only occurs on systems where /nix is actually read only. In a container the overlay mount won’t actually be created.</p>
+<p>Nix-caliga does not require the nix package itself, or a nix-daemon to be on the bootc images it creates.<br>However you may still want nix and the nix-daemon to be available on your system. <code>config.nix.enable</code> sets the nix-daemon up, using a local-overlay-store on top of the nix store built into the image.<br>Overlay stores are functional, but they do have some quirks to be aware of.</p>
+<p>Enabling <code>config.nix.enable</code> requires:</p>
+<ul>
+<li><code>config.caliga.core.etc-usr.enable = true</code></li>
+<li><code>config.caliga.core.systemd.enable = true</code></li>
+<li><code>config.caliga.core.tmpfiles.enable = true</code></li>
+<li><code>config.caliga.core.users.enable = true</code></li>
+<li><code>config.layeredImage.enableFakechroot = false</code></li>
+</ul>
+<h2 id="local-overlay-store"><a class="header" href="#local-overlay-store">Local Overlay Store</a></h2>
+<p>On a bootc system <code>/nix</code> is part of the read only image. Nix-caliga sets the nix-daemon up with a <a href="https://nix.dev/manual/nix/latest/store/types/experimental-local-overlay-store">local-overlay-store</a>, using the image’s nix store as a read only lower store and keeping all new store paths and Nix state in <code>/var/nix</code> (which is mutable and persistent).</p>
+<ul>
+<li>The image’s <code>/nix</code> is bind mounted, private and read only to <code>/run/nix-lower/nix</code> and used as the lower store.</li>
+<li><code>/nix/store</code> is an overlay mount with the lower directory at <code>/run/nix-lower/nix/store</code>, the upper directory at <code>/var/nix/store/upper</code> and work directory at <code>/var/nix/store/work</code>.</li>
+<li>Nix state and logs live in <code>/var/nix/var</code>, which is bind mounted back to <code>/nix/var</code> where they are expected to be.</li>
+<li>The image’s <code>/nix/var/nix/gcroots/docker</code> is bind mounted to <code>/var/nix/var/nix/gcroots/docker</code> so the gcroots for the current image are always up to date for the upper store.</li>
+<li>The daemon socket is at <code>/nix/var/nix/daemon-socket/socket</code>.</li>
+</ul>
+<h2 id="running-in-a-container"><a class="header" href="#running-in-a-container">Running in a Container</a></h2>
+<p>To run the image as a container with full nix-daemon functionality, rootful and cap <code>SYS_ADMIN</code> are required.
+Partial functionality may still be available rootless and without added capabilities.</p>
+<p>Additionally to avoid OverlayFS issues, /var/nix for the upper store can’t be on podman’s default OverlayFS filesystem.</p>
+<pre><code>sudo podman run --cap-add SYS_ADMIN --tmpfs /var/nix &lt;image&gt;
+</code></pre>
+<p>To keep installed packages between runs mount <code>/var/nix</code> to persistent storage.</p>
+<h2 id="image-updates"><a class="header" href="#image-updates">Image Updates</a></h2>
+<p>Nix requires the lower store of a local-overlay-store to <a href="https://nix.dev/manual/nix/latest/store/types/experimental-local-overlay-store">“only grow, and not change in other ways”</a>. A bootc upgrade, rollback or switch will likely break that.
+The upper store keeps its own database in <code>/var/nix/var/nix/db</code>. A package installed in the upper store will reference dependencies it needs from the lower store if they exist. This causes issues if those dependencies no longer exist after an image change.</p>
+<p><code>config.nix.onImageChange</code> chooses how to handle the upper store when the image’s nix store changes. Defaults to <code>full-reset</code>.</p>
+<h3 id="detecting-changes"><a class="header" href="#detecting-changes">Detecting Changes</a></h3>
+<p>The image’s gcroots in <code>/run/nix-lower/nix/var/nix/gcroots/docker</code> are used as a fingerprint of the lower store.
+Early in boot, before <code>/nix/store</code> is mounted, <code>gcroots/docker</code> is compared with the previous fingerprint saved in <code>/var/nix/lower-store-roots</code>.</p>
+<ul>
+<li>If it’s the same (or lower-store-roots is empty) nothing happens.</li>
+<li>Otherwise the onImageChange services are triggered.</li>
+</ul>
+<p>Currently there is no difference between a “growing” or “shrinking” lower store, any change to the store will result in the selected option’s behavior.</p>
+<h3 id="attempt-repair"><a class="header" href="#attempt-repair">Attempt Repair</a></h3>
+<p><code>attempt-repair</code> tries to repair the upper store. This will not solve all issues that may arise. Repair can only download paths again that a substituter has, paths that were built locally can’t be restored this way.</p>
+<ul>
+<li><code>nix-image-change-verify.service</code> runs offline before the nix-daemon starts.
+<ul>
+<li><code>nix-store --optimise</code> removes paths from the upper store that the new image now provides, and <code>nix-store --verify</code> drops paths that disappeared and that nothing uses anymore.</li>
+<li><code>nix-store --verify</code> checks the paths in the upper store’s database, including the references to the lower store it depends on.</li>
+</ul>
+</li>
+<li><code>nix-image-change-repair.service</code> runs <code>nix-store --verify --repair</code> through the daemon once the network is up.
+<ul>
+<li>Missing paths that installed packages still depend on are downloaded again from the substituters, this needs network access.</li>
+</ul>
+</li>
+</ul>
+<h3 id="full-reset"><a class="header" href="#full-reset">Full Reset</a></h3>
+<p><code>full-reset</code> deletes the upper store <code>/var/nix/store/upper</code>, <code>/var/nix/store/work</code>, <code>/var/nix/var</code> and user profiles, before <code>/nix/store</code> and <code>/nix/var</code> are mounted, then recreates them with tmpfiles.</p>
+<p>This is likely the most “supported” action as it will ensure that the store overlay operates correctly. But obviously it does mean that any contents in the upper store are gone.</p>
+<h3 id="do-nothing"><a class="header" href="#do-nothing">Do Nothing</a></h3>
+<p><code>do-nothing</code> leaves <code>/var/nix</code> as is, stale paths stay registered. And the repair for any issues is left to you.</p>
+<h3 id="manual-reset"><a class="header" href="#manual-reset">Manual Reset</a></h3>
+<p><code>systemctl start nix-upper-store-reset</code> wipes the upper store on a running system.<br>It stops the nix-daemon, unmounts <code>/nix/store</code> and <code>/nix/var</code>, deletes <code>/var/nix/store/upper</code>, <code>/var/nix/store/work</code>, <code>/var/nix/var</code>, and deletes the per-user profiles before it recreates them empty with tmpfiles and mounts them again.</p>
+<h2 id="garbage-collection"><a class="header" href="#garbage-collection">Garbage Collection</a></h2>
+<p><code>nix-collect-garbage</code> only deletes paths from the upper store, the image’s paths are in the read only lower store and can’t be deleted.<br>Deleting a path that is in both layers has to bypass the overlay and delete it from <code>/var/nix/store/upper</code> directly, after which the overlay has to be remounted. The store is set up with a <code>remount-hook</code> that remounts <code>/nix/store</code> when this happens, the same applies to <code>nix-store --optimise</code>, which removes upper copies of paths the image now provides.</p>
+<p>The <code>nix-gc.service</code> and the <code>config.nix.gc</code> options come from and are identical to the NixOS <code>nix-gc.nix</code> module.</p>
 <h2 id="nix-daemon"><a class="header" href="#nix-daemon">Nix Daemon</a></h2>
-<p>The nix-daemon service and socket units are pulled in through <code>config.systemd.packages</code> from the Nix package itself. It’s not tested, but other “nix” packages should work in place.</p>
+<p>The nix-daemon service and socket units are pulled in through <code>config.systemd.packages</code> from the Nix package itself.<br><code>config.nix.package</code> should work with any “nix” package that has support for the <code>local-overlay-store</code> and <code>read-only-local-store</code> experimental features.
+The nix-daemon service is overridden to pass the local-overlay-store as its store.</p>
 <h2 id="image-nix-database"><a class="header" href="#image-nix-database">Image Nix Database</a></h2>
-<p>If the nix-daemon is enabled, <code>config.layeredImage.includeNixDB</code> (see <a href="#build-image">buildImage</a>) is set to <code>true</code> so that the Nix database from the image build is included. This allows the daemon to be aware of store paths that were baked into the image.</p>
+<p>If the nix-daemon is enabled, <code>config.layeredImage.includeNixDB</code> (see <a href="#build-image">buildImage</a>) is set to <code>true</code> so that the Nix database from the image build is included.</p>
 <h2 id="nix-configuration"><a class="header" href="#nix-configuration">Nix Configuration</a></h2>
-<p>A <code>nix.conf</code> is placed at <code>/etc/nix/nix.conf</code> with flakes and the nix-command experimental features enabled along with the nixpkgs path set from the flake input. Additional settings can be configured through <code>config.nix.settings</code>.<br>Eventually the nix-caliga nix-daemon will be more configurable. Hopefully pulling in more of the configuration directly from NixOS.</p>
+<p>A <code>nix.conf</code> is placed at <code>/etc/nix/nix.conf</code> with the defaults <code>store = daemon</code>, <code>build-users-group = nixbld</code>, the <code>nix-path</code> from <a href="#pinned-nixpkgs">Pinned nixpkgs</a> and the <code>nix-command</code> and <code>flakes</code> experimental features enabled. Settings can be configured through <code>config.nix.settings</code>.
+The <code>local-overlay-store</code> and <code>read-only-local-store</code> experimental features are always enabled, the overlay store requires them.</p>
+<h3 id="pinned-nixpkgs"><a class="header" href="#pinned-nixpkgs">Pinned nixpkgs</a></h3>
+<p><code>config.nix.nixpkgs</code> sets what <code>nixpkgs</code> points to, in <code>/etc/nix/registry.json</code>, by default it reuses the same pin as the image was built with.
+Any path or flake input is pinned the same way, it’s added to the image.</p>
+<pre><code class="language-nix">nix.nixpkgs = inputs.nixpkgs-unstable;
+</code></pre>
+<p>If set to <code>null</code> it is left to the booted system to configure.</p>
 <h2 id="options-3"><a class="header" href="#options-3">Options</a></h2>
 <ul>
 <li><code>config.nix.enable</code>
 <ul>
-<li>Enable the Nix package and daemon.</li>
+<li>Enable the Nix package and daemon using a local-overlay-store on top of the image’s nix store.</li>
 </ul>
 </li>
 <li><code>config.nix.package</code>
@@ -610,7 +676,22 @@ If <code>config.caliga.core.containerfile.enable</code> is true, then after the 
 </li>
 <li><code>config.nix.settings</code>
 <ul>
-<li>Additional settings for <code>nix.conf</code> as an attrset. Merged with the (currently) fixed defaults (<code>build-users-group</code>, <code>experimental-features</code>, <code>nix-path</code>).</li>
+<li>Settings for <code>nix.conf</code> see <a href="#nix-configuration">Nix Configuration</a>. <code>local-overlay-store</code> and <code>read-only-local-store</code> experimental features are always enabled.</li>
+</ul>
+</li>
+<li><code>config.nix.nixpkgs</code>
+<ul>
+<li>What <code>nixpkgs</code> is pinned to, a path or flake input, or <code>null</code> for unmanaged. Defaults to the nixpkgs the image is built with.</li>
+</ul>
+</li>
+<li><code>config.nix.gc</code>
+<ul>
+<li>Fully imported from the upstream NixOS <code>nix.gc</code> options.</li>
+</ul>
+</li>
+<li><code>config.nix.onImageChange</code>
+<ul>
+<li>What to do with the upper store in <code>/var/nix</code> when the image’s nix store changes. One of <code>attempt-repair</code>, <code>full-reset</code> or <code>do-nothing</code>. Defaults to <code>full-reset</code>.</li>
 </ul>
 </li>
 </ul>
@@ -641,6 +722,12 @@ This file is placed using <code>config.environment.etc</code> as a real file, as
   "/nix/store/[^/]+/etc(/.*)?" = "etc_t";
 };
 </code></pre>
+<h2 id="file-context-substitutions"><a class="header" href="#file-context-substitutions">File Context Substitutions</a></h2>
+<p>Paths can be labeled with the same context rules as another path with <code>config.selinux.fileContextSubs</code>.</p>
+<pre><code class="language-nix">selinux.fileContextSubs = {
+  "/var/nix/store/upper" = "/nix/store";
+};
+</code></pre>
 <h2 id="options-4"><a class="header" href="#options-4">Options</a></h2>
 <p>Enabled with <code>config.caliga.core.selinux.enable</code>.</p>
 <ul>
@@ -656,7 +743,12 @@ This file is placed using <code>config.environment.etc</code> as a real file, as
 </li>
 <li><code>config.selinux.fileContexts</code>
 <ul>
-<li>Extra SELinux file context rules.</li>
+<li>Extra SELinux file context rules (<code>file_contexts.local</code>).</li>
+</ul>
+</li>
+<li><code>config.selinux.fileContextSubs</code>
+<ul>
+<li>SELinux context substitutions (<code>file_contexts.subs</code>).</li>
 </ul>
 </li>
 <li><code>config.selinux.enforcementMode</code>
