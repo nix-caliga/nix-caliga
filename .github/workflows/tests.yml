@@ -22,5 +22,5 @@ jobs:
 
       - name: Run bcvk bats tests
         run: |
-          export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+          chown -R root:root "$GITHUB_WORKSPACE"
           nix run .#base
