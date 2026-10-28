@@ -23,4 +23,4 @@ jobs:
       - name: Run bcvk bats tests
         run: |
           chown -R root:root "$GITHUB_WORKSPACE"
-          nix run ./tests#base
+          nix run .#base

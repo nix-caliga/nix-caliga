@@ -5,7 +5,7 @@
 }:
 {
   mkImage =
-    { name, modules, fromImage ? null }:
+    { name, modules }:
     let
       eval = self.lib.makeCaligaConfigurations {
         inherit pkgs;
@@ -14,7 +14,7 @@
             layeredImage.name = "localhost/caliga-tests";
             layeredImage.tag = name;
           }
-        ] ++ lib.optional (fromImage != null) { layeredImage = { inherit fromImage; }; };
+        ];
       };
     in
     eval.config.build.image;

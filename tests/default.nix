@@ -1,6 +1,6 @@
 # runner: packages.x86_64-linux.<name>
 # tests: apps.x86_64-linux.<name> (nix run .#<name>)
-{ pkgs, self, fromImage ? null }:
+{ pkgs, self }:
 let
   lib = pkgs.lib;
   images = import ./lib/images.nix { inherit pkgs lib self; };
@@ -14,7 +14,7 @@ let
     name: modules:
     runner.mkRunner {
       inherit name;
-      image = images.mkImage { inherit name modules fromImage; };
+      image = images.mkImage { inherit name modules; };
       testFile = "${name}.bats";
     }
   ) configs;
