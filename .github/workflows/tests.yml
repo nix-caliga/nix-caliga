@@ -1,0 +1,23 @@
+name: tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  bcvk:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/fedora/fedora:44
+      options: --privileged --device /dev/kvm
+
+    steps:
+      - name: Install dependencies
+        run: dnf install -y podman bootc bcvk bats git-core curl fuse-overlayfs
+
+      - uses: actions/checkout@v7
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Run bcvk bats tests
+        run: nix run .#base
