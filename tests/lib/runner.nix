@@ -25,7 +25,7 @@
             printf -v args '%q ' "$@"
             distrobox-host-exec env -u CONTAINER_HOST bash -lc "export PATH=/var/home/$USER/.local/bin:\$PATH; bcvk $args"
           else
-            env -u CONTAINER_HOST command bcvk "$@"
+            env -u CONTAINER_HOST bcvk "$@"
           fi
         }
 
