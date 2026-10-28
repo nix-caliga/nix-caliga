@@ -20,6 +20,8 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@main
 
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
       - name: Run bcvk bats tests
         run: |
           chown -R root:root "$GITHUB_WORKSPACE"
