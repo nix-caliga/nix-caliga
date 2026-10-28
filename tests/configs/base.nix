@@ -2,7 +2,7 @@
 {
   layeredImage.fromImage = pkgs.dockerTools.pullImage {
     imageName = "quay.io/fedora/fedora-bootc";
-    imageDigest = "sha256:a329903517f5dbd709721cba0cb1b6d0cc05f01b9e5feb59c2b6bbe9eb083ade";
+    imageDigest = "sha256:ac84835b92a08027b1f7579cc85483bd886ccd007d1e976680195ff50bd4a870";
     hash = "sha256-i0TI2SO9O7Zi5Ni07bZrB8jJxsAnjM4/095rjT0iuIw=";
     finalImageName = "quay.io/fedora/fedora-bootc";
     finalImageTag = "44";
