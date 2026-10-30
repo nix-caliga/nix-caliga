@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  bcvk:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: "write"
+      contents: "read"
+
+    env:
+      LIBVIRT_DEFAULT_URI: "qemu:///session"
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: bootc-dev/actions/bootc-host-setup@main
+        with:
+          libvirt: "true"
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run bcvk bats tests
+        run: nix run .#base

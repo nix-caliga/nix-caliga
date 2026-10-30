@@ -6,15 +6,14 @@
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-    }:
+    { self, nixpkgs }:
     let
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         config.allowUnfree = true;
       };
+
+      tests = import ./tests { inherit pkgs self; };
 
       imageConfigs = {
         fedora-bootc = ./images/fedora-bootc;
@@ -45,6 +44,9 @@
           modules = [ configPath ];
         }
       ) imageConfigs;
+
+      packages.x86_64-linux = tests.packages;
+      apps.x86_64-linux = tests.apps;
 
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = [
