@@ -12,6 +12,10 @@ jobs:
       image: quay.io/fedora/fedora:44
       options: --privileged --device /dev/kvm
 
+    permissions:
+      id-token: "write"
+      contents: "read"
+
     steps:
       - name: Install dependencies
         run: dnf install -y podman bootc bats git-core curl fuse-overlayfs
