@@ -137,8 +137,8 @@ in
           set -euo pipefail
           tmp=$(${pkgs.coreutils}/bin/mktemp -d)
           trap '${pkgs.coreutils}/bin/rm -rf "$tmp"' EXIT
-          ${baseImage} > "$tmp/base.tar"
-          sudo ${pkgs.podman}/bin/podman build --from "docker-archive:$tmp/base.tar" -f ${containerfile} -t "${imgCfg.name}:${imgCfg.tag}" "$tmp" >&2
+          ${baseImage} | sudo ${pkgs.podman}/bin/podman load >&2
+          sudo ${pkgs.podman}/bin/podman build --from "${imgCfg.name}:${imgCfg.tag}" -f ${containerfile} -t "${imgCfg.name}:${imgCfg.tag}" "$tmp" >&2
           sudo ${pkgs.podman}/bin/podman save "${imgCfg.name}:${imgCfg.tag}"
         '';
       in
