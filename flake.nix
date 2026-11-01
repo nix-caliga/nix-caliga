@@ -21,6 +21,7 @@
         fedora-base-atomic = ./images/fedora-base-atomic;
         fedora-silverblue = ./images/fedora-silverblue;
         fedora-kinoite = ./images/fedora-kinoite;
+        almalinux-bootc = ./images/almalinux-bootc;
         ublue-base-main = ./images/ublue-base-main;
         ublue-silverblue-main = ./images/ublue-silverblue-main;
         ublue-kinoite-main = ./images/ublue-kinoite-main;

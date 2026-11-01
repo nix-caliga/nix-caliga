@@ -31,6 +31,7 @@ I have done minimal testing with these other bootc images. But everything appear
 | [fedora-base-atomic](https://quay.io/repository/fedora-ostree-desktops/base-atomic) | `fedora` | |
 | [fedora-kinoite](https://quay.io/repository/fedora-ostree-desktops/kinoite) | `fedora` | |
 | [fedora-silverblue](https://quay.io/repository/fedora-ostree-desktops/silverblue) | `fedora` | |
+| [almalinux-bootc](https://quay.io/repository/almalinuxorg/almalinux-bootc) | `fedora` | |
 | [ublue-aurora](https://github.com/ublue-os/aurora) | `fedora` | |
 | [ublue-base-main](https://github.com/ublue-os/main) | `fedora` | |
 | [ublue-bazzite](https://github.com/ublue-os/bazzite) | `fedora` | |
